@@ -1,0 +1,17 @@
+{
+  "name": "task_1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "lodash": "^4.17.21"
+  }
+}
