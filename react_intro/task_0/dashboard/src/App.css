@@ -1,36 +1,23 @@
-.App {
-	min-height: 100vh;
-}
-
 .App-header {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: start;
-	font-size: calc(10px + 2vmin);
-	border-bottom: solid 5px rgb(223, 14, 14);;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e1003c;
 }
 
-.App-header p {
-	color: rgb(223, 14, 14);
-	font-weight: bold;
+.App-header h1 {
+  color: #e1003c;
 }
 
 .App-body {
-	min-height: 50vh;
-	border-bottom: solid 5px rgb(223, 14, 14);;
-}
-
-.App-body p {
-	margin-left: 100px;
-	margin-top: 50px;
-}
-
-.App-link {
-	color: #61dafb;
+  margin: 20px;
 }
 
 .App-footer {
-	text-align: center;
-	font-style: italic;
+  position: absolute;
+  bottom: 0;
+  min-width: 100vw;
+  font-size: 16px;
+  border-top: 1px solid #e1003c;
+  text-align: center;
+  font-style: italic;
 }

@@ -1,53 +1,43 @@
-interface Student{
+interface Student {
     firstName: string,
     lastName: string,
     age: number,
-    location: string
+    location: string,
 }
 
 const student1: Student = {
-    firstName:"Shawan",
-    lastName:"Barua",
-    age:18,
-    location:"New Zeland"
-}
+    firstName: "Shoes",
+    lastName: "Cheese",
+    age: 61,
+    location: "EveryWhere"
+};
 
 const student2: Student = {
-    firstName:"Hugo",
-    lastName:"Posey",
-    age:23,
-    location:"Irland"
+    firstName: "Capybara",
+    lastName: "Potato",
+    age: 33,
+    location: "NotBornYet"
+};
+
+const studentsList: Array<Student> = [student1, student2]
+
+const table: HTMLTableElement = document.createElement('table');
+
+document.body.appendChild(table);
+
+const thead: HTMLTableSectionElement = document.createElement('thead');
+thead.innerHTML = '<tr><th>FirstName</th><th>Location</th></tr>';
+table.appendChild(thead);
+const tbody: HTMLTableSectionElement = document.createElement('tbody');
+table.appendChild(tbody);
+for (let i: number = 0; i < studentsList.length; i++) {
+    const row: HTMLTableRowElement = document.createElement('tr');
+    const th1: HTMLTableCellElement = document.createElement('th');
+    const th2: HTMLTableCellElement = document.createElement('th');
+    th1.innerHTML = studentsList[i].firstName;
+    th2.innerHTML = studentsList[i].location;
+    row.appendChild(th1);
+    row.appendChild(th2);
+
+    tbody.appendChild(row);
 }
-
-let studentsList: Student[] = [student1,student2]
-
-
-function displayStudents(students: Student[]): void {
-    const table = document.createElement('table');
-    const tbody = document.createElement('tbody');
-    table.appendChild(tbody);
-  
-    const header = document.createElement('tr');
-    const headerName = document.createElement('th');
-    headerName.textContent = 'First Name';
-    const headerLocation = document.createElement('th');
-    headerLocation.textContent = 'Location';
-    header.appendChild(headerName);
-    header.appendChild(headerLocation);
-    tbody.appendChild(header);
-  
-    students.forEach(student => {
-      const row = document.createElement('tr');
-      const nameCell = document.createElement('td');
-      nameCell.textContent = student.firstName;
-      const locationCell = document.createElement('td');
-      locationCell.textContent = student.location;
-      row.appendChild(nameCell);
-      row.appendChild(locationCell);
-      tbody.appendChild(row);
-    });
-  
-    document.body.appendChild(table);
-  }
-  
-document.addEventListener('DOMContentLoaded', () => displayStudents(studentsList));

@@ -1,5 +1,20 @@
+#btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#btn:hover {
+    background-color: #45a049;
+}
 #count {
-	font-weight: bold;
-	display: inline;
-	margin-left: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+p {
+    text-align: center;
 }

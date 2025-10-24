@@ -1,66 +1,80 @@
 interface DirectorInterface {
-    workFromHome():string,
-    getCoffeeBreak():string,
-    workDirectorTasks():string
+    workFromHome(): string;
+    getCoffeeBreak(): string;
+    workDirectorTasks(): string;
 }
 
-interface TeacherInterface{
-    workFromHome():string,
-    getCoffeeBreak():string,
-    workTeacherTasks():string
+interface TeacherInterface {
+    workFromHome(): string;
+    getCoffeeBreak(): string;
+    workTeacherTasks(): string;
 }
 
-class Teacher implements TeacherInterface{
-    workFromHome(): string {
-        return "Cannot work from home"
-    }
-    getCoffeeBreak():string{
-        return "Cannot have a break"
-    }
-    workTeacherTasks():string{
-        return "Getting to work"
-    }
-}
 class Director implements DirectorInterface {
     workFromHome(): string {
         return "Working from home";
     }
+
     getCoffeeBreak(): string {
         return "Getting a coffee break";
     }
+
     workDirectorTasks(): string {
-        return "Getting to director tasks"
+        return "Getting to director tasks";
+    }
+
+    toString(): string {
+        return "Director";
     }
 }
 
-function createEmployee(salary: number | string): DirectorInterface | TeacherInterface {
-    const numericSalary = typeof salary === 'number' ? salary : parseFloat(salary.toString().replace(/[^0-9.-]+/g, ''));
+class Teacher implements TeacherInterface {
+    workFromHome(): string {
+        return "Cannot work from home";
+    }
 
-    if (typeof numericSalary === 'number' && numericSalary < 500) {
-        return new Teacher;
+    getCoffeeBreak(): string {
+        return "Cannot have a break";
+    }
+
+    workTeacherTasks(): string {
+        return "Getting to work";
+    }
+
+    toString(): string {
+        return "Teacher";
+    }
+}
+
+function createEmployee(salary: number | string): Director | Teacher {
+    if (typeof salary === "number" && salary < 500) {
+        return new Teacher();
     } else {
-        return new Director;
+        return new Director();
     }
 }
 
-
-function isDirector(employee: DirectorInterface | TeacherInterface): employee is DirectorInterface {
-    return (employee as unknown as DirectorInterface).workDirectorTasks !== undefined;
+function isDirector(employee: Director | Teacher): employee is Director {
+    return employee instanceof Director;
 }
 
-function executeWork(employee: DirectorInterface | TeacherInterface): string {
+function executeWork(employee: Director | Teacher): void {
     if (isDirector(employee)) {
-        return employee.workDirectorTasks();
+        console.log(employee.workDirectorTasks());
     } else {
-        return employee.workTeacherTasks();
+        console.log(employee.workTeacherTasks());
     }
 }
 
-type Subjects = "Math" | "History"
+type Subjects = "Math" | "History";
 
-function  teachClass(todayClass:Subjects): string {
-    if (todayClass === "Math"){
-        return "Teaching Math"
+function teachClass(todayClass: Subjects): string {
+    if (todayClass === "Math") {
+        return "Teaching Math";
+    } else if (todayClass === "History") {
+        return "Teaching History";
     }
-    return "Teaching History"
 }
+
+console.log(teachClass("Math"));
+console.log(teachClass("History"));

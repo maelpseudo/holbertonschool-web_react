@@ -1,4 +1,4 @@
-.Notifications {
-	border: solid 5px green;
-	padding: 20px;
+.root-Notifications {
+    border: 2px #e1003c dashed;
+    padding-left: 20px;
 }

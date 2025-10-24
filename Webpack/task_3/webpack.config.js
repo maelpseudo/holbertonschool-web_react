@@ -3,47 +3,46 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
-  entry: {
-    all: [
-      './modules/header/header.js',
-      './modules/body/body.js',
-      './modules/footer/footer.js',
+    entry: {
+        header: './modules/header/header.js',
+        body: './modules/body/body.js',
+        footer: './modules/footer/footer.js',
+    },
+    output: {
+        path: path.resolve(__dirname, 'public'),
+        filename: '[name].bundle.js',
+    },
+    plugins: [
+        new CleanWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            title: 'Holberton Dashboard',
+            inject: 'body',
+        }),
     ],
-  },
-  output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'public'),
-  },
-  performance: {
-    maxAssetSize: 1000000,
-    maxEntrypointSize: 1000000,
-  },
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: path.join(__dirname, './public'),
-    port: 8564,
-  },
-  plugins: [new CleanWebpackPlugin(), new HtmlWebpackPlugin()],
-  module: {
-    rules: [
-      {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.(png|jpe?g|gif)$/i,
-        use: [
-          'file-loader',
-          {
-            loader: 'image-webpack-loader',
-            options: {
-              bypassOnDebug: true,
-              disable: true,
+    mode: 'development',
+    devtool: 'inline-source-map',
+    devServer: {
+        static: {
+            directory: path.resolve(__dirname, './public'),
+        },
+        port: 8564,
+        open: true,
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
             },
-          },
+            {
+                test: /\.(gif|png|jpe?g|svg)$/i,
+                type: 'asset/resource',
+            },
         ],
-      },
-    ],
-  },
+    },
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+        },
+    },
 };
