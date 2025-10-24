@@ -1,14 +1,16 @@
-import { DateTime } from "luxon";
-
 export function getFullYear() {
-    return DateTime.local().year
+  const d = new Date();
+  return d.getFullYear();
 }
+
 export function getFooterCopy(isIndex) {
-    if(isIndex === true){
-        return "Holberton School"
-    }
-    return "Holberton School main dashboard"
+  if (isIndex) {
+    return 'Holberton School'
+  } else {
+    return 'Holberton School Main Dashboard'
+  }
 }
-export function getLatestNotification () {   
-    return ("<strong>Urgent requirement</strong> - complete by EOD")
+
+export function getLatestNotification() {
+  return {__html: '<strong>Urgent requirement</strong> - complete by EOD'} 
 }

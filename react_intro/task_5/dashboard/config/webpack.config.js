@@ -1,46 +1,44 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  mode: 'development',
-  entry: './src/index.js',
-  devtool: 'inline-source-map',
+  mode: "development",
+  devtool: "inline-source-map",
+  entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, '../dist'),
-    filename: 'bundle.js',
+    filename: "bundle.js",
+    path: path.resolve("./dist"),
+  },
+  devServer: {
+    hot: true,
+    contentBase: path.resolve("./dist"),
+    compress: true,
+    port: 8564,
   },
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+        use: ["babel-loader"],
+      },
+      {
+        test: /\.(gif|png|jpe?g|svg)$/i,
         use: [
-          'file-loader',
+          "file-loader",
           {
-            loader: 'image-webpack-loader',
+            loader: "image-webpack-loader",
+            options: {
+              bypassOnDebug: true, // webpack@1.x
+              disable: true, // webpack@2.x and newer
+            },
           },
         ],
       },
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-          },
-        }
-      },
     ],
-  },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, '../dist')
-    },
-    compress: true,
-    open: true,
-    hot: true,
   },
 };

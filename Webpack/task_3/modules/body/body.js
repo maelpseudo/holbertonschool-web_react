@@ -1,20 +1,17 @@
-import $ from 'jquery';
-import _ from 'lodash';
-import './body.css';
+import $ from "jquery";
+import { debounce } from "lodash";
+import './body.css'
 
+let counter = 0;
 
-$(() => {
-  $('body').append(`
-    <button>Click here to get started</button>
-    <p id='count'></p>
-  `);
+function updateCounter() {
+  counter += 1;
+  $('#count').text(`${counter} clicks on the button`);
+}
 
-  let count = 0;
-  function updateCounter() {
-    count++;
-    $('#count').text(`${count} clicks on the button`);
-  }
-
-  const debouncedUpdateCounter = _.debounce(updateCounter, 500);
-  $('button').click(debouncedUpdateCounter);
-})
+$(function () {
+  $('body').append('<p>Dashboard data for the students</p>');
+  $('body').append('<button>Click here to get started</button>');
+  $('body').append('<p id="count"></p>');
+  $('button').on('click', _.debounce(updateCounter, 500));
+});

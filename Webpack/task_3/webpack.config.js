@@ -1,46 +1,49 @@
 const path = require('path');
-const HtmlWebpackPluging = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-
 module.exports = {
-    mode: process.env.NODE_ENV ==='production' ? 'production' : 'development',
-    entry: {
-        all: ['./modules/header/header.js', './modules/body/body.js', './modules/footer/footer.js']
-    },
-    output: {
-        filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'public')
-    },
-    module: {
-        rules: [
-            {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+  mode: 'development',
+  entry: {
+    all: [
+      './modules/header/header.js',
+      './modules/body/body.js',
+      './modules/footer/footer.js',
+    ],
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'public'),
+  },
+  performance: {
+    maxAssetSize: 1000000,
+    maxEntrypointSize: 1000000,
+  },
+  devtool: 'inline-source-map',
+  devServer: {
+    contentBase: path.join(__dirname, './public'),
+    port: 8564,
+  },
+  plugins: [new CleanWebpackPlugin(), new HtmlWebpackPlugin()],
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          'file-loader',
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              bypassOnDebug: true,
+              disable: true,
             },
-            {
-                test: /\.(png|jpg|jpeg|gif|svg)$/i,
-                use: [
-                    'file-loader',
-                    {
-                        loader: 'image-webpack-loader'
-                    }
-                ]
-            }
-        ]
-    },
-    devServer: {
-        static: path.join(__dirname, './public'),
-        port: 8564
-    },
-    ...(process.env.NODE_ENV === 'development' && {
-        devTool: 'inline-source-map'
-    }),
-    plugins: [
-        new HtmlWebpackPluging({
-            filename: 'index.html',
-            chunks: ['header', 'body', 'footer']
-        }),
-        new CleanWebpackPlugin()
-    ]
-}
+          },
+        ],
+      },
+    ],
+  },
+};
