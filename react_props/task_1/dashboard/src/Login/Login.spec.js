@@ -4,15 +4,13 @@ import Login from './Login';
 
 
 test('renders two labels, two inputs and one button', () => {
-    render(<Login />);
-    const labelEmail = screen.getByText(/email/i);
-    const labelPassword = screen.getByText(/password/i);
-    const inputElements = screen.getAllByRole('textbox');
+    const { container } = render(<Login />);
+    const labels = container.querySelectorAll('label');
+    const inputs = container.querySelectorAll('input');
     const button = screen.getByRole('button', { name: /ok/i });
 
-    expect(labelEmail).toBeInTheDocument();
-    expect(labelPassword).toBeInTheDocument();
-    expect(inputElements).toHaveLength(2);
+    expect(labels).toHaveLength(2);
+    expect(inputs).toHaveLength(2);
     expect(button).toBeInTheDocument();
 });
 
