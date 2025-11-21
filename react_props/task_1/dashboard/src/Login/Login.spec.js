@@ -1,33 +1,37 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Login from './Login';
 
 
-test('testing signin form elements', () => {
+test('renders two labels, two inputs and one button', () => {
     render(<Login />);
-    const inputElements = screen.getAllByRole('textbox')
-    const emailLabelElement = screen.getByLabelText(/email/i);
-    const passwordLabelElement = screen.getByLabelText(/password/i);
-    const buttonElementText = screen.getByRole('button', { name: 'OK' })
-    expect(inputElements).toHaveLength(2)
-    expect(emailLabelElement).toBeInTheDocument()
-    expect(passwordLabelElement).toBeInTheDocument()
-    expect(buttonElementText).toBeInTheDocument()
+    const labelEmail = screen.getByText(/email/i);
+    const labelPassword = screen.getByText(/password/i);
+    const inputElements = screen.getAllByRole('textbox');
+    const button = screen.getByRole('button', { name: /ok/i });
+
+    expect(labelEmail).toBeInTheDocument();
+    expect(labelPassword).toBeInTheDocument();
+    expect(inputElements).toHaveLength(2);
+    expect(button).toBeInTheDocument();
 });
 
-test('should check that the email input element will be focused whenever the associated label is clicked', async () => {
-    render(<Login />)
+test('focuses the email input when its label is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(<Login />);
     const emailLabel = screen.getByText('Email');
     const emailInput = screen.getByLabelText('Email', { selector: 'input' });
-    fireEvent.click(emailLabel);
-    emailInput.focus();
+    await user.click(emailLabel);
     expect(emailInput).toHaveFocus();
-})
+});
 
-test('should check that the password input element will be focused whenver the associated label is clicked', async () => {
-    render(<Login />)
+test('focuses the password input when its label is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(<Login />);
     const passwordLabel = screen.getByText('Password');
     const passwordInput = screen.getByLabelText('Password', { selector: 'input' });
-    fireEvent.click(passwordLabel);
-    passwordInput.focus()
+    await user.click(passwordLabel);
     expect(passwordInput).toHaveFocus();
 });
