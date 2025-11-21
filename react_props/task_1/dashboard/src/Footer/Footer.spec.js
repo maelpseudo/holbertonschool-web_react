@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { expect, test } from "@jest/globals";
-import Footer from "./Footer";
-import { getCurrentYear, getFooterCopy } from "../utils/utils";
+import { render, screen } from '@testing-library/react';
+import Footer from './Footer';
+import { getCurrentYear, getFooterCopy } from '../utils/utils';
 
-test("Should render footer with correct copyright text", () => {
+test('renders the Holberton copyright when isIndex is true', () => {
     render(<Footer />);
-    const expectedFooterText = `Copyright ${getCurrentYear()} - ${getFooterCopy(true)}`;
-    const footerText = screen.getByText(expectedFooterText);
-    expect(footerText).toHaveTextContent(/Copyright 2024 - Holberton School/i);
+    const expectedText = `Copyright ${getCurrentYear()} - ${getFooterCopy(true)}`;
+    const paragraph = screen.getByText(expectedText);
+
+    expect(paragraph.tagName).toBe('P');
+    expect(paragraph).toHaveTextContent(expectedText);
 });
