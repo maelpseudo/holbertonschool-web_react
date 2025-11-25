@@ -3,14 +3,12 @@
 @theme {
   --font-roboto: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+  --font-sans: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
 @layer base {
   :root {
-    font-family: var(--font-roboto);
-  }
-
-  body {
-    font-family: inherit;
+    font-family: var(--font-sans);
   }
 }
