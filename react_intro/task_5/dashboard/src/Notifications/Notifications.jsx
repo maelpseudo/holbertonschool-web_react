@@ -1,4 +1,4 @@
-import "../Notifications/Notifications.css";
+import "../Notifications/Notifications.scss";
 import { getLatestNotification } from "../utils/utils";
 import closeBtn from "../assets/close-button.png";
 

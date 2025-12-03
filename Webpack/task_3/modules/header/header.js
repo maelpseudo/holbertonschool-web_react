@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import './header.css';
+import './header.scss';
 
 $('body').append('<div id="logo"></div>');
 $('body').append('<h1>Holberton Dashboard</h1>');

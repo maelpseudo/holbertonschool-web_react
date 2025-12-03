@@ -1,6 +1,6 @@
 import BodySection from './BodySection';
 import PropTypes from 'prop-types';
-import './BodySectionWithMarginBottom.css';
+import './BodySectionWithMarginBottom.scss';
 
 function BodySectionWithMarginBottom({ title, children }) {
     return (

@@ -1,4 +1,4 @@
-import './Login.css';
+import './Login.scss';
 import WithLogging from '../HOC/WithLogging';
 
 function Login() {

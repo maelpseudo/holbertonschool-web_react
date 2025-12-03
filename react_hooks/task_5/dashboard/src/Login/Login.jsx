@@ -1,7 +1,7 @@
 import React from 'react';
 import WithLogging from '../HOC/WithLogging';
 import useLogin from '../hooks/useLogin';
-import './Login.css';
+import './Login.scss';
 
 const Login = ({ login }) => {
     const {

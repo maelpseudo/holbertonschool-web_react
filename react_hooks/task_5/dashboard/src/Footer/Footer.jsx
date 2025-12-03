@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import './Footer.css';
+import './Footer.scss';
 import { getCurrentYear, getFooterCopy } from '../utils/utils';
 import { newContext } from '../Context/context';
 

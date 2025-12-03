@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import './Header.css';
+import './Header.scss';
 import HolbertonLogo from '../assets/holberton-logo.jpg';
 import { newContext } from '../Context/context';
 

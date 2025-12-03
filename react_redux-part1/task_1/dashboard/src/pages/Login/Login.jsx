@@ -1,6 +1,6 @@
 import WithLogging from '../../components/HOC/WithLogging';
 import useLogin from '../../hooks/useLogin';
-import './Login.css';
+import './Login.scss';
 
 function Login({ login }) {
     const {

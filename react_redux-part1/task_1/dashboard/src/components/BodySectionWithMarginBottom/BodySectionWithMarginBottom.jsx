@@ -1,5 +1,5 @@
 import BodySection from '../BodySection/BodySection';
-import './BodySectionWithMarginBottom.css';
+import './BodySectionWithMarginBottom.scss';
 
 export default function BodySectionWithMarginBottom({ title, children }) {
     return (

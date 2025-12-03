@@ -1,4 +1,4 @@
-import './Notifications.css';
+import './Notifications.scss';
 import closeBtn from '../assets/close-button.png';
 import NotificationItem from './NotificationItem';
 import PropTypes from 'prop-types';

@@ -8,7 +8,7 @@ import { getLatestNotification } from '../utils/utils';
 import BodySection from '../BodySection/BodySection';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import { newContext } from '../Context/context';
-import './App.css';
+import './App.scss';
 
 const notificationsList = [
     { id: 1, type: 'default', value: 'New course available' },

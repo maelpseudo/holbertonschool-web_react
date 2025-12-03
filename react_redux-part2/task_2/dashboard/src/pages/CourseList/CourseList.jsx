@@ -1,6 +1,6 @@
 import CourseListRow from './CourseListRow/CourseListRow';
 import { useDispatch, useSelector } from 'react-redux';
-import './CourseList.css'
+import './CourseList.scss'
 import WithLogging from '../../components/HOC/WithLogging';
 import { selectCourse, unSelectCourse } from '../../features/courses/coursesSlice';
 

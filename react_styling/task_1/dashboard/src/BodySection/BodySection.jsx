@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import './BodySection.css';
+import './BodySection.scss';
 
 class BodySection extends Component {
     render() {

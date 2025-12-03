@@ -2,7 +2,7 @@ import { memo, useCallback, useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { markNotificationAsRead } from '../../features/notifications/notificationsSlice';
 import NotificationItem from '../NotificationItem/NotificationItem';
-import './Notifications.css';
+import './Notifications.scss';
 import closeIcon from '../../assets/close-icon.png';
 
 const Notifications = memo(function Notifications() {

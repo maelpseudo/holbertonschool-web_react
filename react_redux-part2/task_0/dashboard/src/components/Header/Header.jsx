@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
-import './Header.css';
+import './Header.scss';
 import logo from '../../assets/holberton-logo.jpg';
 
 export default function Header() {

@@ -1,6 +1,6 @@
 import React from 'react'
 import BodySection from './BodySection';
-import './BodySectionWithMarginBottom.css'
+import './BodySectionWithMarginBottom.scss'
 
 
 export default function BodySectionWithMarginBottom(props) {

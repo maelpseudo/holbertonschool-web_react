@@ -1,4 +1,4 @@
-import "./Notifications.css";
+import "./Notifications.scss";
 
 function Notifications() {
     return (

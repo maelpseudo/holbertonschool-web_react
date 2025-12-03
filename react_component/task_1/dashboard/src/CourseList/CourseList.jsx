@@ -1,6 +1,6 @@
 import CourseListRow from './CourseListRow';
 import PropTypes from 'prop-types';
-import './CourseList.css'
+import './CourseList.scss'
 
 CourseList.propTypes = {
     courses: PropTypes.array.isRequired,

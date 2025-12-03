@@ -1,4 +1,4 @@
-import './Header.css';
+import './Header.scss';
 import logo from '../../assets/holberton-logo.jpg';
 
 export default function Header({ user, logOut }) {

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import './Login.css';
+import './Login.scss';
 
 function Login() {
     const emailInputRef = useRef(null);
