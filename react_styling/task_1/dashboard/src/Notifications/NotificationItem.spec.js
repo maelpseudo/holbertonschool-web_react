@@ -29,10 +29,12 @@ test('Should display the correct notification with a blue color, and set the "da
     expect(liElement).toHaveAttribute('data-notification-type', 'default');
 });
 
-test('Should log to the console the "Notification id has been marked as read" with the correct notification item id', () => {
-    const mockMarkAsRead = jest.fn()
-    render(<NotificationItem markAsRead={mockMarkAsRead} />);
-    const firstListItemElement = screen.getAllByRole('listitem')[0];
-    fireEvent.click(firstListItemElement)
-    expect(mockMarkAsRead).toHaveBeenCalled()
+test('Calls markAsRead prop when clicked', () => {
+    const markAsRead = jest.fn();
+    const props = { id: 2, type: 'default', value: 'Hello', markAsRead };
+    render(<NotificationItem {...props} />);
+    const liElement = screen.getByRole('listitem');
+    fireEvent.click(liElement);
+    expect(markAsRead).toHaveBeenCalledTimes(1);
+    expect(markAsRead).toHaveBeenCalledWith(2);
 });

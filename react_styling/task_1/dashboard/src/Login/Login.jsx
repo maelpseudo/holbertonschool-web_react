@@ -1,4 +1,5 @@
-import './Login.scss';
+import './Login.css';
+import WithLogging from '../HOC/WithLogging';
 
 function Login() {
     return (
@@ -13,4 +14,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default WithLogging(Login);

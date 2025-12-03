@@ -1,12 +1,8 @@
 import CourseListRow from './CourseListRow';
-import PropTypes from 'prop-types';
 import './CourseList.css'
+import WithLogging from '../HOC/WithLogging';
 
-CourseList.propTypes = {
-    courses: PropTypes.array.isRequired,
-};
-
-export default function CourseList({ courses = [] }) {
+function CourseList({ courses = [] }) {
     return (
         <div className='courses'>
             {
@@ -50,3 +46,5 @@ export default function CourseList({ courses = [] }) {
         </div>
     );
 }
+
+export default WithLogging(CourseList);

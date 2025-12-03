@@ -1,10 +1,3 @@
-import PropTypes from 'prop-types';
-
-CourseListRow.propTypes = {
-    isHeader: PropTypes.bool.isRequired,
-    textFirstCell: PropTypes.string.isRequired,
-    textSecondCell: PropTypes.string.isRequired,
-};
 
 export default function CourseListRow({
     isHeader = false,

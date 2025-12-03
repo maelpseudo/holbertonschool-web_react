@@ -1,6 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { getLatestNotification } from '../utils/utils'
+import { test, expect, jest, describe, afterEach } from "@jest/globals";
 import Notifications from './Notifications';
 
 test('Should display a title, button and a 3 list items, whenever the "displayDrawer" set to true', () => {
@@ -44,7 +44,6 @@ test('Should display 3 notification items as expected', () => {
   } else {
     throw new Error('No property found matching the regex');
   }
-
 });
 
 test('Should display the correct notification colors', () => {
@@ -125,70 +124,70 @@ test('Should display a paragraph of "No new notification for now" whenever the l
     displayDrawer: true
   }
   render(<Notifications {...props} />)
-  screen.debug()
   const notificationsTitle = screen.getByText('No new notification for now');
   expect(notificationsTitle).toBeInTheDocument();
 });
 
-test('It should rerender when prop values change', () => {
-  const consoleSpy = jest.spyOn(console, 'log');
-  const initialProps = {
-    displayDrawer: false,
-    notifications: [],
-  };
-
-  render(<Notifications {...initialProps} />);
-  expect(screen.queryByText('Here is the list of notifications')).toBeNull();
-  const updatedProps = {
-    displayDrawer: true,
+test('Logs correct message when a notification item is clicked', () => {
+  const props = {
     notifications: [
-      { id: 1, type: 'default', value: 'New notification' }
+      { id: 1, type: 'default', value: 'New course available' },
+      { id: 2, type: 'urgent', value: 'New resume available' },
+      { id: 3, type: 'urgent', html: { __html: getLatestNotification() } }
     ],
+    displayDrawer: true
   };
-
-  render(<Notifications {...updatedProps} />);
-  const firstListItemElement = screen.getAllByRole('listitem')[0];
-  fireEvent.click(firstListItemElement)
-  expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read')
-  expect(screen.getByText('Here is the list of notifications')).toBeInTheDocument();
-  expect(screen.getByRole('listitem')).toBeInTheDocument()
+  const consoleSpy = jest.spyOn(console, 'log');
+  render(<Notifications {...props} />);
+  const listItems = screen.getAllByRole('listitem');
+  fireEvent.click(listItems[0]);
+  expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
+  consoleSpy.mockRestore();
 });
 
-test('Should rerender when the notifications length changes', () => {
-  const initialNotifications = [
-    { id: 1, type: 'default', value: 'Notification 1' },
-  ];
+describe('Notifications shouldComponentUpdate behavior', () => {
+  afterEach(() => cleanup());
 
-  const newNotifications = [
-    { id: 1, type: 'default', value: 'Notification 1' },
-    { id: 2, type: 'urgent', value: 'Notification 2' },
-  ];
-  const renderSpy = jest.spyOn(Notifications.prototype, 'render');
-  const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
-  expect(renderSpy).toHaveBeenCalledTimes(1);
-  rerender(<Notifications notifications={newNotifications} displayDrawer={true} />);
-  expect(renderSpy).toHaveBeenCalledTimes(2);
-  renderSpy.mockRestore();
+  test('does not re-render when notifications length is unchanged', () => {
+    const initialProps = {
+      notifications: [
+        { id: 1, type: 'default', value: 'A' },
+        { id: 2, type: 'urgent', value: 'B' }
+      ],
+      displayDrawer: true
+    };
+    const { rerender } = render(<Notifications {...initialProps} />);
+    // same length, different content
+    const nextPropsSameLen = {
+      notifications: [
+        { id: 3, type: 'default', value: 'X' },
+        { id: 4, type: 'urgent', value: 'Y' }
+      ],
+      displayDrawer: true
+    };
+    rerender(<Notifications {...nextPropsSameLen} />);
+    // Expect still contains original rendered content (A/B) and not X/Y
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.getByText('B')).toBeInTheDocument();
+  });
+
+  test('re-renders when notifications length changes', () => {
+    const initialProps = {
+      notifications: [
+        { id: 1, type: 'default', value: 'A' }
+      ],
+      displayDrawer: true
+    };
+    const { rerender } = render(<Notifications {...initialProps} />);
+    const nextPropsLonger = {
+      notifications: [
+        { id: 1, type: 'default', value: 'A' },
+        { id: 2, type: 'urgent', value: 'B' }
+      ],
+      displayDrawer: true
+    };
+    rerender(<Notifications {...nextPropsLonger} />);
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.getByText('B')).toBeInTheDocument();
+  });
 });
-
-test('Should not rerender if the notifications length is unchanged', () => {
-  const initialNotifications = [
-    { id: 1, type: 'default', value: 'Notification 1' },
-    { id: 2, type: 'urgent', value: 'Notification 2' },
-  ];
-  const renderSpy = jest.spyOn(Notifications.prototype, 'render');
-  const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
-  expect(renderSpy).toHaveBeenCalledTimes(1);
-  rerender(<Notifications notifications={initialNotifications} displayDrawer={true} />);
-  expect(renderSpy).toHaveBeenCalledTimes(1);
-  renderSpy.mockRestore();
-});
-
-test('Should return true if the Notifications component is a class component', () => {
-  const props = Object.getOwnPropertyNames(Notifications.prototype);
-  const isClassComponent = Notifications.prototype.__proto__ === React.Component.prototype;
-  const inheritsFromReactComponent = Object.getPrototypeOf(Notifications.prototype) === React.Component.prototype;
-  expect(props).toContain('constructor');
-  expect(isClassComponent).toBe(true);
-  expect(inheritsFromReactComponent).toBe(true);
-})

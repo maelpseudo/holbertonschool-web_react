@@ -1,9 +1,9 @@
 import ReactDOM from 'react-dom/client';
+import App from './App/App';
+import './App/App.css';
+import './main.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import './main.scss';
-import App from './App/App';
-import './App/App.scss';
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);

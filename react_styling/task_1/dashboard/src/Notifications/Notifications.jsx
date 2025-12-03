@@ -1,34 +1,34 @@
-import { Component } from 'react';
-import './Notifications.scss';
-import closeIcon from '../assets/close-button.png';
+import './Notifications.css';
+import closeBtn from '../assets/close-button.png';
 import NotificationItem from './NotificationItem';
-import PropTypes from 'prop-types';
+import { Component } from 'react';
 
 class Notifications extends Component {
+    static defaultProps = { notifications: [], displayDrawer: true };
+
     constructor(props) {
-        super(props)
+        super(props);
+        this.markAsRead = this.markAsRead.bind(this);
     }
 
-    markAsRead = (id) => {
-        console.log(`Notification ${id + 1} has been marked as read`);
+    markAsRead(id) {
+        console.log(`Notification ${id} has been marked as read`);
     }
 
     shouldComponentUpdate(nextProps) {
-        return (
-            nextProps.notifications.length >
-            this.props.notifications.length ||
-            nextProps.displayDrawer !== this.props.displayDrawer
-        );
+        const currentLen = Array.isArray(this.props.notifications) ? this.props.notifications.length : 0;
+        const nextLen = Array.isArray(nextProps.notifications) ? nextProps.notifications.length : 0;
+        return nextLen !== currentLen;
     }
 
     render() {
-        const { notifications = [], displayDrawer = true } = this.props;
+        const { notifications, displayDrawer } = this.props;
         return (
             <>
                 <div className="notification-title">Your notifications</div>
                 {
                     displayDrawer ? (
-                        <div className='Notifications'>
+                        <div className='notifications'>
                             {notifications.length > 0 ? (
                                 <>
                                     <p>Here is the list of notifications</p>
@@ -36,16 +36,16 @@ class Notifications extends Component {
                                         onClick={() => console.log('Close button has been clicked')}
                                         aria-label='Close'
                                     >
-                                        <img src={closeIcon} alt='close icon' />
+                                        <img className='close-icon' src={closeBtn} alt='close button' />
                                     </button>
                                     <ul>
                                         {notifications.map((notification, index) => (
                                             <NotificationItem
-                                                id={index}
-                                                key={notification.id}
+                                                key={index}
                                                 type={notification.type}
                                                 value={notification.value}
                                                 html={notification.html}
+                                                id={notification.id}
                                                 markAsRead={this.markAsRead}
                                             />
                                         ))}
@@ -55,31 +55,12 @@ class Notifications extends Component {
                                 <p>No new notification for now</p>
                             )}
                         </div>
-                    ) :
-                        ([])
+                    ) : null
                 }
             </>
         );
     }
 }
 
-Notifications.propTypes = {
-    notifications: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            type: PropTypes.string.isRequired,
-            value: PropTypes.string,
-            html: PropTypes.shape({
-                __html: PropTypes.string,
-            }),
-        })
-    ),
-    displayDrawer: PropTypes.bool,
-};
+export default Notifications;
 
-Notifications.defaultProps = {
-    notifications: [],
-    displayDrawer: true,
-};
-
-export default Notifications
