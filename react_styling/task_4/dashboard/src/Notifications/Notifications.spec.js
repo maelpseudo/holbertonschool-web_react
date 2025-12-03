@@ -46,6 +46,26 @@ test('Should display 3 notification items as expected', () => {
   }
 });
 
+test('Should display the correct notification colors', () => {
+  const props = {
+    notifications: [
+      { id: 1, type: 'default', value: 'New course available' },
+      { id: 2, type: 'urgent', value: 'New resume available' },
+      { id: 3, type: 'urgent', html: { __html: getLatestNotification() } }
+    ],
+    displayDrawer: true
+  };
+  render(<Notifications {...props} />);
+  const notificationsListItems = screen.getAllByRole('listitem');
+  const colorStyleArr = [];
+  for (let i = 0; i <= notificationsListItems.length - 1; i++) {
+    const styleProp = Object.keys(notificationsListItems[i]).find(key => /^__reactProps/.test(key));
+    if (styleProp) {
+      colorStyleArr.push(notificationsListItems[i].style._values.color);
+    }
+  }
+  expect(colorStyleArr).toEqual(['blue', 'red', 'red']);
+});
 
 
 test('Should log "Close button has been clicked" whenever the close button is clicked and, the "displayDrawer" set to true', () => {

@@ -3,11 +3,11 @@ import WithLogging from '../HOC/WithLogging';
 
 function CourseList({ courses = [] }) {
     return (
-        <div className='courses w-full sm:w-4/5 max-w-5xl mx-auto my-8 overflow-x-auto'>
+        <div className='courses mx-auto my-8 w-4/5 max-w-2xl'>
             {
                 courses.length > 0 ?
                     (
-                        <table id='CourseList' className="w-full min-w-max">
+                        <table id='CourseList' className="w-full border-collapse text-sm sm:text-base">
                             <thead>
                                 <CourseListRow
                                     textFirstCell="Available courses"
@@ -32,7 +32,7 @@ function CourseList({ courses = [] }) {
                             </tbody>
                         </table>
                     ) : (
-                        <table id='CourseList' className="w-full min-w-max">
+                        <table id='CourseList' className="w-full border-collapse text-sm sm:text-base">
                             <thead>
                                 <CourseListRow
                                     isHeader={true}

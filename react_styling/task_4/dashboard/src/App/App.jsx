@@ -5,6 +5,8 @@ import Login from "../Login/Login.jsx";
 import Footer from "../Footer/Footer.jsx";
 import CourseList from "../CourseList/CourseList.jsx";
 import { getLatestNotification } from "../utils/utils";
+import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
+import BodySection from '../BodySection/BodySection';
 
 const notificationsList = [
   { id: 1, type: 'default', value: 'New course available' },
@@ -49,25 +51,28 @@ class App extends Component {
   render() {
     const { isLoggedIn } = this.props;
     return (
-      <div className="flex flex-col min-h-screen p-4 sm:p-6 lg:p-8">
-        <Notifications
-          notifications = {notificationsList}
-        />
-        <div className="flex-1">
+      <div className="min-h-screen flex flex-col">
+        <Notifications notifications={notificationsList} displayDrawer={false} />
+        <div className="flex-1 flex flex-col items-center px-4 sm:px-8 lg:px-12">
           <Header />
           {
             !isLoggedIn ? (
-              <Login />
+              <BodySectionWithMarginBottom title='Log in to continue'>
+                <Login />
+              </BodySectionWithMarginBottom>
             ) : (
-              <CourseList courses = {coursesList} />
+              <BodySectionWithMarginBottom title='Course list'>
+                <CourseList courses={coursesList} />
+              </BodySectionWithMarginBottom>
             )
           }
-          <div className="m-5 p-4 bg-gray-100 rounded">
-            <h3 className="text-lg font-semibold mb-2">News from the school</h3>
-            <p className="text-sm sm:text-base leading-relaxed">
-              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique, asperiores architecto blanditiis fuga doloribus sit illum aliquid ea distinctio minus accusantium, impedit quo voluptatibus ut magni dicta. Recusandae, quia dicta?
+          <BodySection title="News from the School">
+            <p className="text-sm sm:text-base leading-relaxed max-w-3xl">
+              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique, asperiores architecto blanditiis
+              fuga doloribus sit illum aliquid ea distinctio minus accusantium, impedit quo voluptatibus ut magni dicta.
+              Recusandae, quia dicta?
             </p>
-          </div>
+          </BodySection>
         </div>
         <Footer />
       </div>

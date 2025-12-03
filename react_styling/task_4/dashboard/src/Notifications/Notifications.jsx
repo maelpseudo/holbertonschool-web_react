@@ -24,35 +24,38 @@ class Notifications extends Component {
         const { notifications, displayDrawer } = this.props;
         return (
             <>
-                <div className="notification-title text-right">Your notifications</div>
+                <div className="text-right pr-4 text-sm sm:text-base">Your notifications</div>
                 {
                     displayDrawer ? (
-                        <div className='notifications border-2 border-dashed border-[var(--main-color)] p-4 w-full h-full max-[912px]:w-screen max-[912px]:h-screen'>
-                            {notifications.length > 0 ? (
-                                <>
-                                    <p>Here is the list of notifications</p>
-                                    <button
-                                        onClick={() => console.log('Close button has been clicked')}
-                                        aria-label='Close'
-                                    >
-                                        <img className='close-icon' src={closeBtn} alt='close button' />
-                                    </button>
-                                    <ul className="max-[912px]:list-none">
-                                        {notifications.map((notification, index) => (
-                                            <NotificationItem
-                                                key={index}
-                                                type={notification.type}
-                                                value={notification.value}
-                                                html={notification.html}
-                                                id={notification.id}
-                                                markAsRead={this.markAsRead}
-                                            />
-                                        ))}
-                                    </ul>
-                                </>
-                            ) : (
-                                <p>No new notification for now</p>
-                            )}
+                        <div className="relative lg:absolute lg:right-4 lg:top-4">
+                            <div className="fixed inset-0 lg:static lg:w-80 bg-white border border-dashed border-rose-500 p-3 sm:p-4 lg:rounded-none z-20">
+                                {notifications.length > 0 ? (
+                                    <>
+                                        <p className="text-base sm:text-lg font-medium mb-3">Here is the list of notifications</p>
+                                        <button
+                                            onClick={() => console.log('Close button has been clicked')}
+                                            aria-label='Close'
+                                            className="absolute right-3 top-3"
+                                        >
+                                            <img className='w-4 h-4' src={closeBtn} alt='close button' />
+                                        </button>
+                                        <ul className="list-none pl-0 space-y-2">
+                                            {notifications.map((notification, index) => (
+                                                <NotificationItem
+                                                    key={index}
+                                                    type={notification.type}
+                                                    value={notification.value}
+                                                    html={notification.html}
+                                                    id={notification.id}
+                                                    markAsRead={this.markAsRead}
+                                                />
+                                            ))}
+                                        </ul>
+                                    </>
+                                ) : (
+                                    <p className="text-base sm:text-lg">No new notification for now</p>
+                                )}
+                            </div>
                         </div>
                     ) : null
                 }
@@ -62,4 +65,3 @@ class Notifications extends Component {
 }
 
 export default Notifications;
-
