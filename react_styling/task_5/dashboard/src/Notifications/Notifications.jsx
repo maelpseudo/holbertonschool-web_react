@@ -1,66 +1,99 @@
-import closeBtn from '../assets/close-button.png';
-import NotificationItem from './NotificationItem';
+
 import { Component } from 'react';
+import closeIcon from '../assets/close-button.png';
+import NotificationItem from './NotificationItem';
+import { StyleSheet, css } from 'aphrodite';
+import PropTypes from 'prop-types';
 
 class Notifications extends Component {
-    static defaultProps = { notifications: [], displayDrawer: true };
-
-    constructor(props) {
-        super(props);
-        this.markAsRead = this.markAsRead.bind(this);
-    }
-
-    markAsRead(id) {
-        console.log(`Notification ${id} has been marked as read`);
-    }
-
     shouldComponentUpdate(nextProps) {
-        const currentLen = Array.isArray(this.props.notifications) ? this.props.notifications.length : 0;
-        const nextLen = Array.isArray(nextProps.notifications) ? nextProps.notifications.length : 0;
-        return nextLen !== currentLen;
+        return nextProps.notifications.length !== this.props.notifications.length;
     }
+
+    markAsRead = (id) => {
+        console.log(`Notification ${id} has been marked as read`);
+    };
 
     render() {
-        const { notifications, displayDrawer } = this.props;
-        const shouldBounce = notifications.length > 0 && !displayDrawer;
+        const { notifications = [], displayDrawer = true } = this.props;
+
         return (
             <>
-                <div className={`notification-title text-right ${shouldBounce ? 'animate-bounce' : ''}`}>Your notifications</div>
-                {
-                    displayDrawer ? (
-                        <div className='notifications border-2 border-dashed border-[var(--main-color)] p-4 w-full h-full max-[912px]:w-screen max-[912px]:h-screen'>
-                            {notifications.length > 0 ? (
-                                <>
-                                    <p>Here is the list of notifications</p>
-                                    <button
-                                        onClick={() => console.log('Close button has been clicked')}
-                                        aria-label='Close'
-                                    >
-                                        <img className='close-icon' src={closeBtn} alt='close button' />
-                                    </button>
-                                    <ul className="max-[912px]:list-none">
-                                        {notifications.map((notification, index) => (
-                                            <NotificationItem
-                                                key={index}
-                                                type={notification.type}
-                                                value={notification.value}
-                                                html={notification.html}
-                                                id={notification.id}
-                                                markAsRead={this.markAsRead}
-                                            />
-                                        ))}
-                                    </ul>
-                                </>
-                            ) : (
-                                <p>No new notification for now</p>
-                            )}
-                        </div>
-                    ) : null
-                }
+                <div className={css(styles.menuItem)}>Your notifications</div>
+                {displayDrawer ? (
+                    <div className={css(styles.notifications)}>
+                        {notifications.length > 0 ? (
+                            <>
+                                <p>Here is the list of notifications</p>
+                                <button
+                                    onClick={() => console.log('Close button has been clicked')}
+                                    aria-label="Close"
+                                    className={css(styles.closeButton)}
+                                >
+                                    <img src={closeIcon} alt="close icon" />
+                                </button>
+                                <ul>
+                                    {notifications.map((notification) => (
+                                        <NotificationItem
+                                            key={notification.id}
+                                            type={notification.type}
+                                            value={notification.value}
+                                            html={notification.html}
+                                            markAsRead={() => this.markAsRead(notification.id)}
+                                        />
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <p>No new notification for now</p>
+                        )}
+                    </div>
+                ) : null}
             </>
         );
     }
 }
 
-export default Notifications;
+const styles = StyleSheet.create({
+    menuItem: {
+        textAlign: 'right',
+    },
+    notifications: {
+        border: 'dotted crimson',
+        marginTop: '1%',
+        paddingLeft: '1rem',
+        marginBottom: '1rem',
+        width: '40%',
+        marginLeft: '59%',
+        position: 'relative',
+    },
+    closeButton: {
+        position: 'absolute',
+        cursor: 'pointer',
+        right: '5px',
+        top: '20px',
+        background: 'transparent',
+        border: 'none',
 
+    },
+    notificationTitle: {
+        float: 'right',
+        position: 'absolute',
+        right: '10px',
+        top: '2px',
+    },
+});
+
+Notifications.propTypes = {
+    notifications: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            type: PropTypes.string.isRequired,
+            value: PropTypes.string,
+            html: PropTypes.shape({ __html: PropTypes.string }),
+        })
+    ).isRequired,
+    displayDrawer: PropTypes.bool.isRequired,
+};
+
+export default Notifications;

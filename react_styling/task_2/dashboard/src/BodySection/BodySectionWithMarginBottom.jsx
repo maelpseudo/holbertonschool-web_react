@@ -1,14 +1,14 @@
 import BodySection from './BodySection';
-import './BodySectionWithMarginBottom.scss';
+import './BodySectionWithMarginBottom.css';
 
-export default function BodySectionWithMarginBottom({ title, children }) {
-    return (
-        <div className="bodySectionWithMargin">
-            <BodySection title={title}>
-                {children}
-            </BodySection>
-        </div>
-    );
+function BodySectionWithMarginBottom({ title, children }) {
+  return (
+    <div className="bodySectionWithMargin">
+      <BodySection title={title}>
+        {children}
+      </BodySection>
+    </div>
+  );
 }
 
-
+export default BodySectionWithMarginBottom;

@@ -1,20 +1,52 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default function CourseListRow({
-    isHeader = false,
-    textFirstCell = '',
-    textSecondCell = null
-}) {
-    return (
-        isHeader ? (
-            <tr className="bg-[var(--color-table-header)] opacity-66">
-                <th colSpan={textSecondCell ? 1 : 2} className="border border-gray-400 pl-2">{textFirstCell}</th>
-                {textSecondCell ? <th className="border border-gray-400 pl-2">{textSecondCell}</th> : null}
-            </tr>
-        ) : (
-            <tr className="bg-[var(--color-table-rows)] opacity-45">
-                <td className="border border-gray-400 pl-2">{textFirstCell}</td>
-                <td className="border border-gray-400 pl-2">{textSecondCell}</td>
-            </tr>
-        )
-    )
+function CourseListRow({ isHeader, textFirstCell, textSecondCell, customStyle = "" }) {
+  if (isHeader) {
+    if (textSecondCell === undefined) {
+      return (
+        <tr>
+          <th
+            colSpan="2"
+            className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}
+          >
+            {textFirstCell}
+          </th>
+        </tr>
+      );
+    } else {
+      return (
+        <tr>
+          <th className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}>
+            {textFirstCell}
+          </th>
+          <th className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}>
+            {textSecondCell}
+          </th>
+        </tr>
+      );
+    }
+  }
+  return (
+    <tr>
+      <td className="border-2 border-gray-400 text-left px-4 py-2">{textFirstCell}</td>
+      <td className="border-2 border-gray-400 text-left px-4 py-2">{textSecondCell}</td>
+    </tr>
+  );
 }
+
+CourseListRow.propTypes = {
+  isHeader: PropTypes.bool,
+  textFirstCell: PropTypes.string,
+  textSecondCell: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  customStyle: PropTypes.string,
+};
+
+CourseListRow.defaultProps = {
+  isHeader: false,
+  textFirstCell: '',
+  textSecondCell: null,
+  customStyle: '',
+};
+
+export default CourseListRow;

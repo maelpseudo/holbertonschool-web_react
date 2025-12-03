@@ -1,11 +1,11 @@
-import { getCurrentYear, getFooterCopy } from '../utils/utils.js'
+import React from "react";
 
 function Footer() {
-    return (
-        <div className="App-footer absolute bottom-0 min-w-screen text-base border-t-2 border-[var(--main-color)] text-center italic">
-            <p>Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
-        </div>
-    );
+  return (
+    <footer className="App-footer text-center text-sm border-t-4 border-[var(--main-color)] mt-10 py-4 text-gray-600">
+      <p>Copyright 2025 - Holberton School</p>
+    </footer>
+  );
 }
 
 export default Footer;

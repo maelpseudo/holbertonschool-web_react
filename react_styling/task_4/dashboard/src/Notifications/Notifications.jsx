@@ -1,69 +1,75 @@
-import closeBtn from '../assets/close-button.png';
-import NotificationItem from './NotificationItem';
 import { Component } from 'react';
+import closeIcon from '../assets/close-button.png';
+import NotificationItem from './NotificationItem';
+import PropTypes from 'prop-types';
 
 class Notifications extends Component {
-    static defaultProps = { notifications: [], displayDrawer: true };
-
-    constructor(props) {
-        super(props);
-        this.markAsRead = this.markAsRead.bind(this);
-    }
-
-    markAsRead(id) {
-        console.log(`Notification ${id} has been marked as read`);
-    }
-
     shouldComponentUpdate(nextProps) {
-        const currentLen = Array.isArray(this.props.notifications) ? this.props.notifications.length : 0;
-        const nextLen = Array.isArray(nextProps.notifications) ? nextProps.notifications.length : 0;
-        return nextLen !== currentLen;
+        return nextProps.notifications.length !== this.props.notifications.length;
     }
+
+    markAsRead = (id) => {
+        console.log(`Notification ${id} has been marked as read`);
+    };
 
     render() {
-        const { notifications, displayDrawer } = this.props;
+        const { notifications = [], displayDrawer = true } = this.props;
+
+        const borderStyle = {
+            borderColor: 'var(--main-color)',
+        };
+
         return (
             <>
-                {!displayDrawer && (
-                    <div className="fixed top-2 right-3 text-sm sm:text-base z-10">Your notifications</div>
-                )}
-                {
-                    displayDrawer ? (
-                        <div className="relative lg:absolute lg:right-4 lg:top-4">
-                            <div className="fixed inset-0 lg:static lg:w-80 bg-white border border-dashed border-rose-500 p-3 sm:p-4 lg:rounded-none z-20">
-                                {notifications.length > 0 ? (
-                                    <>
-                                        <p className="text-base sm:text-lg font-medium mb-3">Here is the list of notifications</p>
-                                        <button
-                                            onClick={() => console.log('Close button has been clicked')}
-                                            aria-label='Close'
-                                            className="absolute right-3 top-3"
-                                        >
-                                            <img className='w-4 h-4' src={closeBtn} alt='close button' />
-                                        </button>
-                                        <ul className="list-none pl-0 space-y-2">
-                                            {notifications.map((notification, index) => (
-                                                <NotificationItem
-                                                    key={index}
-                                                    type={notification.type}
-                                                    value={notification.value}
-                                                    html={notification.html}
-                                                    id={notification.id}
-                                                    markAsRead={this.markAsRead}
-                                                />
-                                            ))}
-                                        </ul>
-                                    </>
-                                ) : (
-                                    <p className="text-base sm:text-lg">No new notification for now</p>
-                                )}
-                            </div>
-                        </div>
-                    ) : null
-                }
+                <div className="text-right pr-8 pt-2">Your notifications</div>
+                {displayDrawer ? (
+                    <div 
+                        className="border-2 border-dashed bg-white p-6 relative float-right mr-8 mt-2 max-w-4xl"
+                        style={borderStyle}
+                    >
+                        <button
+                            onClick={() => console.log('Close button has been clicked')}
+                            aria-label="Close"
+                            className="absolute cursor-pointer right-3 top-3 bg-transparent border-none p-0"
+                        >
+                            <img src={closeIcon} alt="close icon" className="w-5 h-5" />
+                        </button>
+                        
+                        {notifications.length > 0 ? (
+                            <>
+                                <p className="font-bold mb-3">Here is the list of notifications</p>
+                                <ul className="list-disc pl-6 space-y-1">
+                                    {notifications.map((notification) => (
+                                        <NotificationItem
+                                            key={notification.id}
+                                            type={notification.type}
+                                            value={notification.value}
+                                            html={notification.html}
+                                            markAsRead={() => this.markAsRead(notification.id)}
+                                        />
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <p className="text-center">No new notification for now</p>
+                        )}
+                    </div>
+                ) : null}
             </>
         );
     }
 }
+
+Notifications.propTypes = {
+    notifications: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            type: PropTypes.string.isRequired,
+            value: PropTypes.string,
+            html: PropTypes.shape({ __html: PropTypes.string }),
+        })
+    ).isRequired,
+    displayDrawer: PropTypes.bool.isRequired,
+};
 
 export default Notifications;

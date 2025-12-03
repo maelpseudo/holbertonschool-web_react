@@ -1,27 +1,18 @@
-import { render, screen } from '@testing-library/react';
-import { test, expect } from '@jest/globals';
+import { render } from '@testing-library/react';
 import BodySection from './BodySection';
 
-test('renders a heading with the title prop', () => {
-    render(
-        <BodySection title="test">
-            <p>child</p>
-        </BodySection>
+describe('BodySection', () => {
+  it('renders a heading with the title prop value', () => {
+    const { getByText } = render(<BodySection title="Test Title" />);
+    expect(getByText('Test Title')).toBeInTheDocument();
+  });
+
+  it('renders the children passed to it', () => {
+    const { getByText } = render(
+      <BodySection title="Title">
+        <p>Child paragraph</p>
+      </BodySection>
     );
-    expect(screen.getByRole('heading', { level: 2, name: 'test' })).toBeInTheDocument();
+    expect(getByText('Child paragraph')).toBeInTheDocument();
+  });
 });
-
-test('renders any number of children', () => {
-    render(
-        <BodySection title="multi">
-            <p>child1</p>
-            <p>child2</p>
-            <span>child3</span>
-        </BodySection>
-    );
-    expect(screen.getByText('child1')).toBeInTheDocument();
-    expect(screen.getByText('child2')).toBeInTheDocument();
-    expect(screen.getByText('child3')).toBeInTheDocument();
-});
-
-

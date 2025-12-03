@@ -1,15 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { expect, test } from "@jest/globals";
-import Header from "./Header";
+import {render, screen} from "@testing-library/react";
+import { expect, test} from "@jest/globals";
+import Header from "./Header.jsx";
 
-test("Should display the Holberton logo", () => {
+test('Whether the Header title h1 and logo are rendered', () => {
     render(<Header />);
-    const imgHeader = screen.getByAltText(/holberton logo/i);
-    expect(imgHeader).toBeInTheDocument();
-});
-
-test("Should display the heading with the correct text", () => {
-    render(<Header />);
-    const heading = screen.getByRole("heading", { level: 1, name: /School dashboard/i });
-    expect(heading).toBeInTheDocument();
+    expect(screen.getByAltText(/holberton logo/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: /School Dashboard/i}));
 });

@@ -1,18 +1,42 @@
-import WithLogging from '../HOC/WithLogging';
+import React from "react";
+import WithLogging from "../HOC/WithLogging";
 
-function Login() {
+class Login extends React.Component {
+  render() {
     return (
-        <div className="App-login m-5 border-t-4 border-[var(--main-color)]">
-            <p className="mb-4">Login to access the full dashboard</p>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center">
-                <label htmlFor="email" className="text-sm sm:text-base">Email</label>
-                <input type="email" name="user_email" id="email" className="w-full sm:w-auto px-2 py-1 border rounded" />
-                <label htmlFor="password" className="text-sm sm:text-base">Password</label>
-                <input type="text" name="user_password" id="password" className="w-full sm:w-auto px-2 py-1 border rounded" />
-                <button role="button" type="submit" className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">OK</button>
-            </div>
-        </div>
+      <div className="App-login border-t-2 border-[var(--main-color)] mt-6 w-full flex flex-col items-start px-4 md:px-8">
+        <p className="mb-4 text-base font-medium">
+          Login to access the full dashboard
+        </p>
+        <form className="flex flex-wrap items-center gap-2">
+          <label htmlFor="email" className="mr-2 font-medium">
+            Email:
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            className="border border-gray-400 rounded-sm px-2 py-1"
+          />
+          <label htmlFor="password" className="mx-2 font-medium">
+            Password:
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="border border-gray-400 rounded-sm px-2 py-1"
+          />
+          <button
+            type="submit"
+            className="ml-2 bg-[var(--main-color)] text-white px-3 py-1 rounded-sm hover:opacity-90"
+          >
+            OK
+          </button>
+        </form>
+      </div>
     );
+  }
 }
 
 export default WithLogging(Login);

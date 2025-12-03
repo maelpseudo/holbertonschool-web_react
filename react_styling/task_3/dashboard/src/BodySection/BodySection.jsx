@@ -1,17 +1,12 @@
-import { Component } from 'react';
+import React from "react";
 
-class BodySection extends Component {
-    render() {
-        const { title, children } = this.props;
-        return (
-            <div className="bodySection">
-                <h2>{title}</h2>
-                {children}
-            </div>
-        );
-    }
+function BodySection({ title, children }) {
+  return (
+    <section className="App-bodysection mt-6">
+      {title && <h2 className="text-xl font-semibold mb-2">{title}</h2>}
+      {children}
+    </section>
+  );
 }
 
 export default BodySection;
-
-

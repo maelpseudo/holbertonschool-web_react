@@ -1,20 +1,54 @@
+import PropTypes from 'prop-types';
+
+CourseListRow.propTypes = {
+  isHeader: PropTypes.bool.isRequired,
+  textFirstCell: PropTypes.string.isRequired,
+  textSecondCell: PropTypes.string,
+};
 
 export default function CourseListRow({
-    isHeader = false,
-    textFirstCell = '',
-    textSecondCell = null
+  isHeader = false,
+  textFirstCell = '',
+  textSecondCell = null,
 }) {
-    return (
-        isHeader ? (
-            <tr className="bg-[var(--color-table-header)] opacity-66">
-                <th colSpan={textSecondCell ? 1 : 2} className="border border-gray-400 pl-2">{textFirstCell}</th>
-                {textSecondCell ? <th className="border border-gray-400 pl-2">{textSecondCell}</th> : null}
-            </tr>
-        ) : (
-            <tr className="bg-[var(--color-table-rows)] opacity-45">
-                <td className="border border-gray-400 pl-2">{textFirstCell}</td>
-                <td className="border border-gray-400 pl-2">{textSecondCell}</td>
-            </tr>
-        )
-    )
+  const cellStyle = isHeader 
+    ? { backgroundColor: 'var(--color-table-header)', opacity: 0.66 }
+    : { backgroundColor: 'var(--color-table-rows)', opacity: 0.45 };
+  
+  const cellClasses = 'border border-gray-400';
+  
+  return isHeader ? (
+    <tr>
+      <th 
+        colSpan={textSecondCell ? 1 : 2}
+        className={cellClasses}
+        style={cellStyle}
+      >
+        {textFirstCell}
+      </th>
+      {textSecondCell ? (
+        <th 
+          className={cellClasses}
+          style={cellStyle}
+        >
+          {textSecondCell}
+        </th>
+      ) : null}
+    </tr>
+  ) : (
+    <tr>
+      <td 
+        className={`${cellClasses} pl-2`}
+        style={cellStyle}
+      >
+        {textFirstCell}
+      </td>
+      <td 
+        className={`${cellClasses} pl-2`}
+        style={cellStyle}
+      >
+        {textSecondCell}
+      </td>
+    </tr>
+  );
 }
