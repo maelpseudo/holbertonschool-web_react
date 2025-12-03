@@ -1,5 +1,5 @@
 import React from 'react'
-import './Header.scss'
+import './Header.css'
 import HolbertonLogo from '../assets/holberton-logo.jpg';
 
 export default function Header() {

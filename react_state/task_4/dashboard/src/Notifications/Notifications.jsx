@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import closeIcon from '../assets/close-icon.png';
 import NotificationItem from './NotificationItem';
-import './Notifications.scss';
+import './Notifications.css';
 
 class Notifications extends PureComponent {
     constructor(props) {

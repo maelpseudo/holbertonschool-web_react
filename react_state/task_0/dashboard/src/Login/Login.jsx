@@ -1,6 +1,6 @@
 import React from 'react'
 import WithLogging from '../HOC/WithLogging'
-import './Login.scss'
+import './Login.css'
 
 export function Login() {
     return (
