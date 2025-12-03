@@ -1,5 +1,5 @@
 import React from 'react';
-import './CourseList.scss';
+import './CourseList.css';
 import CourseListRow from './CourseListRow';
 import WithLogging from '../HOC/WithLogging'
 

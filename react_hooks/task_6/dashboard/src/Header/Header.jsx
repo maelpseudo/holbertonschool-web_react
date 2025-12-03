@@ -1,4 +1,4 @@
-import './Header.scss';
+import './Header.css';
 import HolbertonLogo from '../assets/holberton-logo.jpg';
 
 const Header = ({ user, logOut }) => {

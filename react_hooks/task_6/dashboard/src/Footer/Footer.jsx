@@ -1,4 +1,4 @@
-import './Footer.scss';
+import './Footer.css';
 import { getCurrentYear, getFooterCopy } from '../utils/utils';
 
 export default function Footer({ user }) {

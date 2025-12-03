@@ -9,7 +9,7 @@ import { getLatestNotification } from '../utils/utils';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import BodySection from '../BodySection/BodySection';
 import { appReducer, initialState, APP_ACTIONS } from './appReducer';
-import './App.scss';
+import './App.css';
 
 function App() {
     const [state, dispatch] = useReducer(appReducer, initialState);

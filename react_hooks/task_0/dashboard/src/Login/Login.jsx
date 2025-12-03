@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import WithLogging from '../HOC/WithLogging';
-import './Login.scss';
+import './Login.css';
 
 const Login = ({ login }) => {
 

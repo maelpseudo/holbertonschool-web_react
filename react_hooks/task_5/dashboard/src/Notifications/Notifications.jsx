@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import closeIcon from '../assets/close-icon.png';
 import NotificationItem from './NotificationItem';
-import './Notifications.scss';
+import './Notifications.css';
 
 const Notifications = memo(({
     notifications = [],
