@@ -7,6 +7,11 @@
 }
 
 @layer base {
+  :root {
+    --color-table-header: #deb5b5;
+    --color-table-rows: #CDCDCD;
+  }
+
   body {
     font-family: "Roboto", ui-sans-serif, system-ui, sans-serif;
   }
