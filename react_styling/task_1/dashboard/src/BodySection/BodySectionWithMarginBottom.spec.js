@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import BodySectionWithMarginBottom from './BodySectionWithMarginBottom';
-import './BodySectionWithMarginBottom.css';
+import './BodySectionWithMarginBottom.scss';
 
 const mockBodySection = jest.fn();
 jest.mock('./BodySection', () => {
