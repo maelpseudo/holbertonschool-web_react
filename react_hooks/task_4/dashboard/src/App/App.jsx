@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Notification from '../Notifications/Notifications';
 import Header from '../Header/Header';
 import Login from "../Login/Login";
@@ -7,7 +7,7 @@ import CourseList from '../CourseList/CourseList';
 import { getLatestNotification } from '../utils/utils';
 import BodySection from '../BodySection/BodySection';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
-import { newContext } from '../Context/context';
+import { newContext, user as defaultUser } from '../Context/context';
 import './App.css';
 
 const notificationsList = [
@@ -22,9 +22,9 @@ const coursesList = [
     { id: 3, name: 'React', credit: 40 }
 ];
 
-function App() {
+function App({ children }) {
     const [displayDrawer, setDisplayDrawer] = useState(true);
-    const [user, setUser] = useState({ ...newContext.user });
+    const [user, setUser] = useState(() => ({ ...defaultUser }));
     const [notifications, setNotifications] = useState(notificationsList);
     const handleDisplayDrawer = useCallback(() => {
         setDisplayDrawer(true);
@@ -32,29 +32,30 @@ function App() {
     const handleHideDrawer = useCallback(() => {
         setDisplayDrawer(false);
     }, []);
-    const logIn = (email, password) => {
+    const logIn = useCallback((email, password) => {
         setUser({
             email,
             password,
             isLoggedIn: true,
         });
-    }
-    const logOut = () => {
+    }, []);
+    const logOut = useCallback(() => {
         setUser({
             email: '',
             password: '',
             isLoggedIn: false,
         });
-    }
+    }, []);
     const markNotificationAsRead = useCallback((id) => {
         console.log(`Notification ${id} has been marked as read`);
         setNotifications((prevNotifications) =>
             prevNotifications.filter((notification) => notification.id !== id)
         );
     }, []);
+    const contextValue = useMemo(() => ({ user, logOut }), [user, logOut]);
 
     return (
-        <newContext.Provider value={{ user, logOut }}>
+        <newContext.Provider value={contextValue}>
             <Notification
                 notifications={notifications}
                 displayDrawer={displayDrawer}
@@ -71,7 +72,7 @@ function App() {
                 ) : (
                     <BodySectionWithMarginBottom title="Log in to continue">
                         <Login
-                            login={logIn}
+                            logIn={logIn}
                             email={user.email}
                             password={user.password}
                         />
@@ -82,6 +83,7 @@ function App() {
                     <p>Holberton School News goes here</p>
                 </BodySection>
                 <Footer />
+                {children}
             </div>
         </newContext.Provider>
     );

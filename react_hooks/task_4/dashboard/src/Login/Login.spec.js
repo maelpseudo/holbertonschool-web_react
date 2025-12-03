@@ -3,8 +3,6 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import userEvent from '@testing-library/user-event'
 import Login from "./Login";
 
-const logInMock = jest.fn();
-
 describe('Login Component', () => {
     test('Renders App body text', () => {
         render(<Login />);
@@ -13,7 +11,7 @@ describe('Login Component', () => {
     });
 
     test('Renders 2 input elements', () => {
-        render(<Login login={jest.fn()} />);
+        render(<Login logIn={jest.fn()} />);
         const emailInput = screen.getByLabelText(/Email:/i);
         const passwordInput = screen.getByLabelText(/Password:/i);
         expect(emailInput).toBeInTheDocument();
@@ -66,7 +64,7 @@ describe('Login Component', () => {
 
     test('Calls login method with the correct email and password when form is submitted', () => {
         const loginMock = jest.fn();
-        render(<Login login={loginMock} />);
+        render(<Login logIn={loginMock} />);
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole('button', { name: /ok/i });
