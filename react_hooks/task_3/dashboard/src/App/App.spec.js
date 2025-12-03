@@ -1,137 +1,64 @@
-import React from "react";
-import mockAxios from 'jest-mock-axios';
-import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
-import axios from 'axios';
-import App from './App';
-import Header from "../Header/Header";
-import Login from "../Login/Login";
-import Footer from "../Footer/Footer";
-import Notifications from "../Notifications/Notifications";
-import fetchNotifications from './App'
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { beforeEach, afterEach, describe, test, expect, jest } from "@jest/globals";
+import App from "./App";
 
-jest.mock('axios');
+describe("App Component keyboard event", () => {
+  let originalAlert;
 
-test('Renders App component without crashing', () => {
-  render(<App />);
-});
+  beforeEach(() => {
+    originalAlert = window.alert;
+    window.alert = jest.fn();
+    jest.spyOn(document, "addEventListener");
+    jest.spyOn(document, "removeEventListener");
+  });
 
-test('Renders Header component without crashing', () => {
-  render(<Header />);
-});
+  afterEach(() => {
+    window.alert = originalAlert;
+    document.addEventListener.mockRestore();
+    document.removeEventListener.mockRestore();
+    cleanup();
+  });
 
-test('Renders Login component without crashing', () => {
-  render(<Login />);
-});
+  test("adds and removes event listeners on mount/unmount", () => {
+    const { unmount } = render(<App />);
+    expect(document.addEventListener).toHaveBeenCalledWith("keydown", expect.any(Function));
+    unmount();
+    expect(document.removeEventListener).toHaveBeenCalledWith("keydown", expect.any(Function));
+  });
 
-test('Renders Footer component without crashing', () => {
-  render(<Footer />);
-});
+  test('calls alert with "Logging you out" and logOut when Ctrl+H is pressed', () => {
+    render(<App />);
+    const appInstance = document.querySelector("#root")._reactRootContainer._internalRoot.current.child.stateNode;
+    const logOutSpy = jest.spyOn(appInstance, "logOut");
 
-test('Renders Notifications component without crashing', () => {
-  render(<Notifications />);
-});
+    fireEvent.keyDown(document, { key: "h", ctrlKey: true });
 
-test('Renders 2 input elements and a button with the text "OK" when isLoggedIn is false', () => {
-  render(<App />);
-  const emailInput = screen.getByLabelText(/email/i);
-  expect(emailInput).toBeInTheDocument();
-  const passwordInput = screen.getByLabelText(/password/i);
-  expect(passwordInput).toBeInTheDocument();
-  const buttonElement = screen.getByRole('button', { name: 'OK' });
-  expect(buttonElement).toBeInTheDocument();
-});
+    expect(window.alert).toHaveBeenCalledWith("Logging you out");
+    expect(logOutSpy).toHaveBeenCalled();
+  });
 
-it('Displays the title "Course list" above the CourseList component when isLoggedIn is true', async () => {
-  const coursesMock = {
-    courses: [
-      { id: 1, name: 'ES6', credit: 60 },
-      { id: 2, name: 'Webpack', credit: 20 },
-      { id: 3, name: 'React', credit: 40 },
-    ],
-  };
-  mockAxios.get.mockResolvedValueOnce({ data: coursesMock });
-  render(<App />);
-  const emailInput = screen.getByLabelText(/email/i);
-  const passwordInput = screen.getByLabelText(/password/i);
-  fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-  fireEvent.change(passwordInput, { target: { value: 'password' } });
-  const loginButton = screen.getByRole('button', { name: /OK/i });
-  fireEvent.click(loginButton);
-  await waitFor(() => screen.findByText('Course list'), { timeout: 5000 });
-  const courseListTitle = screen.getByText("Course list");
-  expect(courseListTitle).toBeInTheDocument();
-});
+  test("renders the News from the School section with correct paragraph", () => {
+    render(<App />);
+    expect(screen.getByText(/news from the school/i)).toBeInTheDocument();
+    expect(screen.getByText(/holberton school news goes here/i)).toBeInTheDocument();
+  });
 
-test('Displays the title "Log in to continue" above the Login component when isLoggedIn is false', () => {
-  render(<App />);
-  const loginTitle = screen.getByText('Log in to continue');
-  expect(loginTitle).toBeInTheDocument();
-});
+  test("login flow: shows Login, then CourseList after logging in, then Login again after logout", () => {
+    render(<App />);
+    expect(screen.getByText(/login to access/i)).toBeInTheDocument();
 
-test('Displays "News from the School" and "Holberton School News goes here" by default', () => {
-  render(<App />);
-  const newsTitle = screen.getByText(/News from the School/i);
-  expect(newsTitle).toBeInTheDocument();
-  const newsContent = screen.getByText(/Holberton School News goes here/i);
-  expect(newsContent).toBeInTheDocument();
-});
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByRole("button", { name: /ok/i });
 
-test('Verifies that notification items are removed and the correct log is printed when clicked', async () => {
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-  const mockNotifications = {
-    data: {
-      notifications: [
-        { id: 1, type: 'default', value: 'New course available' },
-        { id: 2, type: 'urgent', value: 'New course available soon' },
-      ],
-    },
-  };
-  axios.get.mockResolvedValueOnce(mockNotifications);
-  render(<App />);
-  await screen.findByText('New course available');
-  const notificationItem = screen.getByText('New course available');
-  fireEvent.click(notificationItem);
-  expect(console.log).toHaveBeenCalledWith('Notification 1 has been marked as read');
-  const notificationList = screen.queryByText('New course available');
-  expect(notificationList).toBeNull();
-});
-
-it('Fetches and displays notifications when App is rendered', async () => {
-  const mockNotifications = {
-    notifications: [
-      { id: 1, type: 'default', value: 'New course available' },
-      { id: 2, type: 'urgent', value: 'New resume available' },
-      { id: 3, type: 'urgent', html: { __html: 'Latest notification content' } },
-    ],
-  };
-
-  mockAxios.get.mockResolvedValueOnce({ data: mockNotifications });
-  const { getByText, findByText, queryByText } = render(<App />);
-  expect(queryByText('New course available')).toBeNull();
-  await findByText('New course available');
-  await findByText('New resume available');
-  await findByText('Latest notification content');
-  expect(getByText('New course available')).toBeInTheDocument();
-  expect(getByText('New resume available')).toBeInTheDocument();
-  expect(getByText('Latest notification content')).toBeInTheDocument();
-});
-
-it('Fetches and displays notifications when App is rendered', async () => {
-  const mockNotifications = {
-    notifications: [
-      { id: 1, type: 'default', value: 'New course available' },
-      { id: 2, type: 'urgent', value: 'New resume available' },
-      { id: 3, type: 'urgent', html: { __html: 'Latest notification content' } },
-    ],
-  };
-
-  mockAxios.get.mockResolvedValueOnce({ data: mockNotifications });
-  const { getByText, findByText, queryByText } = render(<App />);
-  expect(queryByText('New course available')).toBeNull();
-  await findByText('New course available');
-  await findByText('New resume available');
-  await findByText('Latest notification content');
-  expect(getByText('New course available')).toBeInTheDocument();
-  expect(getByText('New resume available')).toBeInTheDocument();
-  expect(getByText('Latest notification content')).toBeInTheDocument();
+    fireEvent.change(emailInput, { target: { value: "user@test.com" } });
+    fireEvent.change(passwordInput, { target: { value: "password123" } });
+    fireEvent.click(submitButton);
+    expect(screen.getByText(/course list/i)).toBeInTheDocument();
+    expect(screen.queryByText(/login to access/i)).not.toBeInTheDocument();
+    const logoutLink = screen.getByText(/logout/i);
+    fireEvent.click(logoutLink);
+    expect(screen.getByText(/login to access/i)).toBeInTheDocument();
+    expect(screen.queryByText(/course list/i)).not.toBeInTheDocument();
+  });
 });
