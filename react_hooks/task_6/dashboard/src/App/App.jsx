@@ -1,92 +1,107 @@
-import React, { useEffect, useReducer } from "react";
-import axios from "axios";
-import Notifications from "../Notifications/Notifications";
-import Header from "../Header/Header";
+import { useReducer, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import Notification from '../Notifications/Notifications';
+import Header from '../Header/Header';
 import Login from "../Login/Login";
-import Footer from "../Footer/Footer";
-import CourseList from "../CourseList/CourseList";
-import BodySectionWithMarginBottom from "../BodySection/BodySectionWithMarginBottom";
-import BodySection from "../BodySection/BodySection";
-import { getLatestNotification } from "../utils/utils";
-import { appReducer, initialState, APP_ACTIONS } from "./appReducer";
+import Footer from '../Footer/Footer';
+import CourseList from '../CourseList/CourseList';
+import { getLatestNotification } from '../utils/utils';
+import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
+import BodySection from '../BodySection/BodySection';
+import { appReducer, initialState, APP_ACTIONS } from './appReducer';
+import './App.css';
 
 function App() {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+    const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Fetch notifications on mount
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const { data } = await axios.get("/notifications.json");
-        const updated = data.map((notif) =>
-          notif.html
-            ? { ...notif, html: { __html: getLatestNotification() } }
-            : notif
-        );
-        dispatch({ type: APP_ACTIONS.SET_NOTIFICATIONS, payload: updated });
-      } catch (error) {
-        if (process.env.NODE_ENV === "development") console.error(error);
-      }
+    const handleDisplayDrawer = useCallback(() => {
+        dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER });
+    }, []);
+
+    const handleHideDrawer = useCallback(() => {
+        dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER });
+    }, []);
+
+    const logIn = (email, password) => {
+        dispatch({
+            type: APP_ACTIONS.LOGIN,
+            payload: { email, password, isLoggedIn: true },
+        });
     };
-    fetchNotifications();
-  }, []);
 
-  // Fetch courses when user logs in
-  useEffect(() => {
-    if (!state.user.isLoggedIn) return;
-
-    const fetchCourses = async () => {
-      try {
-        const { data } = await axios.get("/courses.json");
-        dispatch({ type: APP_ACTIONS.SET_COURSES, payload: data });
-      } catch (error) {
-        if (process.env.NODE_ENV === "development") console.error(error);
-      }
+    const logOut = () => {
+        dispatch({ type: APP_ACTIONS.LOGOUT });
     };
-    fetchCourses();
-  }, [state.user.isLoggedIn]);
 
-  // Handlers
-  const handleLogin = (email, password) =>
-    dispatch({ type: APP_ACTIONS.LOGIN, payload: { email, password } });
+    const markNotificationAsRead = useCallback((id) => {
+        console.log(`Notification ${id} has been marked as read`);
+        dispatch({
+            type: APP_ACTIONS.MARK_NOTIFICATION_READ,
+            payload: { id },
+        });
+    }, []);
 
-  const handleLogout = () => dispatch({ type: APP_ACTIONS.LOGOUT });
+    useEffect(() => {
+        if (state.notifications) {
+            const fetchNotifications = async () => {
+                try {
+                    const response = await axios.get('http://localhost:5173/notifications.json');
+                    const fetchedNotifications = response.data.notifications.map((notif) => {
+                        if (notif.html && notif.html.__html === "") {
+                            notif.html.__html = getLatestNotification();
+                        }
+                        return notif;
+                    });
+                    dispatch({ type: APP_ACTIONS.SET_NOTIFICATIONS, payload: fetchedNotifications });
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            };
+            fetchNotifications();
+        }
+    }, []);
 
-  const handleToggleDrawer = () =>
-    dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER });
+    useEffect(() => {
+        if (state.user.isLoggedIn) {
+            const fetchCourses = async () => {
+                try {
+                    const response = await axios.get('http://localhost:5173/courses.json');
+                    dispatch({ type: APP_ACTIONS.SET_COURSES, payload: response.data.courses });
+                } catch (error) {
+                    console.error('Error fetching courses:', error);
+                }
+            };
+            fetchCourses();
+        }
+    }, [state.user.isLoggedIn]);
 
-  const handleMarkNotificationAsRead = (id) =>
-    dispatch({ type: APP_ACTIONS.MARK_NOTIFICATION_READ, payload: id });
-
-  return (
-    <>
-      <Notifications
-        notifications={state.notifications}
-        displayDrawer={state.displayDrawer}
-        handleDisplayDrawer={handleToggleDrawer}
-        handleHideDrawer={handleToggleDrawer}
-        markNotificationAsRead={handleMarkNotificationAsRead}
-      />
-
-      <Header user={state.user} logOut={handleLogout} />
-
-      {!state.user.isLoggedIn ? (
-        <BodySectionWithMarginBottom title="Log in to continue">
-          <Login logIn={handleLogin} />
-        </BodySectionWithMarginBottom>
-      ) : (
-        <BodySectionWithMarginBottom title="Course list">
-          <CourseList courses={state.courses} />
-        </BodySectionWithMarginBottom>
-      )}
-
-      <BodySection title="News from the School">
-        <p>Holberton School News goes here</p>
-      </BodySection>
-
-      <Footer user={state.user} logOut={handleLogout} />
-    </>
-  );
+    return (
+        <div className="App">
+            <Notification
+                notifications={state.notifications}
+                displayDrawer={state.displayDrawer}
+                handleDisplayDrawer={handleDisplayDrawer}
+                handleHideDrawer={handleHideDrawer}
+                markNotificationAsRead={markNotificationAsRead}
+            />
+            <Header user={state.user} />
+            {state.user.isLoggedIn ? (
+                <BodySectionWithMarginBottom title="Course list">
+                    <CourseList courses={state.courses} />
+                </BodySectionWithMarginBottom>
+            ) : (
+                <BodySectionWithMarginBottom title="Log in to continue">
+                    <Login
+                        login={logIn}
+                    />
+                </BodySectionWithMarginBottom>
+            )}
+            <BodySection title="News from the School">
+                <p>Holberton School news goes here</p>
+            </BodySection>
+            <Footer user={state.user} />
+        </div>
+    );
 }
 
 export default App;

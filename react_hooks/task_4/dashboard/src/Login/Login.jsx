@@ -1,86 +1,80 @@
-import React, { useState } from "react";
-import WithLogging from "../HOC/WithLogging";
+import React from 'react';
+import WithLogging from '../HOC/WithLogging';
+import './Login.css';
 
-function Login({ logIn }) {
-
-  // --- State initialization ---
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [enableSubmit, setEnableSubmit] = useState(false);
-
-  // --- Validation logic (same as before) ---
-  const validateForm = (email, password) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) && password.length >= 8;
-  };
-
-  // --- Handle input changes ---
-  const handleChangeEmail = (e) => {
-    const newEmail = e.target.value;
-    const updatedForm = { ...formData, email: newEmail };
-    setFormData(updatedForm);
-    setEnableSubmit(validateForm(newEmail, updatedForm.password));
-  };
-
-  const handleChangePassword = (e) => {
-    const newPassword = e.target.value;
-    const updatedForm = { ...formData, password: newPassword };
-    setFormData(updatedForm);
-    setEnableSubmit(validateForm(updatedForm.email, newPassword));
-  };
-
-  // --- Handle form submit ---
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    if (logIn) {
-      logIn(formData.email, formData.password);
+class Login extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            email: props.email || '',
+            password: props.password || '',
+            enableSubmit: false,
+        };
     }
-  };
 
-  return (
-    <div className="App-login flex-1 text-left m-8 border-t-4 border-[var(--main-color)] pt-6">
-      <p className="text-lg font-semibold mb-2">
-        Login to access the full dashboard
-      </p>
+    handleLoginSubmit = (e) => {
+        e.preventDefault();
+        const { email, password } = this.state;
+        this.props.logIn(email, password)
+    }
 
-      <form
-        className="flex flex-wrap items-center gap-4"
-        onSubmit={handleLoginSubmit}
-      >
-        <label htmlFor="email" className="flex items-center gap-2">
-          Email
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChangeEmail}
-            className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[var(--main-color)]"
-          />
-        </label>
+    validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
-        <label htmlFor="password" className="flex items-center gap-2">
-          Password
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChangePassword}
-            className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[var(--main-color)]"
-          />
-        </label>
+    handleChangeEmail = (e) => {
+        const email = e.target.value;
+        const { password } = this.state;
+        this.setState({
+            email: email,
+            enableSubmit: this.validateEmail(email) && password.length >= 8,
+        });
+    };
 
-        <input
-          type="submit"
-          value="OK"
-          disabled={!enableSubmit}
-          className={`px-4 py-2 border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer transition ${
-            !enableSubmit ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        />
-      </form>
-    </div>
-  );
+    handleChangePassword = (e) => {
+        const password = e.target.value;
+        const { email } = this.state;
+        this.setState({
+            password: password,
+            enableSubmit: this.validateEmail(email) && password.length >= 8,
+        });
+    };
+
+    render() {
+        const { enableSubmit, email, password } = this.state;
+        return (
+            <form aria-label="form" onSubmit={this.handleLoginSubmit}>
+                <div className="App-body">
+                    <p>Login to access the full dashboard</p>
+                    <div className="form">
+                        <label htmlFor="email">Email: </label>
+                        <input
+                            type="email"
+                            name="user_email"
+                            id="email"
+                            value={email}
+                            onChange={this.handleChangeEmail}
+                        />
+                        <label htmlFor="password">Password: </label>
+                        <input
+                            type="text"
+                            name="user_password"
+                            id="password"
+                            value={password}
+                            onChange={this.handleChangePassword}
+                        />
+                        <input
+                            value="OK"
+                            type="submit"
+                            disabled={!enableSubmit}
+                        />
+                    </div>
+                </div>
+            </form>
+        )
+    }
 }
 
-export default WithLogging(Login);
+const LoginWithLogging = WithLogging(Login)
+export default LoginWithLogging;

@@ -1,62 +1,22 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, test, expect, jest } from "@jest/globals";
-import NotificationItem from "./NotificationItem.jsx";
-import { getLatestNotification } from "../utils/utils.js";
+import { render, screen, fireEvent } from '@testing-library/react';
+import NotificationItem from './NotificationItem';
 
-describe("NotificationItem Component", () => {
-  test("renders without crashing", () => {
-    const mockMarkAsRead = jest.fn();
-    render(<NotificationItem id={1} markAsRead={mockMarkAsRead} />);
-    const item = screen.getByTestId("notification-item");
-    expect(item).toBeInTheDocument();
-  });
-
-  test('renders correctly with type="urgent" and html content', () => {
-    const props = {
-      id: 2,
-      type: "urgent",
-      html: { __html: getLatestNotification() },
-      markAsRead: jest.fn(),
-    };
-
-    render(<NotificationItem {...props} />);
-    const li = screen.getByTestId("notification-item");
-
-    expect(li).toHaveAttribute("data-notification-type", "urgent");
-    expect(li.style.color).toContain("red");
-    expect(li.innerHTML).toContain("Urgent requirement");
-  });
-
-  test('renders correctly with type="urgent" and html content', () => {
-  const props = {
-    id: 2,
-    type: "urgent",
-    html: { __html: getLatestNotification() },
-    markAsRead: jest.fn(),
-  };
-
-  render(<NotificationItem {...props} />);
-  const li = screen.getByTestId("notification-item");
-
-  expect(li).toHaveAttribute("data-notification-type", "urgent");
-  expect(li).toHaveStyle({ color: "rgb(255, 0, 0)" });
-  expect(li.innerHTML).toContain("Urgent requirement");
+test('Check whether the li element notification has the color blue when the type is set to be "defaut"', () => {
+    render(<NotificationItem type="default" />);
+    const liElement = screen.getByRole('listitem');
+    expect(liElement).toHaveStyle({ color: 'blue' });
 });
 
+test('Check whether the li element notification has the color red when the type is set to be "urgent"', () => {
+    render(<NotificationItem type="urgent" />);
+    const liElement = screen.getByRole('listitem');
+    expect(liElement).toHaveStyle({ color: 'red' });
+});
 
-  test("calls markAsRead with the correct id when clicked", () => {
-    const mockMarkAsRead = jest.fn();
-    const props = {
-      id: 4,
-      type: "default",
-      value: "Click me",
-      markAsRead: mockMarkAsRead,
-    };
-
-    render(<NotificationItem {...props} />);
-    const li = screen.getByText("Click me");
-
-    fireEvent.click(li);
-    expect(mockMarkAsRead).toHaveBeenCalledWith(4);
-  });
+test('Should log to the console the "Notification id has been marked as read" with the correct notification item id', () => {
+    const mockMarkAsRead = jest.fn()
+    render(<NotificationItem markAsRead={mockMarkAsRead} />);
+    const firstListItemElement = screen.getAllByRole('listitem')[0];
+    fireEvent.click(firstListItemElement)
+    expect(mockMarkAsRead).toHaveBeenCalled()
 });
