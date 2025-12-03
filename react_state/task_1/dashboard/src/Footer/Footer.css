@@ -1,12 +1,6 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.App-footer{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
+.App-footer {
+  display: flex;
+  justify-content: center;
+  font-style: italic;
+  font-family: sans-serif;
 }
