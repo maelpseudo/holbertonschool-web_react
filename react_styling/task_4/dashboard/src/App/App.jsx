@@ -53,7 +53,7 @@ class App extends Component {
     return (
       <div className="min-h-screen flex flex-col">
         <Notifications notifications={notificationsList} displayDrawer={false} />
-        <div className="flex-1 flex flex-col items-center px-4 sm:px-8 lg:px-12">
+        <div className="flex-1 flex flex-col items-center gap-6 px-4 sm:px-8 lg:px-12 mt-4">
           <Header />
           {
             !isLoggedIn ? (

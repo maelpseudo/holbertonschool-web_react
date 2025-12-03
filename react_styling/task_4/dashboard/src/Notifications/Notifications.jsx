@@ -24,7 +24,9 @@ class Notifications extends Component {
         const { notifications, displayDrawer } = this.props;
         return (
             <>
-                <div className="text-right pr-4 text-sm sm:text-base">Your notifications</div>
+                {!displayDrawer && (
+                    <div className="fixed top-2 right-3 text-sm sm:text-base z-10">Your notifications</div>
+                )}
                 {
                     displayDrawer ? (
                         <div className="relative lg:absolute lg:right-4 lg:top-4">
