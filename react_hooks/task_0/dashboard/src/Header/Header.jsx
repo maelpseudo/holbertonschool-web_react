@@ -1,48 +1,86 @@
-import { useContext } from 'react';
-import logo from '../assets/holberton-logo.jpg';
-import AppContext from '../Context/context';
+import React from 'react';
+import { StyleSheet, css } from 'aphrodite';
+import holbertonLogo from '../assets/holberton-logo.jpg';
+import { newContext } from '../Context/context';
 
-/**
- * Header component
- * Displays the school logo and title.
- * Shows a logout section with the user's email if logged in.
- */
+const styles = StyleSheet.create({
+  AppHeader: {
+    display: 'flex',
+    flexDirection: 'column',
+    borderBottom: '0.25rem solid #e1003c',
+    paddingBottom: '1rem',
+  },
+  headerRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  AppHeaderH1: {
+    fontFamily:
+      "'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif",
+    fontWeight: 600,
+    letterSpacing: '0.025rem',
+    color: '#e1003c',
+  },
+  AppLogo: {
+    height: '15rem',
+  },
+  logoutSection: {
+    marginTop: '0.75rem',
+    marginLeft: '2rem',
+    fontFamily:
+      "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  },
+  logoutLink: {
+    marginLeft: '0.25rem',
+    cursor: 'pointer',
+  },
+});
+
 function Header() {
-  const { user, logOut } = useContext(AppContext);
-  
-  const headingStyle = {
-    color: 'var(--main-color)',
-  };
-  
-  const borderStyle = {
-    borderBottomColor: 'var(--main-color)',
+  const context = React.useContext(newContext);
+  const { user, logOut } = context || {};
+
+  const handleLogoutClick = (event) => {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+    if (typeof logOut === 'function') {
+      logOut();
+    }
   };
 
   return (
-    <>
-      <header className="App-header" style={borderStyle}>
-        <img src={logo} alt="Holberton logo" />
-        <h1 style={headingStyle}>School dashboard</h1>
-      </header>
-      {user.isLoggedIn && (
-        <div id="logoutSection" className="px-4 sm:px-6 md:px-8 py-4">
-          <p>
-            Welcome {user.email} (
-            <a 
-              href="#" 
-              onClick={(e) => {
-                e.preventDefault();
-                logOut();
-              }}
-              style={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              logout
-            </a>
-            )
-          </p>
-        </div>
+    <header className={css(styles.AppHeader)}>
+      <div className={css(styles.headerRow)}>
+        <img
+          className={css(styles.AppLogo)}
+          src={holbertonLogo}
+          alt="holberton logo"
+        />
+
+        <h1
+          className={css(styles.AppHeaderH1)}
+          style={{ color: 'rgba(225, 0, 60, 1)' }}
+        >
+          School Dashboard
+        </h1>
+      </div>
+
+      {user && user.isLoggedIn && (
+        <section id="logoutSection" className={css(styles.logoutSection)}>
+          Welcome <b>{user.email}</b>
+          <a
+            href="#"
+            className={css(styles.logoutLink)}
+            onClick={handleLogoutClick}
+          >
+            (logout)
+          </a>
+        </section>
       )}
-    </>
+    </header>
   );
 }
 

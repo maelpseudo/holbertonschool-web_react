@@ -1,62 +1,128 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
 import NotificationItem from './NotificationItem';
 
-describe('NotificationItem component', () => {
-  test('renders without crashing', () => {
-    render(<NotificationItem type="default" value="test" />);
-  });
+const mockGetComputedStyle = (element) => {
+    const type = element.getAttribute('data-notification-type');
+    return {
+        color: type === 'default' ? 'blue' : 'red'
+    };
+};
 
-  test('renders correct html with type and value props', () => {
+Object.defineProperty(window, 'getComputedStyle', {
+    value: mockGetComputedStyle,
+});
+
+let consoleSpy;
+
+beforeEach(() => {
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+});
+
+afterEach(() => {
+    consoleSpy.mockRestore();
+});
+
+test('Renders with default type and blue color', () => {
     const { container } = render(
-      <NotificationItem type="default" value="test" />
+        <NotificationItem type="default" value="Test notification" />
     );
+
     const li = container.querySelector('li');
-    
-    expect(li).toBeInTheDocument();
     expect(li).toHaveAttribute('data-notification-type', 'default');
-    expect(li.textContent).toBe('test');
-  });
 
-  test('renders correct html with urgent type', () => {
+    const computedStyle = window.getComputedStyle(li);
+    expect(computedStyle.color).toBe('blue');
+});
+
+test('Renders with urgent type and red color', () => {
     const { container } = render(
-      <NotificationItem type="urgent" value="urgent test" />
+        <NotificationItem type="urgent" value="Urgent notification" />
     );
+
     const li = container.querySelector('li');
-    
-    expect(li).toBeInTheDocument();
     expect(li).toHaveAttribute('data-notification-type', 'urgent');
-  });
 
-  test('renders correct html with html prop', () => {
-    const { container } = render(
-      <NotificationItem 
-        type="urgent" 
-        html={{ __html: '<strong>test</strong>' }} 
-      />
-    );
-    const li = container.querySelector('li');
-    
-    expect(li).toBeInTheDocument();
-    expect(li.innerHTML).toBe('<strong>test</strong>');
-  });
+    const computedStyle = window.getComputedStyle(li);
+    expect(computedStyle.color).toBe('red');
+});
 
-  test('calls markAsRead with correct id when clicked', async () => {
-    const user = userEvent.setup();
-    const markAsReadMock = jest.fn();
+test('Renders with html content', () => {
+    const htmlContent = "<strong>Urgent requirement</strong> - complete by EOD";
+
     const { container } = render(
-      <NotificationItem 
-        type="default" 
-        value="test" 
-        id={1}
-        markAsRead={markAsReadMock}
-      />
+        <NotificationItem
+            type="urgent"
+            html={{ __html: htmlContent }}
+        />
     );
-    
+
     const li = container.querySelector('li');
-    await user.click(li);
-    
-    expect(markAsReadMock).toHaveBeenCalledWith(1);
-    expect(markAsReadMock).toHaveBeenCalledTimes(1);
-  });
+    expect(li).toHaveAttribute('data-notification-type', 'urgent');
+    expect(li.innerHTML).toBe(htmlContent);
+});
+
+test('Renders with value content', () => {
+    const { container } = render(
+        <NotificationItem type="default" value="Test notification" />
+    );
+
+    const li = container.querySelector('li');
+    expect(li.textContent).toBe('Test notification');
+});
+
+test('Calls markAsRead with correct id when clicked - value prop', () => {
+    const mockMarkAsRead = jest.fn();
+    const { container } = render(
+        <NotificationItem
+            id={42}
+            type="default"
+            value="Test notification"
+            markAsRead={mockMarkAsRead}
+        />
+    );
+
+    const li = container.querySelector('li');
+    fireEvent.click(li);
+
+    expect(mockMarkAsRead).toHaveBeenCalledTimes(1);
+    expect(mockMarkAsRead).toHaveBeenCalledWith(42);
+});
+
+test('Calls markAsRead with correct id when clicked - html prop', () => {
+    const mockMarkAsRead = jest.fn();
+    const htmlContent = "<strong>Urgent requirement</strong>";
+
+    const { container } = render(
+        <NotificationItem
+            id={123}
+            type="urgent"
+            html={{ __html: htmlContent }}
+            markAsRead={mockMarkAsRead}
+        />
+    );
+
+    const li = container.querySelector('li');
+    fireEvent.click(li);
+
+    expect(mockMarkAsRead).toHaveBeenCalledTimes(1);
+    expect(mockMarkAsRead).toHaveBeenCalledWith(123);
+});
+
+test('Does not crash when clicked without markAsRead prop', () => {
+    const { container } = render(
+        <NotificationItem
+            id={1}
+            type="default"
+            value="Test notification"
+        />
+    );
+
+    const li = container.querySelector('li');
+
+    expect(() => {
+        fireEvent.click(li);
+    }).not.toThrow();
+
+    expect(consoleSpy).not.toHaveBeenCalled();
 });

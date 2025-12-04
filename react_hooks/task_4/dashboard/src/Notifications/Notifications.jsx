@@ -1,96 +1,139 @@
-import { memo } from 'react';
-import PropTypes from 'prop-types';
-import NotificationItem from './NotificationItem';
+import { memo } from "react";
+import { StyleSheet, css } from "aphrodite";
+import closeIcon from "../assets/close-icon.png";
+import NotificationItem from "./NotificationItem";
 
-function Notifications({ displayDrawer, notifications, handleDisplayDrawer, handleHideDrawer, markNotificationAsRead }) {
-  const borderStyle = {
-    borderColor: 'var(--main-color)',
-  };
+const opacityKeyframes = {
+  from: {
+    opacity: 0.5,
+  },
+  to: {
+    opacity: 1,
+  },
+};
 
-  // Apply bounce animation when there are notifications and drawer is closed
-  const shouldBounce = notifications.length > 0 && !displayDrawer;
+const bounceKeyframes = {
+  "0%": {
+    transform: "translateY(0px)",
+  },
+  "50%": {
+    transform: "translateY(-5px)",
+  },
+  "100%": {
+    transform: "translateY(5px)",
+  },
+};
 
-  if (!displayDrawer) {
-    return (
-      <div className="Notifications-container">
-        <div className="menuItem" onClick={handleDisplayDrawer}>
-          <p className={shouldBounce ? 'animate-bounce' : ''}>Your notifications</p>
-        </div>
-      </div>
-    );
-  }
+const styles = StyleSheet.create({
+  notificationItems: {
+    position: "relative",
+    border: "3px dotted #e1003c",
+    padding: "5px",
+    fontFamily: "Roboto, sans-serif",
+    width: "25%",
+    float: "right",
+    marginTop: "20px",
+    "@media (max-width: 900px)": {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      border: "none",
+      padding: 0,
+      margin: 0,
+      fontSize: "20px",
+      backgroundColor: "white",
+      zIndex: 1000,
+    },
+  },
+  ul: {
+    "@media (max-width: 900px)": {
+      padding: 0,
+    },
+  },
+  p: {
+    margin: 0,
+    "@media (max-width: 900px)": {
+      fontSize: "20px",
+    },
+  },
+  button: {
+    position: "absolute",
+    cursor: "pointer",
+    right: "calc(0% - 480px)",
+    top: "calc(0% - 480px)",
+    background: "transparent",
+    transform: "scale(0.012)",
+    WebkitTransform: "scale(0.012)",
+    MozTransform: "scale(0.012)",
+    msTransform: "scale(0.012)",
+    OTransform: "scale(0.012)",
+  },
+  menuItem: {
+    float: "right",
+    position: "absolute",
+    right: "10px",
+    top: "-5px",
+    backgroundColor: "#fff8f8",
+    cursor: "pointer",
+    ":hover": {
+      animationName: [opacityKeyframes, bounceKeyframes],
+      animationDuration: "1s, 0.5s",
+      animationIterationCount: "3, 3",
+    },
+  },
+});
 
+const Notifications = memo(function Notifications({
+  displayDrawer,
+  handleDisplayDrawer,
+  handleHideDrawer,
+  notifications,
+  markNotificationAsRead,
+}) {
   return (
-    <div className="Notifications-container">
-      <div className="menuItem hidden md:block">
-        <p>Your notifications</p>
-      </div>
-      <div 
-        className="Notifications"
-        style={borderStyle}
+    <>
+      <div
+        className={css(styles.menuItem)}
+        onClick={() => handleDisplayDrawer()}
       >
-        <button
-          aria-label="Close"
-          onClick={handleHideDrawer}
-        >
-          ×
-        </button>
-        {notifications.length === 0 ? (
-          <p>No new notification for now</p>
-        ) : (
-          <>
-            <p>Here is the list of notifications</p>
-            <ul>
-              {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  id={notification.id}
-                  type={notification.type}
-                  value={notification.value}
-                  html={notification.html}
-                  markAsRead={markNotificationAsRead}
-                />
-              ))}
-            </ul>
-          </>
-        )}
+        Your notifications
       </div>
-    </div>
+      {displayDrawer ? (
+        <div className={css(styles.notificationItems)}>
+          {notifications.length > 0 ? (
+            <>
+              <p className={css(styles.p)}>Here is the list of notifications</p>
+              <button
+                onClick={() => handleHideDrawer()}
+                aria-label="Close"
+                className={css(styles.button)}
+              >
+                <img src={closeIcon} alt="close icon" />
+              </button>
+              <ul className={css(styles.ul)}>
+                {notifications.map((notification) => (
+                  <NotificationItem
+                    id={notification.id}
+                    key={notification.id}
+                    type={notification.type}
+                    value={notification.value}
+                    html={notification.html}
+                    markAsRead={markNotificationAsRead}
+                  />
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className={css(styles.p)}>No new notifications for now</p>
+          )}
+        </div>
+      ) : (
+        []
+      )}
+    </>
   );
-}
+});
 
-Notifications.propTypes = {
-  displayDrawer: PropTypes.bool,
-  notifications: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      type: PropTypes.string.isRequired,
-      value: PropTypes.string,
-      html: PropTypes.shape({
-        __html: PropTypes.string,
-      }),
-    })
-  ),
-  handleDisplayDrawer: PropTypes.func,
-  handleHideDrawer: PropTypes.func,
-  markNotificationAsRead: PropTypes.func,
-};
-
-Notifications.defaultProps = {
-  displayDrawer: false,
-  notifications: [],
-  handleDisplayDrawer: () => {},
-  handleHideDrawer: () => {},
-  markNotificationAsRead: () => {},
-};
-
-// Custom comparison function for memo
-const areEqual = (prevProps, nextProps) => {
-  // Only re-render if notifications length changes or displayDrawer changes
-  return (
-    prevProps.displayDrawer === nextProps.displayDrawer &&
-    prevProps.notifications.length === nextProps.notifications.length
-  );
-};
-
-export default memo(Notifications, areEqual);
+export default Notifications;

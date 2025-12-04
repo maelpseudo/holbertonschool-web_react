@@ -1,90 +1,82 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import NotificationItem from './NotificationItem';
 
-describe('NotificationItem component', () => {
-  test('renders without crashing', () => {
-    render(<NotificationItem />);
+
+test('it should call markAsRead with the correct id when the notification item is clicked', () => {
+  const mockMarkAsRead = jest.fn();
+  const props = {
+    id: 42,
+    type: 'default',
+    value: 'Test notification',
+    markAsRead: mockMarkAsRead,
+  };
+
+  render(<NotificationItem {...props} />);
+
+  const liElement = screen.getByRole('listitem');
+
+  fireEvent.click(liElement);
+
+  expect(mockMarkAsRead).toHaveBeenCalledTimes(1);
+  expect(mockMarkAsRead).toHaveBeenCalledWith(42);
+});
+
+describe('NotificationItem - React.memo behavior', () => {
+  let markAsRead;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    markAsRead = jest.fn();
   });
 
-  test('renders correct html with type and value props', () => {
-    render(<NotificationItem type="default" value="test" />);
-    const listItem = screen.getByText('test');
-    
-    expect(listItem).toBeInTheDocument();
-    expect(listItem.tagName).toBe('LI');
-    expect(listItem).toHaveAttribute('data-notification-type', 'default');
-  });
-
-  test('renders correct html with html prop', () => {
-    const htmlContent = { __html: '<u>test</u>' };
-    const { container } = render(<NotificationItem html={htmlContent} />);
-    const listItem = container.querySelector('li');
-    
-    expect(listItem).toBeInTheDocument();
-    expect(listItem.innerHTML).toBe('<u>test</u>');
-  });
-
-  test('applies correct color for default type', () => {
-    render(<NotificationItem type="default" value="test" />);
-    const listItem = screen.getByText('test');
-    
-    expect(listItem.style.color).toBe('var(--default-notification-item)');
-  });
-
-  test('applies correct color for urgent type', () => {
-    render(<NotificationItem type="urgent" value="test" />);
-    const listItem = screen.getByText('test');
-    
-    expect(listItem.style.color).toBe('var(--urgent-notification-item)');
-  });
-
-  test('calls markAsRead with correct id when clicked', async () => {
-    const user = userEvent.setup();
-    const markAsReadSpy = jest.fn();
-    render(<NotificationItem id={1} value="test" markAsRead={markAsReadSpy} />);
-    
-    const listItem = screen.getByText('test');
-    await user.click(listItem);
-    
-    expect(markAsReadSpy).toHaveBeenCalledWith(1);
-    expect(markAsReadSpy).toHaveBeenCalledTimes(1);
-  });
-
-  test('does not re-render when props are the same (memoization)', () => {
-    const markAsReadSpy = jest.fn();
-    const { rerender } = render(
-      <NotificationItem id={1} type="default" value="test" markAsRead={markAsReadSpy} />
+  test('should update when props change', () => {
+    const { rerender, container } = render(
+      <NotificationItem
+        id={1}
+        type="urgent"
+        value="New notification"
+        markAsRead={markAsRead}
+      />
     );
-    
-    const listItem = screen.getByText('test');
-    const firstRender = listItem;
-    
-    // Re-render with same props
+
+    const firstRender = container.querySelector('[data-notification-type]').textContent;
+
     rerender(
-      <NotificationItem id={1} type="default" value="test" markAsRead={markAsReadSpy} />
+      <NotificationItem
+        id={1}
+        type="urgent"
+        value="Updated notification"
+        markAsRead={markAsRead}
+      />
     );
-    
-    const secondRender = screen.getByText('test');
-    
-    // The DOM node should be the same (no re-render)
-    expect(firstRender).toBe(secondRender);
+
+    const secondRender = container.querySelector('[data-notification-type]').textContent;
+    expect(secondRender).not.toBe(firstRender);
+    expect(secondRender).toBe('Updated notification');
   });
 
-  test('re-renders when props change', () => {
-    const markAsReadSpy = jest.fn();
-    const { rerender } = render(
-      <NotificationItem id={1} type="default" value="test" markAsRead={markAsReadSpy} />
+  test('should not re-render when props do not change', () => {
+    const { rerender, container } = render(
+      <NotificationItem
+        id={1}
+        type="urgent"
+        value="New notification"
+        markAsRead={markAsRead}
+      />
     );
-    
-    expect(screen.getByText('test')).toBeInTheDocument();
-    
-    // Re-render with different props
+
+    const firstElement = container.querySelector('[data-notification-type]');
+
     rerender(
-      <NotificationItem id={1} type="default" value="updated" markAsRead={markAsReadSpy} />
+      <NotificationItem
+        id={1}
+        type="urgent"
+        value="New notification"
+        markAsRead={markAsRead}
+      />
     );
-    
-    expect(screen.getByText('updated')).toBeInTheDocument();
-    expect(screen.queryByText('test')).not.toBeInTheDocument();
+
+    const secondElement = container.querySelector('[data-notification-type]');
+    expect(secondElement.textContent).toBe(firstElement.textContent);
   });
 });

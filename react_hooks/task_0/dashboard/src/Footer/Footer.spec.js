@@ -1,56 +1,53 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { StyleSheetTestUtils } from 'aphrodite';
 import Footer from './Footer';
-import AppContext from '../Context/context';
+import { newContext, defaultUser } from '../Context/context';
 
-describe('Footer component', () => {
-  test('renders without crashing', () => {
-    render(<Footer />);
-  });
+beforeEach(() => {
+  StyleSheetTestUtils.suppressStyleInjection();
+});
 
-  test('renders copyright text', () => {
-    render(<Footer />);
-    const copyrightText = screen.getByText(/copyright/i);
-    expect(copyrightText).toBeInTheDocument();
-  });
+afterEach(() => {
+  StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+});
 
-  test('does not display Contact us link when user is logged out', () => {
-    const contextValue = {
-      user: {
-        email: '',
-        password: '',
-        isLoggedIn: false,
-      },
-      logOut: jest.fn(),
-    };
+test('renders correct text content in p elements', () => {
+  render(<Footer />);
 
-    render(
-      <AppContext.Provider value={contextValue}>
-        <Footer />
-      </AppContext.Provider>
-    );
+  const currentYear = new Date().getFullYear();
+  const footerParagraph = screen.getByText(
+    new RegExp(`copyright ${currentYear}.*holberton school`, 'i')
+  );
 
-    const contactLink = screen.queryByText(/contact us/i);
-    expect(contactLink).not.toBeInTheDocument();
-  });
+  expect(footerParagraph).toBeInTheDocument();
+});
 
-  test('displays Contact us link when user is logged in', () => {
-    const contextValue = {
-      user: {
-        email: 'test@example.com',
-        password: 'password123',
-        isLoggedIn: true,
-      },
-      logOut: jest.fn(),
-    };
+test('does NOT display "Contact us" link when user is logged out', () => {
+  const value = { user: { ...defaultUser }, logOut: () => { } };
 
-    render(
-      <AppContext.Provider value={contextValue}>
-        <Footer />
-      </AppContext.Provider>
-    );
+  render(
+    <newContext.Provider value={value}>
+      <Footer />
+    </newContext.Provider>
+  );
 
-    const contactLink = screen.getByText(/contact us/i);
-    expect(contactLink).toBeInTheDocument();
-    expect(contactLink.tagName).toBe('A');
-  });
+  const contactLink = screen.queryByRole('link', { name: /contact us/i });
+  expect(contactLink).not.toBeInTheDocument();
+});
+
+test('displays "Contact us" link when user is logged in', () => {
+  const value = {
+    user: { email: 'user@example.com', password: 'strongpass', isLoggedIn: true },
+    logOut: () => { },
+  };
+
+  render(
+    <newContext.Provider value={value}>
+      <Footer />
+    </newContext.Provider>
+  );
+
+  const contactLink = screen.getByRole('link', { name: /contact us/i });
+  expect(contactLink).toBeInTheDocument();
 });

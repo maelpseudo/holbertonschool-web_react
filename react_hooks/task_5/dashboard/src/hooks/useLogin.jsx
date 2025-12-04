@@ -1,67 +1,43 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
-/**
- * Custom hook for login form management
- * @param {Function} onLogin - Callback function to execute on successful login
- * @returns {Object} - Form state and handlers
- */
-function useLogin(onLogin) {
+export default function useLogin(onLogin) {
+  const [enableSubmit, setEnableSubmit] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    password: ''
   });
-  const [enableSubmit, setEnableSubmit] = useState(false);
 
-  /**
-   * Validates the form inputs
-   * @param {string} email - Email value
-   * @param {string} password - Password value
-   */
-  const validateForm = useCallback((email, password) => {
+  const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = emailRegex.test(email);
-    const isPasswordValid = password.length >= 8;
-    const isFormValid = isEmailValid && isPasswordValid && email !== '' && password !== '';
+    return emailRegex.test(email);
+  };
+
+  const handleChangeEmail = (e) => {
+    const newEmail = e.target.value;
+    const { password } = formData;
     
-    setEnableSubmit(isFormValid);
-  }, []);
-
-  /**
-   * Handles email input change
-   * @param {Event} event - Input change event
-   */
-  const handleChangeEmail = useCallback((event) => {
-    const email = event.target.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      email,
+    setFormData(prev => ({
+      ...prev,
+      email: newEmail
     }));
-    validateForm(email, formData.password);
-  }, [formData.password, validateForm]);
+    setEnableSubmit(validateEmail(newEmail) && password.length >= 8);
+  };
 
-  /**
-   * Handles password input change
-   * @param {Event} event - Input change event
-   */
-  const handleChangePassword = useCallback((event) => {
-    const password = event.target.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      password,
+  const handleChangePassword = (e) => {
+    const newPassword = e.target.value;
+    const { email } = formData;
+    
+    setFormData(prev => ({
+      ...prev,
+      password: newPassword
     }));
-    validateForm(formData.email, password);
-  }, [formData.email, validateForm]);
+    setEnableSubmit(validateEmail(email) && newPassword.length >= 8);
+  };
 
-  /**
-   * Handles form submission
-   * @param {Event} event - Form submit event
-   */
-  const handleSubmit = useCallback((event) => {
-    event.preventDefault();
-    if (onLogin) {
-      onLogin(formData.email, formData.password);
-    }
-  }, [formData.email, formData.password, onLogin]);
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    onLogin(formData.email, formData.password);
+  };
 
   return {
     email: formData.email,
@@ -69,8 +45,6 @@ function useLogin(onLogin) {
     enableSubmit,
     handleChangeEmail,
     handleChangePassword,
-    handleSubmit,
+    handleLoginSubmit
   };
 }
-
-export default useLogin;

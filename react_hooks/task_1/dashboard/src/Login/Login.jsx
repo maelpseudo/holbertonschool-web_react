@@ -1,120 +1,135 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, css } from 'aphrodite';
 
-/**
- * Login component
- * Handles user login with email and password.
- * Uses useState to manage form data and submit button state.
- * @param {Object} props - Component props
- * @param {Function} props.logIn - Function to call on successful login
- */
-function Login({ logIn }) {
+const Login = (props) => {
+  // Chercher login (minuscule) au lieu de logIn
+  const loginFunction = props.login || props.logIn || (() => {});
+  const { email = '', password = '' } = props;
+  
   const [enableSubmit, setEnableSubmit] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: email || '',
+    password: password || '',
   });
 
-  /**
-   * Handles email input change
-   * Updates formData and validates the form
-   * @param {Event} event - Input change event
-   */
-  const handleChangeEmail = (event) => {
-    const email = event.target.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+  const emailRef = useRef();
+  const passwordRef = useRef();
+
+  const styles = StyleSheet.create({
+    AppBody: {
+      padding: '2rem',
+      flex: 1,
+    },
+    AppBodyP: {
+      marginBottom: '1rem',
+    },
+    form: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      gap: '1rem',
+      '@media (max-width: 900px)': {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: '0.5rem',
+      },
+    },
+    formInput: {
+      padding: '0 0.25rem',
+    },
+    formButton: {
+      padding: '0 0.25rem',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
+
+  const validateEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value);
+  };
+
+  const handleChangeEmail = (e) => {
+    const email = e.target.value;
+    const password = formData.password;
+
+    setFormData({
       email,
-    }));
-    validateForm(email, formData.password);
-  };
-
-  /**
-   * Handles password input change
-   * Updates formData and validates the form
-   * @param {Event} event - Input change event
-   */
-  const handleChangePassword = (event) => {
-    const password = event.target.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
       password,
-    }));
-    validateForm(formData.email, password);
+    });
+
+    const emailOk = email.length > 0 && validateEmail(email);
+    const passwordOk = password.length >= 8;
+    setEnableSubmit(emailOk && passwordOk);
   };
 
-  /**
-   * Validates the form inputs
-   * Enables submit button if email is valid and password is at least 8 chars
-   * @param {string} email - Email value
-   * @param {string} password - Password value
-   */
-  const validateForm = (email, password) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = emailRegex.test(email);
-    const isPasswordValid = password.length >= 8;
-    const isFormValid = isEmailValid && isPasswordValid && email !== '' && password !== '';
-    
-    setEnableSubmit(isFormValid);
+  const handleChangePassword = (e) => {
+    const password = e.target.value;
+    const email = formData.email;
+
+    setFormData({
+      email,
+      password,
+    });
+
+    const emailOk = email.length > 0 && validateEmail(email);
+    const passwordOk = password.length >= 8;
+    setEnableSubmit(emailOk && passwordOk);
   };
 
-  /**
-   * Handles form submission
-   * Calls logIn prop with email and password
-   * @param {Event} event - Form submit event
-   */
-  const handleLoginSubmit = (event) => {
-    event.preventDefault();
-    logIn(formData.email, formData.password);
-  };
-
-  const borderStyle = {
-    borderTopColor: 'var(--main-color)',
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    if (typeof loginFunction === 'function') {
+      loginFunction(formData.email, formData.password);
+    }
   };
 
   return (
-    <div className="App-body" style={borderStyle}>
-      <p>Login to access the full dashboard</p>
-      <form onSubmit={handleLoginSubmit} data-testid="login-form">
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            value={formData.email}
-            onChange={handleChangeEmail}
-            data-testid="email-input"
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            value={formData.password}
-            onChange={handleChangePassword}
-            data-testid="password-input"
-          />
-        </div>
-        <input 
-          type="submit" 
-          value="OK" 
+    <div className={css(styles.AppBody)}>
+      <p className={css(styles.AppBodyP)}>Login to access the full dashboard</p>
+      <form role="form" aria-label="login form" className={css(styles.form)} onSubmit={handleLoginSubmit}>
+        <label
+          htmlFor="email"
+          onClick={() => emailRef.current && emailRef.current.focus()}
+        >
+          Email:
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          ref={emailRef}
+          className={css(styles.formInput)}
+          value={formData.email}
+          onChange={handleChangeEmail}
+        />
+        <label
+          htmlFor="password"
+          onClick={() => passwordRef.current && passwordRef.current.focus()}
+        >
+          Password:
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          role="textbox"
+          ref={passwordRef}
+          className={css(styles.formInput)}
+          value={formData.password}
+          onChange={handleChangePassword}
+        />
+        <input
+          type="submit"
+          value="OK"
+          className={css(styles.formButton)}
           disabled={!enableSubmit}
-          data-testid="submit-button"
         />
       </form>
     </div>
   );
-}
-
-Login.propTypes = {
-  logIn: PropTypes.func,
-};
-
-Login.defaultProps = {
-  logIn: () => {},
 };
 
 export default Login;

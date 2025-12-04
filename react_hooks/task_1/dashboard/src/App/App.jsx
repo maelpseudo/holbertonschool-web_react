@@ -1,4 +1,5 @@
-import { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import { StyleSheet, css } from 'aphrodite';
 import Notifications from '../Notifications/Notifications';
 import Header from '../Header/Header';
 import Login from '../Login/Login';
@@ -7,55 +8,121 @@ import CourseList from '../CourseList/CourseList';
 import BodySection from '../BodySection/BodySection';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import WithLogging from '../HOC/WithLogging';
-import AppContext from '../Context/context';
+import { getLatestNotification } from '../utils/utils';
+import { newContext, defaultUser } from '../Context/context';
 
 const LoginWithLogging = WithLogging(Login);
 const CourseListWithLogging = WithLogging(CourseList);
 
+const styles = StyleSheet.create({
+  reset: {
+    '*': {
+      boxSizing: 'border-box',
+      margin: 0,
+      padding: 0,
+      scrollBehavior: 'smooth',
+    },
+    '*::before': {
+      boxSizing: 'border-box',
+      margin: 0,
+      padding: 0,
+    },
+    '*::after': {
+      boxSizing: 'border-box',
+      margin: 0,
+      padding: 0,
+    },
+  },
+  app: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  body: {
+    flex: 1,
+    padding: '20px',
+  },
+  footer: {
+    padding: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily:
+      "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+    fontSize: '0.8rem',
+    fontWeight: 200,
+    fontStyle: 'italic',
+    borderTop: '0.25rem solid #e1003c',
+  },
+});
+
+const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', html: { __html: getLatestNotification() } },
+];
+
+const coursesList = [
+  { id: 1, name: 'ES6', credit: 60 },
+  { id: 2, name: 'Webpack', credit: 20 },
+  { id: 3, name: 'React', credit: 40 },
+];
+
 class App extends Component {
   constructor(props) {
     super(props);
+
     this.logIn = this.logIn.bind(this);
     this.logOut = this.logOut.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
     this.handleHideDrawer = this.handleHideDrawer.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.markNotificationAsRead = this.markNotificationAsRead.bind(this);
-    
+
     this.state = {
-      displayDrawer: false,
-      user: {
-        email: '',
-        password: '',
-        isLoggedIn: false,
+      user: { ...defaultUser },
+      logOut: this.logOut,
+      contextValue: {
+        user: { ...defaultUser },
+        logOut: this.logOut,
       },
-      notifications: [
-        { id: 1, type: 'default', value: 'New course available' },
-        { id: 2, type: 'urgent', value: 'New resume available' },
-        { id: 3, type: 'urgent', html: { __html: '<strong>Urgent requirement</strong> - complete by EOD' } },
-      ],
-      courses: [
-        { id: 1, name: 'ES6', credit: 60 },
-        { id: 2, name: 'Webpack', credit: 20 },
-        { id: 3, name: 'React', credit: 40 },
-      ],
+
+      notifications: notificationsList,
+      courses: coursesList,
+
+      displayDrawer: true,
     };
   }
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
+  logIn(email, password) {
+    const user = {
+      email: email || '',
+      password: password || '',
+      isLoggedIn: true,
+    };
+    
+    // Utiliser un callback pour éviter les problèmes de timing
+    this.setState((prevState) => ({
+      user,
+      contextValue: {
+        user,
+        logOut: this.logOut,
+      },
+    }));
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown(event) {
-    if (event.ctrlKey && event.key === 'h') {
-      event.preventDefault();
-      alert('Logging you out');
-      this.logOut();
-    }
+  logOut() {
+    const user = { ...defaultUser };
+    
+    // Utiliser un callback pour éviter les problèmes de timing
+    this.setState((prevState) => ({
+      user,
+      contextValue: {
+        user,
+        logOut: this.logOut,
+      },
+    }));
   }
 
   handleDisplayDrawer() {
@@ -66,73 +133,92 @@ class App extends Component {
     this.setState({ displayDrawer: false });
   }
 
-  logIn(email, password) {
-    this.setState({
-      user: {
-        email,
-        password,
-        isLoggedIn: true,
-      },
-    });
+  handleKeyDown(event) {
+    if (event.ctrlKey && event.key === 'h') {
+      alert('Logging you out');
+      this.logOut();
+    }
   }
 
-  logOut() {
-    this.setState({
-      user: {
-        email: '',
-        password: '',
-        isLoggedIn: false,
-      },
-    });
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+
+    const resetCSS = `
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        scroll-behavior: smooth;
+      }
+
+      #root {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = resetCSS;
+    document.head.appendChild(style);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   markNotificationAsRead(id) {
     console.log(`Notification ${id} has been marked as read`);
-    this.setState({
-      notifications: this.state.notifications.filter(
-        (notification) => notification.id !== id
-      ),
+
+    this.setState((prevState) => {
+      const filtered = prevState.notifications.filter(item => item.id !== id);
+      return { notifications: filtered };
     });
   }
 
   render() {
-    const { user, displayDrawer, notifications, courses } = this.state;
-    
-    const contextValue = {
-      user,
-      logOut: this.logOut,
-    };
+    const { user, contextValue } = this.state;
 
     return (
-      <AppContext.Provider value={contextValue}>
-        <Fragment>
-          <Notifications 
-            displayDrawer={displayDrawer} 
-            notifications={notifications}
+      <newContext.Provider value={contextValue}>
+        <div className={css(styles.app)}>
+          <Notifications
+            notifications={this.state.notifications}
+            displayDrawer={this.state.displayDrawer}
             handleDisplayDrawer={this.handleDisplayDrawer}
             handleHideDrawer={this.handleHideDrawer}
             markNotificationAsRead={this.markNotificationAsRead}
           />
-          <div className="App relative min-h-screen pb-16">
-            <Header />
-            <main className="px-4 sm:px-6 md:px-8">
-              {user.isLoggedIn ? (
-                <BodySectionWithMarginBottom title="Course list">
-                  <CourseListWithLogging courses={courses} />
-                </BodySectionWithMarginBottom>
-              ) : (
-                <BodySectionWithMarginBottom title="Log in to continue">
-                  <LoginWithLogging logIn={this.logIn} />
-                </BodySectionWithMarginBottom>
-              )}
-              <BodySection title="News from the School">
-                <p>ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique, asperiores architecto blanditiis fuga doloribus sit illum aliquid ea distinctio minus accusantium, impedit quo voluptatibus ut magni dicta. Recusandae, quia dicta?</p>
-              </BodySection>
-            </main>
+
+          <Header />
+
+          <div className={css(styles.body)}>
+            {user.isLoggedIn ? (
+              <BodySectionWithMarginBottom title="Course list">
+                <CourseListWithLogging courses={this.state.courses} />
+              </BodySectionWithMarginBottom>
+            ) : (
+              <BodySectionWithMarginBottom title="Log in to continue">
+                <LoginWithLogging
+                  logIn={this.logIn}
+                  email={user.email}
+                  password={user.password}
+                />
+              </BodySectionWithMarginBottom>
+            )}
+
+            <BodySection title="News from the School">
+              <p>Holberton School News goes here</p>
+            </BodySection>
+          </div>
+
+          <div className={css(styles.footer)}>
             <Footer />
           </div>
-        </Fragment>
-      </AppContext.Provider>
+        </div>
+      </newContext.Provider>
     );
   }
 }
