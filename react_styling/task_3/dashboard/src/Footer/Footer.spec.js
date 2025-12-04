@@ -1,12 +1,16 @@
-import { render, screen } from "@testing-library/react";
-import { expect, test } from "@jest/globals";
-import Footer from "./Footer.jsx";
-import { getCurrentYear, getFooterCopy } from "../utils/utils";
+import { render, screen } from '@testing-library/react';
+import Footer from './Footer';
 
-test("Render the text p element in app-footer", () => {
-  render(<Footer />);
-  const footerText = screen.getByText(
-    new RegExp(`Copyright ${getCurrentYear()}.*${getFooterCopy(true)}`, "i")
-  );
-  expect(footerText).toBeInTheDocument();
+describe('Footer component', () => {
+  test('renders without crashing', () => {
+    render(<Footer />);
+  });
+
+  test('renders the text "Copyright"', () => {
+    render(<Footer />);
+    
+    const currentYear = new Date().getFullYear();
+    const footerText = screen.getByText(new RegExp(`Copyright ${currentYear} - Holberton School`, 'i'));
+    expect(footerText).toBeInTheDocument();
+  });
 });

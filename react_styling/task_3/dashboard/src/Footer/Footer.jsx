@@ -1,9 +1,7 @@
-import React from "react";
-
 function Footer() {
   return (
-    <footer className="App-footer text-center text-sm border-t-4 border-[var(--main-color)] mt-10 py-4 text-gray-600">
-      <p>Copyright 2025 - Holberton School</p>
+    <footer className="App-footer border-t-[3px] border-[var(--main-color)] p-5 text-center italic fixed bottom-0 left-0 right-0 bg-white w-full">
+      <p>Copyright {new Date().getFullYear()} - Holberton School</p>
     </footer>
   );
 }

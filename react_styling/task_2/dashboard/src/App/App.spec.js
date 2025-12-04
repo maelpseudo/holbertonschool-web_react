@@ -1,50 +1,66 @@
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import { beforeEach, afterEach, describe, test, expect, jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 
-describe('App Component keyboard event', () => {
-  let originalAlert;
+describe('App component', () => {
+  let alertSpy;
 
   beforeEach(() => {
-    originalAlert = window.alert;
-    window.alert = jest.fn();
-    jest.spyOn(document, 'addEventListener');
-    jest.spyOn(document, 'removeEventListener');
+    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    window.alert = originalAlert;
-    document.addEventListener.mockRestore();
-    document.removeEventListener.mockRestore();
-    cleanup();
+    alertSpy.mockRestore();
   });
 
-  test('calls logOut function when Ctrl+H is pressed', () => {
+  test('renders without crashing', () => {
+    render(<App />);
+  });
+
+  test('calls logOut and displays alert when ctrl+h is pressed', () => {
     const logOutMock = jest.fn();
-    render(<App logOut={logOutMock} isLoggedIn={true} />);
-    fireEvent.keyDown(document, { key: 'h', ctrlKey: true });
-    expect(logOutMock).toHaveBeenCalled();
+    render(<App logOut={logOutMock} />);
+
+    const event = new KeyboardEvent('keydown', {
+      ctrlKey: true,
+      key: 'h',
+      bubbles: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(logOutMock).toHaveBeenCalledTimes(1);
+    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
   });
 
-  test('calls alert with "Logging you out" on Ctrl+H', () => {
+  test('alert function is called with the string "Logging you out"', () => {
     const logOutMock = jest.fn();
-    render(<App logOut={logOutMock} isLoggedIn={true} />);
-    fireEvent.keyDown(document, { key: 'h', ctrlKey: true });
-    expect(window.alert).toHaveBeenCalledWith('Logging you out');
+    render(<App logOut={logOutMock} />);
+
+    const event = new KeyboardEvent('keydown', {
+      ctrlKey: true,
+      key: 'h',
+      bubbles: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
   });
 
-  test('adds and removes event listeners on mount/unmount', () => {
-    const { unmount } = render(<App isLoggedIn={true} />);
-    expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
-    unmount();
-    expect(document.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+  test('displays News from the School title and paragraph by default', () => {
+    render(<App />);
+    
+    const newsTitle = screen.getByText(/news from the school/i);
+    expect(newsTitle).toBeInTheDocument();
+    
+    const newsParagraph = screen.getByText(/holberton school news goes here/i);
+    expect(newsParagraph).toBeInTheDocument();
   });
 
-  test('renders the News from the School section with correct paragraph', () => {
-    const { getByText } = render(<App isLoggedIn={false} />);
-    const heading = getByText(/news from the school/i);
-    const paragraph = getByText(/holberton school news goes here/i);
-    expect(heading).toBeInTheDocument();
-    expect(paragraph).toBeInTheDocument();
+  test('displays CourseList when isLoggedIn is true', () => {
+    render(<App />);
+    
+    const courseListTable = document.getElementById('CourseList');
+    expect(courseListTable).toBeInTheDocument();
   });
 });

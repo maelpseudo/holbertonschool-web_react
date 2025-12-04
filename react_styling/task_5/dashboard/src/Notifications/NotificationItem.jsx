@@ -1,45 +1,57 @@
 import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, css } from 'aphrodite';
-
-const styles = StyleSheet.create({
-    default: {
-        color: 'blue',
-    },
-    urgent: {
-        color: 'red',
-    },
-});
 
 class NotificationItem extends PureComponent {
-    render() {
-        const { type, value, html, markAsRead } = this.props;
-
-        return (
-            <li
-                className={css(type === 'default' ? styles.default : styles.urgent)}
-                data-notification-type={type}
-                dangerouslySetInnerHTML={type === 'urgent' && html !== undefined ? html : undefined}
-                onClick={markAsRead}
-            >
-                {type === 'urgent' && html !== undefined ? null : value}
-            </li>
-        );
+  render() {
+    const { type, html, value, markAsRead, id } = this.props;
+    
+    const textColorStyle = {
+      color: type === 'urgent' ? 'var(--urgent-notification-item)' : 'var(--default-notification-item)',
+    };
+    
+    const className = "py-2.5 px-2 text-xl border-b border-black cursor-pointer w-full md:text-base md:py-0 md:px-0 md:border-b-0";
+    
+    if (html) {
+      return (
+        <li
+          data-notification-type={type}
+          dangerouslySetInnerHTML={html}
+          style={textColorStyle}
+          className={className}
+          onClick={() => markAsRead(id)}
+        />
+      );
     }
+    
+    return (
+      <li 
+        data-notification-type={type} 
+        style={textColorStyle}
+        className={className}
+        onClick={() => markAsRead(id)}
+      >
+        {value}
+      </li>
+    );
+  }
 }
 
 NotificationItem.propTypes = {
-    type: PropTypes.oneOf(['default', 'urgent']).isRequired,
-    value: PropTypes.string,
-    html: PropTypes.shape({
-        __html: PropTypes.string,
-    }),
-    markAsRead: PropTypes.func.isRequired,
+  type: PropTypes.string,
+  html: PropTypes.shape({
+    __html: PropTypes.string,
+  }),
+  value: PropTypes.string,
+  markAsRead: PropTypes.func,
+  id: PropTypes.number,
 };
 
 NotificationItem.defaultProps = {
-    value: '',
-    html: undefined,
+  type: 'default',
+  html: null,
+  value: '',
+  markAsRead: () => {},
+  id: 0,
 };
 
 export default NotificationItem;

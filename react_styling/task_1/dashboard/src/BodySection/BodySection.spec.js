@@ -1,18 +1,41 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import BodySection from './BodySection';
 
-describe('BodySection', () => {
-  it('renders a heading with the title prop value', () => {
-    const { getByText } = render(<BodySection title="Test Title" />);
-    expect(getByText('Test Title')).toBeInTheDocument();
+describe('BodySection component', () => {
+  test('renders without crashing', () => {
+    render(<BodySection title="test title" />);
   });
 
-  it('renders the children passed to it', () => {
-    const { getByText } = render(
-      <BodySection title="Title">
-        <p>Child paragraph</p>
+  test('renders correct h2 element with the title prop', () => {
+    render(<BodySection title="test title"><p>test children node</p></BodySection>);
+    
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading).toBeInTheDocument();
+    expect(heading.textContent).toBe('test title');
+  });
+
+  test('renders the children correctly', () => {
+    render(
+      <BodySection title="test title">
+        <p>test children node</p>
       </BodySection>
     );
-    expect(getByText('Child paragraph')).toBeInTheDocument();
+    
+    const paragraph = screen.getByText('test children node');
+    expect(paragraph).toBeInTheDocument();
+  });
+
+  test('renders multiple children correctly', () => {
+    render(
+      <BodySection title="test title">
+        <p>First child</p>
+        <p>Second child</p>
+        <span>Third child</span>
+      </BodySection>
+    );
+    
+    expect(screen.getByText('First child')).toBeInTheDocument();
+    expect(screen.getByText('Second child')).toBeInTheDocument();
+    expect(screen.getByText('Third child')).toBeInTheDocument();
   });
 });

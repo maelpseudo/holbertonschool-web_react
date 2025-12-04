@@ -1,52 +1,59 @@
-import React from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 
-function CourseListRow({ isHeader, textFirstCell, textSecondCell, customStyle = "" }) {
-  if (isHeader) {
-    if (textSecondCell === undefined) {
-      return (
-        <tr>
-          <th
-            colSpan="2"
-            className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}
-          >
-            {textFirstCell}
-          </th>
-        </tr>
-      );
+class CourseListRow extends Component {
+  render() {
+    const { isHeader, textFirstCell, textSecondCell } = this.props;
+    
+    const headerClasses = 'border border-gray-400';
+    const cellClasses = 'border border-gray-400 pl-2';
+    
+    if (isHeader) {
+      const headerRowStyle = {
+        backgroundColor: 'var(--color-table-header)',
+        opacity: '0.66',
+      };
+      
+      if (textSecondCell === null) {
+        return (
+          <tr style={headerRowStyle}>
+            <th colSpan="2" className={headerClasses}>{textFirstCell}</th>
+          </tr>
+        );
+      } else {
+        return (
+          <tr style={headerRowStyle}>
+            <th className={headerClasses}>{textFirstCell}</th>
+            <th className={headerClasses}>{textSecondCell}</th>
+          </tr>
+        );
+      }
     } else {
+      const dataRowStyle = {
+        backgroundColor: 'var(--color-table-rows)',
+        opacity: '0.45',
+      };
+      
       return (
-        <tr>
-          <th className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}>
-            {textFirstCell}
-          </th>
-          <th className={`border-2 border-gray-400 ${customStyle} text-left px-4 py-2`}>
-            {textSecondCell}
-          </th>
+        <tr style={dataRowStyle}>
+          <td className={cellClasses}>{textFirstCell}</td>
+          <td className={cellClasses}>{textSecondCell}</td>
         </tr>
       );
     }
   }
-  return (
-    <tr>
-      <td className="border-2 border-gray-400 text-left px-4 py-2">{textFirstCell}</td>
-      <td className="border-2 border-gray-400 text-left px-4 py-2">{textSecondCell}</td>
-    </tr>
-  );
 }
 
 CourseListRow.propTypes = {
   isHeader: PropTypes.bool,
   textFirstCell: PropTypes.string,
   textSecondCell: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  customStyle: PropTypes.string,
 };
 
 CourseListRow.defaultProps = {
   isHeader: false,
   textFirstCell: '',
   textSecondCell: null,
-  customStyle: '',
 };
 
 export default CourseListRow;

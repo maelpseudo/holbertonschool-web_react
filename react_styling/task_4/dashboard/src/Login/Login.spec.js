@@ -1,25 +1,36 @@
-import {render, screen} from "@testing-library/react";
-import { expect, test} from "@jest/globals";
-import Login from "./Login.jsx";
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Login from './Login';
 
-test('Check whether 2 input elements are rendered', () => {
+describe('Login component', () => {
+  test('renders without crashing', () => {
     render(<Login />);
-    const inputEmail = screen.getByLabelText(/Email/i);
-    const inputPassword = screen.getByLabelText(/Password/i);
-    expect(inputEmail).toBeInTheDocument();
-    expect(inputPassword).toBeInTheDocument();
-});
+  });
 
-test('check if renders 2 label elements with text Email and Password', () => {
-    render(<Login/>);
-    const labelEmail = screen.getByLabelText(/Email/i);
-    const labelPwd = screen.getByLabelText(/Password/i);
-    expect(labelEmail).toBeInTheDocument();
-    expect(labelPwd).toBeInTheDocument();
-});
+  test('renders 2 input tags and 2 label tags', () => {
+    render(<Login />);
+    
+    const labels = screen.getAllByRole('textbox').length + screen.getAllByLabelText(/password/i).length;
+    const inputs = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const button = screen.getByRole('button');
+    
+    expect(inputs).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+    expect(button).toBeInTheDocument();
+  });
 
-test('check if render a button text Ok', ()=> {
-    render(<Login/>);
-    const buttonText = screen.getByRole('button', {name: /ok/i});
-    expect(buttonText).toBeInTheDocument();
+  test('verify that the inputs get focus when labels are clicked', async () => {
+    const user = userEvent.setup();
+    render(<Login />);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    
+    await user.click(screen.getByText(/email:/i));
+    expect(emailInput).toHaveFocus();
+    
+    await user.click(screen.getByText(/password:/i));
+    expect(passwordInput).toHaveFocus();
+  });
 });

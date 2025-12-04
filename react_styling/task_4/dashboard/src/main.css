@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
   --color-table-header: #deb5b5;
-  --color-table-rows: #cdcdcd;
+  --color-table-rows: #CDCDCD;
+  --opacity-66: 0.66;
+  --opacity-45: 0.45;
   --main-color: #e1003c;
   --default-notification-item: blue;
   --urgent-notification-item: red;
@@ -11,6 +13,16 @@
 
 @layer base {
   html {
-    @apply font-sans;
+    font-family: var(--font-roboto);
+  }
+}
+
+@layer utilities {
+  .opacity-66 {
+    opacity: var(--opacity-66);
+  }
+  
+  .opacity-45 {
+    opacity: var(--opacity-45);
   }
 }

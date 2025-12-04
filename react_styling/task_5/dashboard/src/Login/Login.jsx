@@ -1,42 +1,35 @@
-import React from "react";
-import WithLogging from "../HOC/WithLogging";
-
-class Login extends React.Component {
-  render() {
-    return (
-      <div className="App-login border-t-2 border-[var(--main-color)] mt-6 w-full flex flex-col items-start px-4 md:px-8">
-        <p className="mb-4 text-base font-medium">
-          Login to access the full dashboard
-        </p>
-        <form className="flex flex-wrap items-center gap-2">
-          <label htmlFor="email" className="mr-2 font-medium">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="border border-gray-400 rounded-sm px-2 py-1"
+function Login() {
+  return (
+    <div className="App-body border-t-[3px] border-[var(--main-color)] p-5 md:p-10 min-h-[300px]">
+      <p className="text-base md:text-lg mb-5">Login to access the full dashboard</p>
+      <form className="flex flex-col gap-4 md:flex-row md:gap-5 md:items-center">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
+          <label htmlFor="email" className="font-medium">Email:</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            className="border border-gray-300 px-3 py-2 rounded w-full md:w-auto" 
           />
-          <label htmlFor="password" className="mx-2 font-medium">
-            Password:
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="border border-gray-400 rounded-sm px-2 py-1"
+        </div>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
+          <label htmlFor="password" className="font-medium">Password:</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            className="border border-gray-300 px-3 py-2 rounded w-full md:w-auto" 
           />
-          <button
-            type="submit"
-            className="ml-2 bg-[var(--main-color)] text-white px-3 py-1 rounded-sm hover:opacity-90"
-          >
-            OK
-          </button>
-        </form>
-      </div>
-    );
-  }
+        </div>
+        <button 
+          type="submit" 
+          className="bg-white border border-gray-400 px-6 py-2 rounded cursor-pointer hover:bg-gray-100 transition-colors w-16 md:w-auto"
+        >
+          OK
+        </button>
+      </form>
+    </div>
+  );
 }
 
-export default WithLogging(Login);
+export default Login;

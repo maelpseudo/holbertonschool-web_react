@@ -1,19 +1,37 @@
-.notifications {
-    border: 1.5px dashed #e1003c;
-    display: inline-block;
-    float: right;
-    text-align: left;
+.Notifications-container {
+  position: relative;
 }
 
-.notifications ul {
-    color: #e1003c;
+.menuItem {
+  text-align: right;
+  padding: 10px;
+  cursor: pointer;
 }
 
-.notifications ul li[data-priority=default]{
-    color: blue;
+.menuItem p {
+  margin: 0;
+  font-weight: bold;
 }
 
-.notification-title { 
-    text-align: right;
-    margin: 0;
+.Notifications {
+  border: 2px dashed #e1003c;
+  padding: 20px;
+  position: relative;
+  margin-top: 10px;
+}
+
+.Notifications p {
+  margin: 0 0 10px 0;
+}
+
+.Notifications ul {
+  list-style-position: inside;
+  padding-left: 0;
+  margin: 10px 0 0 0;
+}
+
+.Notifications button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
