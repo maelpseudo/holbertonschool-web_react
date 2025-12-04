@@ -1,69 +1,142 @@
-// ⚠️ Ne pas importer React par défaut, seulement les hooks nécessaires
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import WithLogging from '../HOC/WithLogging';
+import React from 'react';
 
-function isValidEmail(email) {
-  // Conserve ta logique de validation si tu en avais une spécifique ;
-  // ce pattern simple est généralement accepté par les checkers Holberton
-  return /\S+@\S+\.\S+/.test(email);
-}
+export function Login(props) {
+  const { email = '', password = '', logIn } = props;
 
-function Login({ login }) {
+  const [formData, setFormData] = useState({
+    email,
+    password,
+  });
+
   const [enableSubmit, setEnableSubmit] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  // Remplace handleChangeEmail / handleChangePassword (version classe) par des fonctions
+  // refs pour gérer le focus
+  const emailRef = useRef();
+  const passwordRef = useRef();
+
+  // validation identique à la version classe
+  const updateEnableSubmit = (emailValue, passwordValue) => {
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
+    const passwordValid = passwordValue.length >= 8;
+    setEnableSubmit(emailValid && passwordValid);
+  };
+
   const handleChangeEmail = (e) => {
-    const email = e.target.value;
+    const emailValue = e.target.value;
+
     setFormData((prev) => {
-      const next = { ...prev, email };
-      // mets à jour l'état du bouton selon la logique d'origine (email + longueur password)
-      setEnableSubmit(isValidEmail(next.email) && next.password.length > 0);
-      return next;
+      const updated = { ...prev, email: emailValue };
+      updateEnableSubmit(updated.email, updated.password);
+      return updated;
     });
   };
 
   const handleChangePassword = (e) => {
-    const password = e.target.value;
+    const passwordValue = e.target.value;
+
     setFormData((prev) => {
-      const next = { ...prev, password };
-      setEnableSubmit(isValidEmail(next.email) && next.password.length > 0);
-      return next;
+      const updated = { ...prev, password: passwordValue };
+      updateEnableSubmit(updated.email, updated.password);
+      return updated;
     });
   };
 
-  // Remplace handleLoginSubmit (version classe)
-  const handleLoginSubmit = (e) => {
-    e.preventDefault(); // toujours empêcher le submit par défaut
-    if (typeof login === 'function') {
-      login(formData.email, formData.password);
+  const handleLoginSubmit = (event) => {
+    event.preventDefault(); // toujours empêcher le reload
+
+    if (logIn) {
+      logIn(formData.email, formData.password);
     }
   };
 
-  // ⚠️ Conserve exactement la même structure JSX que l'ancienne version
   return (
-    <div className="Login">
-      <p>Login to access the full dashboard</p>
-      <form onSubmit={handleLoginSubmit}>
-        <label htmlFor="email">Email:</label>
+    <div className="
+      App-body
+      flex
+      flex-col
+      p-5
+      pl-1
+      h-[45vh]
+      border-t-4
+      border-[color:var(--main-color)]
+      max-[912px]:h-auto
+      max-[912px]:p-4
+    ">
+      <p className="text-xl mb-4 max-[520px]:text-lg">
+        Login to access the full dashboard
+      </p>
+
+      <form
+        className="
+          text-lg
+          flex
+          flex-col
+          sm:flex-row
+          sm:items-center
+          gap-3
+          sm:gap-0
+          max-[520px]:gap-4
+        "
+        onSubmit={handleLoginSubmit}
+      >
+        <label htmlFor="email" onClick={() => emailRef.current?.focus()} className="sm:pr-2">
+          Email
+        </label>
         <input
-          id="email"
           type="email"
-          name="email"
+          name="user_email"
+          id="email"
+          ref={emailRef}
           value={formData.email}
           onChange={handleChangeEmail}
+          className="
+            border
+            rounded
+            w-3/5
+            sm:w-auto
+            px-2
+            py-1
+            max-[520px]:w-full
+          "
         />
 
-        <label htmlFor="password">Password:</label>
+        <label htmlFor="password" onClick={() => passwordRef.current?.focus()} className="sm:pl-2 sm:pr-2">
+          Password
+        </label>
         <input
-          id="password"
           type="password"
-          name="password"
+          name="user_password"
+          id="password"
+          ref={passwordRef}
           value={formData.password}
           onChange={handleChangePassword}
+          className="
+            border
+            rounded
+            w-3/5
+            sm:w-auto
+            px-2
+            py-1
+            max-[520px]:w-full
+          "
         />
 
-        <button type="submit" disabled={!enableSubmit}>
+        <button
+          type="submit"
+          disabled={!enableSubmit}
+          className="
+            cursor-pointer
+            border
+            px-1
+            rounded
+            sm:ml-2
+            w-fit
+            max-[520px]:self-start
+            max-[520px]:mt-2
+          "
+        >
           OK
         </button>
       </form>
@@ -71,5 +144,12 @@ function Login({ login }) {
   );
 }
 
-// ⚠️ Garde l'usage du HOC WithLogging tel quel
-export default WithLogging(Login);
+const LoginWithLogging = WithLogging(Login);
+export default LoginWithLogging;
+
+// default props
+Login.defaultProps = {
+  email: '',
+  password: '',
+  logIn: () => {},
+};

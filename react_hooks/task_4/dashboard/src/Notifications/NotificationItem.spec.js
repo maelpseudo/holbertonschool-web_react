@@ -1,18 +1,19 @@
-﻿import { render, screen, fireEvent } from "@testing-library/react";
-import NotificationItem from "./NotificationItem";
+import { render, screen, fireEvent } from '@testing-library/react';
+import NotificationItem from './NotificationItem';
 
-test("it should call markAsRead with the correct id when the notification item is clicked", () => {
+
+test('it should call markAsRead with the correct id when the notification item is clicked', () => {
   const mockMarkAsRead = jest.fn();
   const props = {
     id: 42,
-    type: "default",
-    value: "Test notification",
+    type: 'default',
+    value: 'Test notification',
     markAsRead: mockMarkAsRead,
   };
 
   render(<NotificationItem {...props} />);
 
-  const liElement = screen.getByRole("listitem");
+  const liElement = screen.getByRole('listitem');
 
   fireEvent.click(liElement);
 
@@ -20,7 +21,7 @@ test("it should call markAsRead with the correct id when the notification item i
   expect(mockMarkAsRead).toHaveBeenCalledWith(42);
 });
 
-describe("NotificationItem - React.memo behavior", () => {
+describe('NotificationItem - React.memo behavior', () => {
   let markAsRead;
 
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe("NotificationItem - React.memo behavior", () => {
     markAsRead = jest.fn();
   });
 
-  test("should update when props change", () => {
+  test('should update when props change', () => {
     const { rerender, container } = render(
       <NotificationItem
         id={1}
@@ -38,9 +39,7 @@ describe("NotificationItem - React.memo behavior", () => {
       />
     );
 
-    const firstRender = container.querySelector(
-      "[data-notification-type]"
-    ).textContent;
+    const firstRender = container.querySelector('[data-notification-type]').textContent;
 
     rerender(
       <NotificationItem
@@ -51,14 +50,12 @@ describe("NotificationItem - React.memo behavior", () => {
       />
     );
 
-    const secondRender = container.querySelector(
-      "[data-notification-type]"
-    ).textContent;
+    const secondRender = container.querySelector('[data-notification-type]').textContent;
     expect(secondRender).not.toBe(firstRender);
-    expect(secondRender).toBe("Updated notification");
+    expect(secondRender).toBe('Updated notification');
   });
 
-  test("should not re-render when props do not change", () => {
+  test('should not re-render when props do not change', () => {
     const { rerender, container } = render(
       <NotificationItem
         id={1}
@@ -68,7 +65,7 @@ describe("NotificationItem - React.memo behavior", () => {
       />
     );
 
-    const firstElement = container.querySelector("[data-notification-type]");
+    const firstElement = container.querySelector('[data-notification-type]');
 
     rerender(
       <NotificationItem
@@ -79,7 +76,7 @@ describe("NotificationItem - React.memo behavior", () => {
       />
     );
 
-    const secondElement = container.querySelector("[data-notification-type]");
+    const secondElement = container.querySelector('[data-notification-type]');
     expect(secondElement.textContent).toBe(firstElement.textContent);
   });
 });

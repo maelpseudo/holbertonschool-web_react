@@ -1,35 +1,50 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { PureComponent } from 'react';
 
-export default function NotificationItem({ type = 'default', value, html }) {
-  // couleurs via variables existantes
-  const color =
-    type === 'urgent'
-      ? 'var(--urgent-notification-item, var(--main-color))'
-      : 'var(--default-notification-item, inherit)';
+export default class NotificationItem extends PureComponent {
+  render() {
+    const { type, html, value, markNotificationAsRead, id } = this.props;
 
-  return (
-    <li
-      data-notification-type={type}
-      className={[
-        'notification-item',
-        // taille de texte responsive
-        'text-sm md:text-base leading-snug',
-        // padding + bordure adaptés en mobile
-        'max-[912px]:px-3 max-[912px]:py-3 max-[912px]:border-b max-[912px]:border-gray-200',
-        // un peu d’air aussi en desktop
-        'py-1',
-      ].join(' ')}
-      style={{ color }}
-      {...(html ? { dangerouslySetInnerHTML: html } : {})}
-    >
-      {!html && value}
-    </li>
-  );
+    const baseClasses = `
+      pl-1
+      max-[912px]:w-full
+      max-[912px]:border-b
+      max-[912px]:border-black
+      max-[912px]:p-[12px]
+      max-[912px]:text-[20px]
+      max-[912px]:leading-relaxed
+    `;
+
+    if (type === 'default') {
+      return (
+        <li
+          className={`text-[color:var(--default-notification-item)] ${baseClasses}`}
+          data-notification-type={type}
+          onClick={() => markNotificationAsRead(id)}
+        >
+          {value}
+        </li>
+      );
+    }
+
+    if (type === 'urgent' && html !== undefined) {
+      return (
+        <li
+          className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
+          data-notification-type={type}
+          dangerouslySetInnerHTML={html}
+          onClick={() => markNotificationAsRead(id)}
+        ></li>
+      );
+    }
+
+    return (
+      <li
+        className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
+        data-notification-type={type}
+        onClick={() => markNotificationAsRead(id)}
+      >
+        {value}
+      </li>
+    );
+  }
 }
-
-NotificationItem.propTypes = {
-  type: PropTypes.oneOf(['default', 'urgent']),
-  value: PropTypes.string,
-  html: PropTypes.shape({ __html: PropTypes.string }),
-};

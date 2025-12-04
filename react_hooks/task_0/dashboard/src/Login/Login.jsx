@@ -1,101 +1,150 @@
+import WithLogging from '../HOC/WithLogging';
 import React, { Component } from 'react';
 
-class Login extends Component {
-  static defaultProps = {
-    email: '',
-    password: '',
-    logIn: () => {},
-  };
-
+export class Login extends Component {
   constructor(props) {
     super(props);
+
+    const { email = '', password = '' } = props;
+
     this.state = {
-      email: props.email || '',
-      password: props.password || '',
+      email,
+      password,
       enableSubmit: false,
     };
 
-    this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
-    this.handleChangeEmail = this.handleChangeEmail.bind(this);
-    this.handleChangePassword = this.handleChangePassword.bind(this);
+    // refs pour gérer le focus
+    this.emailRef = React.createRef();
+    this.passwordRef = React.createRef();
   }
 
-  isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || '').trim());
-  }
+  // fonction pour activer/désactiver le submit
+  updateEnableSubmit = () => {
+    const { email, password } = this.state;
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const passwordValid = password.length >= 8;
+    this.setState({ enableSubmit: emailValid && passwordValid });
+  };
 
-  recomputeEnableSubmit(next = {}) {
-    const email = next.email ?? this.state.email;
-    const password = next.password ?? this.state.password;
-    const ok = email.length > 0 && this.isValidEmail(email) && password.length >= 8;
-    this.setState({ enableSubmit: ok });
-  }
-
-  handleChangeEmail(e) {
+  handleChangeEmail = (e) => {
     const email = e.target.value;
-    this.setState({ email }, () => this.recomputeEnableSubmit({ email }));
-  }
+    this.setState({ email }, this.updateEnableSubmit);
+  };
 
-  handleChangePassword(e) {
+  handleChangePassword = (e) => {
     const password = e.target.value;
-    this.setState({ password }, () => this.recomputeEnableSubmit({ password }));
-  }
+    this.setState({ password }, this.updateEnableSubmit);
+  };
 
-  handleLoginSubmit(e) {
-    e.preventDefault();
-    const { email, password, enableSubmit } = this.state;
-    if (enableSubmit) {
+  handleLoginSubmit = (event) => {
+    event.preventDefault(); // empêche le rechargement de la page
+    const { email, password } = this.state;
+    if (this.props.logIn) {
       this.props.logIn(email, password);
     }
-  }
+  };
 
   render() {
-    const { email, password, enableSubmit } = this.state;
-
     return (
-      <section
-        className="login-section mx-auto w-full max-w-3xl rounded-md bg-white p-4 shadow border-t-4 border-solid"
-        style={{ borderTopColor: 'var(--main-color)' }}
-      >
-        <p className="mb-4">Login to access the full dashboard</p>
+      <div className="
+        App-body
+        flex
+        flex-col
+        p-5
+        pl-1
+        h-[45vh]
+        border-t-4
+        border-[color:var(--main-color)]
+        max-[912px]:h-auto
+        max-[912px]:p-4
+      ">
+        <p className="text-xl mb-4 max-[520px]:text-lg">
+          Login to access the full dashboard
+        </p>
 
         <form
+          className="
+            text-lg
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            gap-3
+            sm:gap-0
+            max-[520px]:gap-4
+          "
           onSubmit={this.handleLoginSubmit}
-          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3"
-          noValidate
         >
-          <label htmlFor="email" className="sm:mr-1">Email:</label>
+          <label htmlFor="email" onClick={() => this.emailRef.current?.focus()} className="sm:pr-2">
+            Email
+          </label>
           <input
-            id="email"
-            name="email"
             type="email"
-            value={email}
+            name="user_email"
+            id="email"
+            ref={this.emailRef}
+            value={this.state.email}
             onChange={this.handleChangeEmail}
-            className="input-email w-full sm:w-auto rounded border border-gray-300 px-2 py-2 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="
+              border
+              rounded
+              w-3/5
+              sm:w-auto
+              px-2
+              py-1
+              max-[520px]:w-full
+            "
           />
 
-          <label htmlFor="password" className="sm:ml-2 sm:mr-1">Password:</label>
+          <label htmlFor="password" onClick={() => this.passwordRef.current?.focus()} className="sm:pl-2 sm:pr-2">
+            Password
+          </label>
           <input
-            id="password"
-            name="password"
             type="password"
-            value={password}
+            name="user_password"
+            id="password"
+            ref={this.passwordRef}
+            value={this.state.password}
             onChange={this.handleChangePassword}
-            className="input-password w-full sm:w-auto rounded border border-gray-300 px-2 py-2 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="
+              border
+              rounded
+              w-3/5
+              sm:w-auto
+              px-2
+              py-1
+              max-[520px]:w-full
+            "
           />
 
-          <input
+          <button
             type="submit"
-            value="OK"
-            disabled={!enableSubmit}
-            className="btn-ok sm:ml-2 rounded px-4 py-2 text-white disabled:opacity-50"
-            style={{ backgroundColor: 'var(--main-color)' }}
-            aria-disabled={!enableSubmit}
-          />
+            disabled={!this.state.enableSubmit}
+            className="
+              cursor-pointer
+              border
+              px-1
+              rounded
+              sm:ml-2
+              w-fit
+              max-[520px]:self-start
+              max-[520px]:mt-2
+            "
+          >
+            OK
+          </button>
         </form>
-      </section>
+      </div>
     );
   }
 }
 
-export default Login;
+const LoginWithLogging = WithLogging(Login);
+export default LoginWithLogging;
+
+// default props to ensure email/password exist when not provided
+Login.defaultProps = {
+  email: '',
+  password: '',
+  logIn: () => {},
+};

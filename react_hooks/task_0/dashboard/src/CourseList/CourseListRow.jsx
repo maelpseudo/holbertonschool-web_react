@@ -1,35 +1,24 @@
-import React from "react";
-
 export default function CourseListRow({
   isHeader = false,
-  textFirstCell = "",
-  textSecondCell = null,
+  textFirstCell = '',
+  textSecondCell = null
 }) {
-  // Fond translucide via variables alpha-hex (texte reste 100% opaque)
-  const rowBg = isHeader
-    ? "bg-[var(--color-table-header-66)]"
-    : "bg-[var(--color-table-rows-45)]";
-
-  const thBase = "border border-gray-400 px-2 py-2 font-bold text-center";
-  const tdBase = "border border-gray-400 text-left pl-2 py-2";
-
   return (
-    <tr className={rowBg}>
+    <tr className={isHeader
+      ? "bg-[color-mix(in_srgb,var(--color-table-header)_66%,transparent)]"
+      : "bg-[color-mix(in_srgb,var(--color-table-rows)_45%,transparent)]"
+    }>
       {isHeader ? (
-        textSecondCell === null ? (
-          <th className={thBase} colSpan="2">{textFirstCell}</th>
-        ) : (
-          <>
-            <th className={thBase} style={{ width: "70%" }}>{textFirstCell}</th>
-            <th className={thBase}>{textSecondCell}</th>
-          </>
-        )
+        <>
+          <th className="border border-gray-400" colSpan={textSecondCell ? 1 : 2}>{textFirstCell}</th>
+          {textSecondCell && <th className="border border-gray-400">{textSecondCell}</th>}
+        </>
       ) : (
         <>
-          <td className={tdBase}>{textFirstCell}</td>
-          <td className={tdBase}>{textSecondCell}</td>
+          <td className="border border-gray-400 pl-2">{textFirstCell}</td>
+          <td className="border border-gray-400 pl-2">{textSecondCell}</td>
         </>
       )}
     </tr>
-  );
+  )
 }

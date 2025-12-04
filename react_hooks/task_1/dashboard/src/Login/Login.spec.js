@@ -1,40 +1,75 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import Login from "./Login.jsx";
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Login from './Login';
 
-describe("Login (Task 2) — calls logIn with email & password", () => {
-  test("submit is disabled by default", () => {
-    render(<Login />);
-    const submit = screen.getByRole("button", { name: /ok/i });
-    expect(submit).toBeDisabled();
+test('renders 2 labels, 2 inputs and 1 submit button', () => {
+  render(<Login />);
+
+  const inputElements = screen.getAllByLabelText(/email|password/i);
+  const submitButton = screen.getByRole('button', { name: /OK/i });
+
+  expect(inputElements).toHaveLength(2);
+  expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+  expect(submitButton).toBeInTheDocument();
+});
+
+test('email input gets focus when its label is clicked', async () => {
+  render(<Login />);
+  const user = userEvent.setup();
+
+  const emailLabel = screen.getByText(/Email/i);
+  const emailInput = screen.getByLabelText(/Email/i);
+
+  await user.click(emailLabel);
+
+  await waitFor(() => {
+    expect(emailInput).toHaveFocus();
   });
+});
 
-  test("submit enables only when email valid and password ≥ 8", () => {
-    render(<Login />);
-    const email = screen.getByLabelText(/email/i);
-    const password = screen.getByLabelText(/password/i);
-    const submit = screen.getByRole("button", { name: /ok/i });
+test('password input gets focus when its label is clicked', async () => {
+  render(<Login />);
+  const user = userEvent.setup();
 
-    fireEvent.change(email, { target: { value: "john@doe.com" } });
-    fireEvent.change(password, { target: { value: "short" } });
-    expect(submit).toBeDisabled();
+  const passwordLabel = screen.getByText(/Password/i);
+  const passwordInput = screen.getByLabelText(/Password/i);
 
-    fireEvent.change(password, { target: { value: "longenough" } });
-    expect(submit).toBeEnabled();
+  await user.click(passwordLabel);
+
+  await waitFor(() => {
+    expect(passwordInput).toHaveFocus();
   });
+});
 
-  test("on submit, calls props.logIn(email, password)", () => {
-    const logIn = jest.fn();
-    render(<Login logIn={logIn} />);
+test('submit button is disabled by default', () => {
+  render(<Login />);
+  const submitButton = screen.getByRole('button', { name: /OK/i });
+  expect(submitButton).toBeDisabled();
+});
 
-    fireEvent.change(screen.getByLabelText(/email/i), {
-      target: { value: "jane@example.com" },
-    });
-    fireEvent.change(screen.getByLabelText(/password/i), {
-      target: { value: "superstrong" },
-    });
+test('submit button enables only when email is valid and password has at least 8 chars', async () => {
+  render(<Login />);
+  const user = userEvent.setup();
 
-    fireEvent.click(screen.getByRole("button", { name: /ok/i }));
-    expect(logIn).toHaveBeenCalledWith("jane@example.com", "superstrong");
-  });
+  const emailInput = screen.getByLabelText(/email/i);
+  const passwordInput = screen.getByLabelText(/password/i);
+  const submitButton = screen.getByRole('button', { name: /OK/i });
+
+  // Email invalide + mot de passe valide
+  await user.type(emailInput, 'invalid');
+  await user.type(passwordInput, '12345678');
+  expect(submitButton).toBeDisabled();
+
+  // Email valide + mot de passe trop court
+  await user.clear(emailInput);
+  await user.clear(passwordInput);
+  await user.type(emailInput, 'user@example.com');
+  await user.type(passwordInput, '1234567');
+  expect(submitButton).toBeDisabled();
+
+  // Email valide + mot de passe correct
+  await user.clear(passwordInput);
+  await user.type(passwordInput, 'strongpass');
+  expect(submitButton).toBeEnabled();
 });

@@ -1,29 +1,48 @@
 import { useContext } from 'react';
-import AppContext from '../App/AppContext';
+import { getCurrentYear, getFooterCopy } from '../utils/utils';
+import AppContext from '../Context/context';
 
-function Footer() {
+export default function Footer() {
   const { user, logOut } = useContext(AppContext);
 
-  // ⚠️ Garde la même structure/markup que ta version précédente pour le contenu statique.
-  // Ajuste le texte fixe ci-dessous pour correspondre exactement à ton Footer actuel si besoin.
   return (
-    <footer className=\"App-footer\">
-      <p>Copyright 2025 - Holberton School</p>
+    <div className="
+      App-footer
+      flex
+      flex-col
+      justify-center
+      items-center
+      border-t-4
+      border-[color:var(--main-color)]
+      w-full
+      mt-auto
+      py-2
+      max-[520px]:py-3
+      px-2
+    ">
+      <p className="
+        italic
+        text-xl
+        p-1
+        text-center
+        max-[520px]:text-lg
+        max-[520px]:p-0
+        max-[450px]:text-[16px]
+        max-[375px]:text-[15px]
+        leading-tight
+      ">
+        Copyright {getCurrentYear()} - {getFooterCopy(false)}
+      </p>
 
-      {user?.isLoggedIn && (
-        <p id=\"logoutSection\" data-testid=\"logoutSection\">
-          Welcome <strong>{user.email}</strong>
-          {' '}(<a
-            href=\"#logout\"
-            onClick={(e) => {
-              e.preventDefault();
-              if (typeof logOut === 'function') logOut();
-            }}
-          >logout</a>)
+      {user && user.isLoggedIn && (
+        <p className="mt-1">
+          Welcome {user.email} (
+          <a href="#" onClick={logOut} className="underline">
+            logout
+          </a>
+          )
         </p>
       )}
-    </footer>
+    </div>
   );
 }
-
-export default Footer;

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { StyleSheet, css } from 'aphrodite';
 import Notifications from '../Notifications/Notifications';

@@ -1,126 +1,163 @@
-import React, { Component } from 'react';
-import Notifications from '../Notifications/Notifications.jsx';
-import Header from '../Header/Header.jsx';
-import Login from '../Login/Login.jsx';
-import Footer from '../Footer/Footer.jsx';
-import BodySection from '../BodySection/BodySection.jsx';
-import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom.jsx';
-import CourseList from '../CourseList/CourseList.jsx';
-import AppContext from '../Context/context.js';
+import { Component } from 'react';
+import Notifications from '../Notifications/Notifications';
+import Footer from '../Footer/Footer';
+import Header from '../Header/Header';
+import Login from '../Login/Login';
+import CourseList from '../CourseList/CourseList';
+import { getLatestNotification } from '../utils/utils';
+import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
+import BodySection from '../BodySection/BodySection';
+import newContext from '../Context/context';
 
-class App extends Component {
+const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', html: { __html: getLatestNotification() } }
+];
+
+const coursesList = [
+  { id: 1, name: 'ES6', credit: 60 },
+  { id: 2, name: 'Webpack', credit: 20 },
+  { id: 3, name: 'React', credit: 40 }
+];
+
+export default class App extends Component {
+  static contextType = newContext;
+
   constructor(props) {
     super(props);
 
-    this.logIn = this.logIn.bind(this);
-    this.logOut = this.logOut.bind(this);
-    this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
-    this.handleHideDrawer = this.handleHideDrawer.bind(this);
-    this.markNotificationAsRead = this.markNotificationAsRead.bind(this);
-
-    const user = { email: '', password: '', isLoggedIn: false };
-
     this.state = {
-      user,
       displayDrawer: false,
+      user: this.context
+        ? this.context.user
+        : { email: '', password: '', isLoggedIn: false },
+      logOut: this.context ? this.context.logOut : () => {},
 
-      // ✅ State avancé
-      notifications: [
-        { id: 1, type: 'default', value: 'New course available' },
-        { id: 2, type: 'urgent', value: 'New resume available' },
-        { id: 3, type: 'urgent', html: { __html: '<strong>Urgent requirement</strong> - complete by EOD' } },
-      ],
-      courses: [
-        { id: 1, name: 'ES6', credit: 60 },
-        { id: 2, name: 'Webpack', credit: 20 },
-        { id: 3, name: 'React', credit: 40 },
-      ],
-
-      // valeur du Provider (référence stable stockée en state)
-      contextValue: {
-        user,
-        logOut: this.logOut,
-      },
+      // ✅ NOUVEL ÉTAT DEMANDÉ
+      notifications: notificationsList,
+      courses: coursesList,
     };
   }
 
-  // Notifications drawer
-  handleDisplayDrawer() { this.setState({ displayDrawer: true }); }
-  handleHideDrawer() { this.setState({ displayDrawer: false }); }
-
-  // Auth
-  logIn(email, password) {
-    const user = { email, password, isLoggedIn: true };
-    this.setState((prev) => ({
-      ...prev,
-      user,
-      contextValue: { ...prev.contextValue, user },
-    }));
-  }
-
-  logOut() {
-    const user = { email: '', password: '', isLoggedIn: false };
-    this.setState((prev) => ({
-      ...prev,
-      user,
-      contextValue: { ...prev.contextValue, user },
-    }));
-  }
-
-  // ✅ Marquer une notif comme lue
-  markNotificationAsRead(id) {
+  // ✅ NOUVELLE MÉTHODE
+  markNotificationAsRead = (id) => {
     console.log(`Notification ${id} has been marked as read`);
-    this.setState((prev) => ({
-      ...prev,
-      notifications: prev.notifications.filter((n) => n.id !== id),
+
+    this.setState((prevState) => ({
+      notifications: prevState.notifications.filter(
+        (notification) => notification.id !== id
+      ),
     }));
+  };
+
+  handleDisplayDrawer = () => {
+    this.setState({ displayDrawer: true });
+  };
+
+  handleHideDrawer = () => {
+    this.setState({ displayDrawer: false });
+  };
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeydown);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  handleKeydown = (e) => {
+    if (e.ctrlKey && e.key === 'h') {
+      alert('Logging you out');
+      if (this.state.logOut) {
+        this.state.logOut();
+      }
+    }
+  };
+
+  logIn = (email, password) => {
+    this.setState({
+      user: {
+        email,
+        password,
+        isLoggedIn: true,
+      },
+    });
+  };
+
+  logOut = () => {
+    this.setState({
+      user: {
+        email: '',
+        password: '',
+        isLoggedIn: false,
+      },
+    });
+  };
 
   render() {
-    const { displayDrawer, user, contextValue, notifications, courses } = this.state;
+    const { user, notifications, courses } = this.state;
+    const isLoggedIn = user && user.isLoggedIn;
 
     return (
-      <AppContext.Provider value={contextValue}>
-        <div className="App min-h-screen flex flex-col bg-gray-50">
+      <div className="
+        relative
+        px-3
+        max-[912px]:px-2
+        max-[520px]:px-2
+        min-h-screen
+        flex
+        flex-col
+      ">
+        {/* Notifications layer */}
+        <div className="absolute top-0 right-0 z-10">
           <Notifications
-            displayDrawer={displayDrawer}
+            notifications={notifications}                 // ✅ VIA STATE
+            displayDrawer={this.state.displayDrawer}
             handleDisplayDrawer={this.handleDisplayDrawer}
             handleHideDrawer={this.handleHideDrawer}
-            notifications={notifications}                         {/* ← depuis state */}
-            markNotificationAsRead={this.markNotificationAsRead}  {/* ← nouvelle prop */}
+            markNotificationAsRead={this.markNotificationAsRead} // ✅ MÉTHODE PASSÉE
           />
+        </div>
 
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
           <Header />
 
-          <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-10 py-4">
-            {!user.isLoggedIn ? (
-              <>
-                <BodySectionWithMarginBottom title="Log in to continue">
-                  <Login logIn={this.logIn} email={user.email} password={user.password} />
-                </BodySectionWithMarginBottom>
+          {!isLoggedIn ? (
+            <BodySectionWithMarginBottom title="Log in to continue">
+              <Login
+                logIn={this.logIn}
+                email={user.email}
+                password={user.password}
+              />
+            </BodySectionWithMarginBottom>
+          ) : (
+            <BodySectionWithMarginBottom title="Course list">
+              <CourseList courses={courses} /> {/* ✅ VIA STATE */}
+            </BodySectionWithMarginBottom>
+          )}
 
-                <BodySection title="News from the school">
-                  <p className="text-sm md:text-base leading-relaxed">
-                    ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique, asperiores
-                    architecto blanditiis fuga doloribus sit illum aliquid ea distinctio minus accusantium,
-                    impedit quo voluptatibus ut magni dicta. Recusandae, quia dicta?
-                  </p>
-                </BodySection>
-              </>
-            ) : (
-              <BodySectionWithMarginBottom title="Course list">
-                <div className="bg-white rounded shadow-sm p-3">
-                  <CourseList courses={courses} />
-                </div>
-              </BodySectionWithMarginBottom>
-            )}
-          </main>
-
-          <Footer />
+          <BodySection title="News from the School">
+            <p className="
+              max-w-full
+              break-words
+              text-base
+              max-[520px]:text-sm
+              leading-relaxed
+            ">
+              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Similique, asperiores architecto blanditiis fuga doloribus sit
+              illum aliquid ea distinctio minus accusantium, impedit quo
+              voluptatibus ut magni dicta. Recusandae, quia dicta?
+            </p>
+          </BodySection>
         </div>
-      </AppContext.Provider>
+
+        {/* Footer always at the bottom */}
+        <Footer />
+      </div>
     );
   }
 }
-
-export default App;

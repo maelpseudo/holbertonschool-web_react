@@ -1,59 +1,50 @@
-// ⚠️ Pas d'import React par défaut (règle projet) ; on n'importe que ce qu'on utilise
-import { memo, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react';
 
-function NotificationItem({ type = 'default', value, html, id, markAsRead }) {
-  const handleClick = useCallback(() => {
-    if (typeof markAsRead === 'function') {
-      markAsRead(id);
-    }
-  }, [markAsRead, id]);
+function NotificationItem(props) {
+  const { type, html, value, markNotificationAsRead, id } = props;
 
-  // ⚠️ Conserver le même markup/attrs que la version classe (data-notification-type, etc.)
-  if (html && html.__html) {
+  const baseClasses = `
+    pl-1
+    max-[912px]:w-full
+    max-[912px]:border-b
+    max-[912px]:border-black
+    max-[912px]:p-[12px]
+    max-[912px]:text-[20px]
+    max-[912px]:leading-relaxed
+  `;
+
+  if (type === 'default') {
     return (
       <li
+        className={`text-[color:var(--default-notification-item)] ${baseClasses}`}
         data-notification-type={type}
-        onClick={handleClick}
+        onClick={() => markNotificationAsRead(id)}
+      >
+        {value}
+      </li>
+    );
+  }
+
+  if (type === 'urgent' && html !== undefined) {
+    return (
+      <li
+        className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
+        data-notification-type={type}
         dangerouslySetInnerHTML={html}
-      />
+        onClick={() => markNotificationAsRead(id)}
+      ></li>
     );
   }
 
   return (
-    <li data-notification-type={type} onClick={handleClick}>
+    <li
+      className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
+      data-notification-type={type}
+      onClick={() => markNotificationAsRead(id)}
+    >
       {value}
     </li>
   );
 }
 
-// --- Mémoïsation ---
-// Émuler le comportement de PureComponent (comparaison superficielle des props).
-// On compare champ par champ y compris html.__html (objet stable ou pas).
-function propsAreEqual(prev, next) {
-  if (prev.id !== next.id) return false;
-  if (prev.type !== next.type) return false;
-  if (prev.value !== next.value) return false;
-
-  const prevHtml = prev.html?.__html || null;
-  const nextHtml = next.html?.__html || null;
-  if (prevHtml !== nextHtml) return false;
-
-  // markAsRead est une fonction: si sa ref change, on considère que rien n'a changé côté rendu,
-  // mais PureComponent le comparerait aussi par ref. Pour rester fidèle, on compare la ref:
-  if (prev.markAsRead !== next.markAsRead) return false;
-
-  return true; // pas de re-render
-}
-
-const MemoNotificationItem = memo(NotificationItem, propsAreEqual);
-
-MemoNotificationItem.propTypes = {
-  type: PropTypes.string,
-  value: PropTypes.string,
-  html: PropTypes.shape({ __html: PropTypes.string }),
-  id: PropTypes.number,
-  markAsRead: PropTypes.func,
-};
-
-export default MemoNotificationItem;
+export default memo(NotificationItem);

@@ -1,27 +1,125 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import App from "./App.jsx";
+import { render, fireEvent, screen } from '@testing-library/react';
+import App from './App';
 
-describe("App (Task 4) — advanced state notifications", () => {
-  test("clicking a notification item removes it and logs the expected string", () => {
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+describe('App login / logout state behavior', () => {
+  test('The App component renders without crashing', () => {
+    render(<App />);
+  });
+
+  test('By default, Login is displayed and CourseList is NOT displayed', () => {
     render(<App />);
 
-    // Ouvre le drawer
-    fireEvent.click(screen.getByText(/your notifications/i));
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
-    // On clique sur l'item ayant "New resume available" (id:2 dans l’état initial)
-    const item = screen.getByText("New resume available");
-    fireEvent.click(item);
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+    expect(screen.queryByRole('table')).toBeNull();
+  });
 
-    // L’item disparaît
-    expect(screen.queryByText("New resume available")).toBeNull();
+  test('After login, CourseList is displayed', () => {
+    render(<App />);
 
-    // Log correct
-    expect(logSpy).toHaveBeenCalledWith(
-      "Notification 2 has been marked as read"
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
+
+    const tableElement = screen.getByRole('table');
+    expect(tableElement).toBeInTheDocument();
+  });
+
+  test('After logout, CourseList is hidden and Login is displayed again', () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
+
+    fireEvent.click(screen.getByText(/logout/i));
+
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+  });
+
+  test('Ctrl + h logs out the user and shows alert', () => {
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    render(<App />);
+
+    // Login first
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
+
+    // Trigger Ctrl + h
+    fireEvent.keyDown(document, {
+      ctrlKey: true,
+      key: 'h',
+    });
+
+    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+    expect(screen.queryByText(/logout/i)).toBeNull();
+
+    alertSpy.mockRestore();
+  });
+
+  test('it should display "News from the School" title and paragraph by default', () => {
+    render(<App />);
+
+    const newsTitle = screen.getByRole('heading', {
+      name: /news from the school/i,
+    });
+
+    const newsParagraph = screen.getByText(
+      /holberton school news goes here/i
     );
 
-    logSpy.mockRestore();
+    expect(newsTitle).toBeInTheDocument();
+    expect(newsParagraph).toBeInTheDocument();
+  });
+
+  // ✅ NOUVEAU TEST : Notifications
+  test('Clicking on a notification removes it and logs the correct message', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    render(<App />);
+
+    // Ouvre le panneau de notifications
+    fireEvent.click(screen.getByText(/your notifications/i));
+
+    // Vérifie qu'une notification est présente
+    const notification = screen.getByText(/new course available/i);
+    expect(notification).toBeInTheDocument();
+
+    // Clique sur la notification
+    fireEvent.click(notification);
+
+    // La notification doit être supprimée
+    expect(screen.queryByText(/new course available/i)).toBeNull();
+
+    // Le bon log doit être envoyé
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Notification 1 has been marked as read'
+    );
+
+    consoleSpy.mockRestore();
   });
 });

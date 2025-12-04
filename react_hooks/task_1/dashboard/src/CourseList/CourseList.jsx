@@ -1,39 +1,54 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import WithLogging from '../HOC/WithLogging';
+import CourseListRow from './CourseListRow';
 
-export default function CourseList({ listCourses = [] }) {
-  if (!listCourses.length) {
-    return <p>No course available yet</p>;
-  }
-
+function CourseList({ courses = [] }) {
   return (
-    <div className="course-list-wrapper overflow-x-auto">
-      <table className="min-w-full border-collapse text-sm md:text-base">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="text-left px-3 py-2 border">Course name</th>
-            <th className="text-left px-3 py-2 border">Credit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {listCourses.map((c) => (
-            <tr key={c.id} className="odd:bg-white even:bg-gray-50">
-              <td className="px-3 py-2 border">{c.name}</td>
-              <td className="px-3 py-2 border">{c.credit}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="
+      courses
+      mx-auto
+      my-32
+      w-4/5
+      max-[912px]:w-full
+      max-[912px]:my-12
+      max-[520px]:my-8
+      overflow-x-auto
+    ">
+      {courses.length > 0 ? (
+        <table className="w-full border-collapse border border-gray-500 min-w-[400px]">
+          <thead>
+            <CourseListRow
+              textFirstCell="Available courses"
+              isHeader={true}
+            />
+            <CourseListRow
+              textFirstCell="Course name"
+              textSecondCell="Credit"
+              isHeader={true}
+            />
+          </thead>
+          <tbody>
+            {courses.map((course) => (
+              <CourseListRow
+                key={course.id}
+                textFirstCell={course.name}
+                textSecondCell={course.credit}
+              />
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <table className="w-full border-collapse border border-gray-500 min-w-[300px]">
+          <thead>
+            <CourseListRow
+              isHeader={true}
+              textFirstCell="No course available yet"
+            />
+          </thead>
+        </table>
+      )}
     </div>
   );
 }
 
-CourseList.propTypes = {
-  listCourses: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      credit: PropTypes.number,
-    })
-  ),
-};
+const CourseListWithLogging = WithLogging(CourseList);
+export default CourseListWithLogging;

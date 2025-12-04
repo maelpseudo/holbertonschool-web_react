@@ -38,7 +38,7 @@ describe("Notifications component", () => {
   });
 
   test("logs message when close button is clicked", () => {
-    const consoleSpy = jest.spyOn(console, "log");
+    const consoleSpy = jest.spyOn(console, 'log');
     const handleHideDrawerMock = jest.fn();
     const props = {
       notifications: [
@@ -104,9 +104,7 @@ describe("Notifications component", () => {
     };
     render(<Notifications {...props} />);
 
-    const notificationsTitle = screen.getByText(
-      /no new notifications for now/i
-    );
+    const notificationsTitle = screen.getByText(/no new notifications for now/i);
     const notificationsListItems = screen.queryAllByRole("listitem");
 
     expect(notificationsListItems).toHaveLength(0);
@@ -186,58 +184,41 @@ describe("Notifications component", () => {
     expect(markNotificationAsReadMock).toHaveBeenCalledWith(3);
   });
 
-  test("should update when the notifications length changes", () => {
+  test('should update when the notifications length changes', () => {
     const initialNotifications = [
-      { id: 1, type: "default", value: "Notification 1" },
+      { id: 1, type: 'default', value: 'Notification 1' },
     ];
 
     const newNotifications = [
-      { id: 1, type: "default", value: "Notification 1" },
-      { id: 2, type: "urgent", value: "Notification 2" },
+      { id: 1, type: 'default', value: 'Notification 1' },
+      { id: 2, type: 'urgent', value: 'Notification 2' },
     ];
 
-    const { rerender } = render(
-      <Notifications
-        notifications={initialNotifications}
-        displayDrawer={true}
-      />
-    );
+    const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const listItems = screen.getAllByRole("listitem");
+    const listItems = screen.getAllByRole('listitem');
     expect(listItems).toHaveLength(1);
 
-    rerender(
-      <Notifications notifications={newNotifications} displayDrawer={true} />
-    );
+    rerender(<Notifications notifications={newNotifications} displayDrawer={true} />);
 
-    const updatedListItems = screen.getAllByRole("listitem");
+    const updatedListItems = screen.getAllByRole('listitem');
     expect(updatedListItems).toHaveLength(2);
   });
 
-  test("should maintain same content when notifications are unchanged", () => {
+  test('should maintain same content when notifications are unchanged', () => {
     const initialNotifications = [
-      { id: 1, type: "default", value: "Notification 1" },
-      { id: 2, type: "urgent", value: "Notification 2" },
+      { id: 1, type: 'default', value: 'Notification 1' },
+      { id: 2, type: 'urgent', value: 'Notification 2' },
     ];
 
-    const { rerender } = render(
-      <Notifications
-        notifications={initialNotifications}
-        displayDrawer={true}
-      />
-    );
+    const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const firstListItems = screen.getAllByRole("listitem");
+    const firstListItems = screen.getAllByRole('listitem');
     expect(firstListItems).toHaveLength(2);
 
-    rerender(
-      <Notifications
-        notifications={initialNotifications}
-        displayDrawer={true}
-      />
-    );
+    rerender(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const secondListItems = screen.getAllByRole("listitem");
+    const secondListItems = screen.getAllByRole('listitem');
     expect(secondListItems).toHaveLength(2);
     expect(secondListItems[0].textContent).toBe(firstListItems[0].textContent);
   });
@@ -252,23 +233,23 @@ describe("Notifications component", () => {
 
     render(<Notifications {...props} />);
 
-    const notificationTitle = screen.getByText("Your notifications");
+    const notificationTitle = screen.getByText('Your notifications');
     fireEvent.click(notificationTitle);
 
     expect(handleDisplayDrawerMock).toHaveBeenCalledTimes(1);
   });
 
-  test("should call handleHideDrawer when close button is clicked", () => {
+  test('should call handleHideDrawer when close button is clicked', () => {
     const handleHideDrawerMock = jest.fn();
     const props = {
-      notifications: [{ id: 1, type: "default", value: "Test notification" }],
+      notifications: [{ id: 1, type: 'default', value: 'Test notification' }],
       displayDrawer: true,
       handleHideDrawer: handleHideDrawerMock,
     };
 
     render(<Notifications {...props} />);
 
-    const closeButton = screen.getByRole("button", { name: /close/i });
+    const closeButton = screen.getByRole('button', { name: /close/i });
     fireEvent.click(closeButton);
 
     expect(handleHideDrawerMock).toHaveBeenCalledTimes(1);

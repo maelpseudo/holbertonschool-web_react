@@ -1,5 +1,5 @@
-import "@testing-library/jest-dom";
-import { StyleSheetTestUtils } from "aphrodite";
+import '@testing-library/jest-dom';
+import { StyleSheetTestUtils } from 'aphrodite';
 
 beforeEach(() => {
   StyleSheetTestUtils.suppressStyleInjection();
