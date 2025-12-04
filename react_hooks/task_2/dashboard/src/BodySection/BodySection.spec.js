@@ -1,30 +1,30 @@
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import BodySection from "./BodySection";
 
-describe("BodySection component", () => {
-  test("renders a heading with the title prop value", () => {
-    const testTitle = "test title";
-    render(<BodySection title={testTitle} />);
-
-    // Check that the h2 heading is rendered with the correct title
-    const heading = screen.getByRole("heading", { level: 2 });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent(testTitle);
+describe("BodySection", () => {
+  test("renders a heading with the title prop", () => {
+    render(
+      <BodySection title="test-title">
+        <p>child</p>
+      </BodySection>
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: "test-title" })
+    ).toBeInTheDocument();
   });
 
   test("renders any number of children passed to it", () => {
-    const testTitle = "test title";
     render(
-      <BodySection title={testTitle}>
-        <p>First child paragraph</p>
-        <p>Second child paragraph</p>
-        <span>A span element</span>
+      <BodySection title="title">
+        <p>child 1</p>
+        <p>child 2</p>
+        <span>child 3</span>
       </BodySection>
     );
-
-    // Verify all children are rendered
-    expect(screen.getByText("First child paragraph")).toBeInTheDocument();
-    expect(screen.getByText("Second child paragraph")).toBeInTheDocument();
-    expect(screen.getByText("A span element")).toBeInTheDocument();
+    // 3 enfants rendus
+    expect(screen.getByText("child 1")).toBeInTheDocument();
+    expect(screen.getByText("child 2")).toBeInTheDocument();
+    expect(screen.getByText("child 3")).toBeInTheDocument();
   });
 });

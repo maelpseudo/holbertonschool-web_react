@@ -1,12 +1,62 @@
-import WithLogging from "../HOC/WithLogging.jsx";
-import useLogin from "../hooks/useLogin.jsx";
+import { StyleSheet, css } from "aphrodite";
+import WithLogging from "../HOC/WithLogging";
+import useLogin from "../hooks/useLogin";
 
-// Login renders the login form with email and password inputs.
-// Refactored to use custom useLogin hook for state management and validation.
-// All form logic is now handled by the custom hook for better reusability.
-function Login({ logIn }) {
-  // Use custom hook to manage login form state and validation
-  // Pass logIn callback to the hook
+const styles = StyleSheet.create({
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    height: "60vh",
+    padding: "20px 20px 20px 40px",
+    borderTop: "5px red solid",
+  },
+  p: {
+    fontFamily: "Roboto, sans-serif",
+    fontSize: "1.3rem",
+  },
+  form: {
+    margin: "20px 0",
+    fontSize: "1.2rem",
+    fontFamily: "Roboto, sans-serif",
+    display: "flex",
+    flexDirection: "row",
+    "@media (max-width: 900px)": {
+      flexDirection: "column",
+    },
+  },
+  label: {
+    paddingRight: "10px",
+    "@media (max-width: 900px)": {
+      display: "block",
+    },
+  },
+  input: {
+    marginRight: "10px",
+    "@media (max-width: 900px)": {
+      display: "block",
+      marginBottom: "10px",
+      paddingBottom: "5px",
+      paddingTop: "5px",
+      fontSize: "20px",
+      width: "100%",
+      boxSizing: "border-box",
+    },
+  },
+  button: {
+    cursor: "pointer",
+    "@media (max-width: 900px)": {
+      display: "block",
+      marginTop: "10px",
+      paddingBottom: "5px",
+      paddingTop: "5px",
+      fontSize: "16px",
+      width: "100%",
+      boxSizing: "border-box",
+    },
+  },
+});
+
+const Login = ({ logIn }) => {
   const {
     email,
     password,
@@ -17,39 +67,40 @@ function Login({ logIn }) {
   } = useLogin(logIn);
 
   return (
-    <div className="App-body flex-1">
-      <p className="mb-4">Login to access the full dashboard</p>
-      <form 
-        onSubmit={handleLoginSubmit}
-        className="flex flex-col md:flex-row md:items-center gap-2 md:gap-0"
-      >
-        <label htmlFor="inputEmail" className="md:mr-2.5">Email:</label>
-        <input 
-          type="email" 
-          id="inputEmail"
+    <div className={css(styles.body)}>
+      <p className={css(styles.p)}>Login to access the full dashboard</p>
+      <form className={css(styles.form)} onSubmit={handleLoginSubmit}>
+        <label htmlFor="email" className={css(styles.label)}>
+          Email
+        </label>
+        <input
+          type="email"
+          name="user_email"
+          id="email"
+          className={css(styles.input)}
           value={email}
           onChange={handleChangeEmail}
-          className="md:mr-2.5 w-full md:w-auto border border-gray-300 px-2 py-1" 
         />
-        <label htmlFor="inputPassword" className="md:mr-2.5">Password:</label>
-        <input 
-          type="password" 
-          id="inputPassword"
+        <label htmlFor="password" className={css(styles.label)}>
+          Password
+        </label>
+        <input
+          type="password"
+          name="user_password"
+          id="password"
+          className={css(styles.input)}
           value={password}
           onChange={handleChangePassword}
-          className="md:mr-2.5 w-full md:w-auto border border-gray-300 px-2 py-1" 
         />
-        <input 
+        <input
           type="submit"
           value="OK"
+          className={css(styles.button)}
           disabled={!enableSubmit}
-          className="md:ml-2.5 w-full md:w-auto mt-2 md:mt-0 border border-gray-300 px-4 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </form>
     </div>
   );
 }
 
-const LoginWithLogging = WithLogging(Login);
-
-export default LoginWithLogging;
+export default WithLogging(Login);

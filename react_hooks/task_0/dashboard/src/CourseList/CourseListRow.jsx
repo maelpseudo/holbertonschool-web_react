@@ -1,43 +1,35 @@
-import PropTypes from "prop-types";
+import React from "react";
 
-// Renders a single table row for the CourseList
-function CourseListRow({ isHeader = false, textFirstCell = "", textSecondCell = null }) {
-  // Conditional styling: header rows get #deb5b5 with 66% opacity, regular rows get #CDCDCD with 45% opacity
-  // Using 8-digit hex color format where last 2 digits represent alpha channel (66% = A8, 45% = 73)
-  const rowBgColor = isHeader ? "#deb5b5A8" : "#CDCDCD73";
-  
-  // Border and padding classes for table cells
-  // All cells get gray-400 border, td and th elements get 8px left padding
-  const cellClasses = "border border-gray-400 pl-2"; // pl-2 = 8px padding left
+export default function CourseListRow({
+  isHeader = false,
+  textFirstCell = "",
+  textSecondCell = null,
+}) {
+  // Fond translucide via variables alpha-hex (texte reste 100% opaque)
+  const rowBg = isHeader
+    ? "bg-[var(--color-table-header-66)]"
+    : "bg-[var(--color-table-rows-45)]";
 
-  if (isHeader) {
-    if (textSecondCell == null) {
-      return (
-        <tr style={{ backgroundColor: rowBgColor }}>
-          <th colSpan={2} className={cellClasses}>{textFirstCell}</th>
-        </tr>
-      );
-    }
-    return (
-      <tr style={{ backgroundColor: rowBgColor }}>
-        <th className={cellClasses}>{textFirstCell}</th>
-        <th className={cellClasses}>{textSecondCell}</th>
-      </tr>
-    );
-  }
+  const thBase = "border border-gray-400 px-2 py-2 font-bold text-center";
+  const tdBase = "border border-gray-400 text-left pl-2 py-2";
 
   return (
-    <tr style={{ backgroundColor: rowBgColor }}>
-      <td className={cellClasses}>{textFirstCell}</td>
-      <td className={cellClasses}>{textSecondCell}</td>
+    <tr className={rowBg}>
+      {isHeader ? (
+        textSecondCell === null ? (
+          <th className={thBase} colSpan="2">{textFirstCell}</th>
+        ) : (
+          <>
+            <th className={thBase} style={{ width: "70%" }}>{textFirstCell}</th>
+            <th className={thBase}>{textSecondCell}</th>
+          </>
+        )
+      ) : (
+        <>
+          <td className={tdBase}>{textFirstCell}</td>
+          <td className={tdBase}>{textSecondCell}</td>
+        </>
+      )}
     </tr>
   );
 }
-
-CourseListRow.propTypes = {
-  isHeader: PropTypes.bool,
-  textFirstCell: PropTypes.string,
-  textSecondCell: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
-
-export default CourseListRow;

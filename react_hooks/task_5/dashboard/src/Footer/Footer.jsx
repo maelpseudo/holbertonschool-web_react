@@ -1,28 +1,37 @@
-import { useContext } from "react";
-import { getCurrentYear, getFooterCopy } from "../utils/utils.js";
-import AppContext from "../Context/context.js";
+import { useContext } from 'react';
+import { StyleSheet, css } from 'aphrodite';
+import { getCurrentYear, getFooterCopy } from '../utils/utils';
+import newContext from '../Context/context';
 
-// Footer renders the footer text with the current year and copy information.
-// When user is logged in, displays a "Contact us" link.
-// Converted to use useContext hook for cleaner context consumption.
-function Footer() {
-  // Use useContext hook to access the AppContext values
-  const { user } = useContext(AppContext);
+const styles = StyleSheet.create({
+  footer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTop: '5px red solid',
+    gap: '10px'
+  },
+  p: {
+    fontFamily: 'Roboto, sans-serif',
+    fontStyle: 'italic',
+    fontSize: '1.3rem',
+    padding: '0 3px',
+    margin: 0
+  }
+});
 
+export default function Footer() {
+  const { user } = useContext(newContext);
+  
   return (
-    <div className="App-footer text-center italic mt-auto py-4 text-xs md:text-sm">
-      <p>
-        Copyright {getCurrentYear()} - {getFooterCopy(false)}
-      </p>
+    <div className={css(styles.footer)}>
+      <p className={css(styles.p)}>Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
       {user.isLoggedIn && (
-        <p>
-          <a href="#" className="text-[var(--main-color)] underline">
-            Contact us
-          </a>
-        </p>
+        <span className={css(styles.p)}>
+          <a href="#">Contact us</a>
+        </span>
       )}
     </div>
   );
 }
-
-export default Footer;

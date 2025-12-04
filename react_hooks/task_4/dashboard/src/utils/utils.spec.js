@@ -1,29 +1,31 @@
 import { getCurrentYear, getFooterCopy, getLatestNotification } from "./utils";
 
-// Group tests for utility helpers used across the dashboard project.
-describe("utils", () => {
-  describe("getCurrentYear()", () => {
-    test("returns the current year", () => {
-      const currentYear = new Date().getFullYear();
-      expect(getCurrentYear()).toBe(currentYear);
-    });
+describe("getFullyYear", () => {
+  it("returns the current year", () => {
+    const currentYear = new Date().getFullYear();
+    expect(getCurrentYear()).toBe(currentYear);
+  });
+});
+
+describe("getFooterCopy", () => {
+  it("returns the footer copy for the index page", () => {
+    const isIndex = true;
+    const footerCopy = getFooterCopy(isIndex);
+    expect(footerCopy).toBe("Holberton School");
   });
 
-  describe("getFooterCopy()", () => {
-    test("returns the Holberton School copy when index flag is true", () => {
-      expect(getFooterCopy(true)).toBe("Holberton School");
-    });
-
-    test("returns the main dashboard copy when index flag is false", () => {
-      expect(getFooterCopy(false)).toBe("Holberton School main dashboard");
-    });
+  it("returns the footer copy for non-index pages", () => {
+    const isIndex = false;
+    const footerCopy = getFooterCopy(isIndex);
+    expect(footerCopy).toBe("Holberton School main dashboard");
   });
+});
 
-  describe("getLatestNotification()", () => {
-    test("returns the expected urgent requirement string", () => {
-      expect(getLatestNotification()).toBe(
-        "<strong>Urgent requirement</strong> - complete by EOD"
-      );
-    });
+describe("getLatestNotification", () => {
+  it("returns the latest notification", () => {
+    const latestNotification = getLatestNotification();
+    expect(latestNotification).toBe(
+      "<strong>Urgent requirement</strong> - complete by EOD"
+    );
   });
 });

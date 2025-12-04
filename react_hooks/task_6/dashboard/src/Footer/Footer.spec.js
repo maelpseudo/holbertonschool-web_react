@@ -2,44 +2,45 @@ import { render, screen } from "@testing-library/react";
 import Footer from "./Footer";
 import { getCurrentYear, getFooterCopy } from "../utils/utils";
 
-describe("Footer component", () => {
-  // Default props (not logged in)
+test("It should render footer with copyright text", () => {
   const defaultUser = {
     email: "",
     password: "",
     isLoggedIn: false,
   };
 
-  // The footer should display the Holberton copyright notice.
-  test("renders the footer copy with the current year (index view)", () => {
-    render(<Footer user={defaultUser} />);
-    const footerCopy = screen.getByText(/copyright/i);
-    expect(footerCopy).toBeInTheDocument();
-    const expectedText = `Copyright ${getCurrentYear()} - ${getFooterCopy(
-      false
-    )}`;
-    expect(footerCopy).toHaveTextContent(expectedText);
-  });
+  render(<Footer user={defaultUser} />);
 
-  // Verify "Contact us" link is not displayed when user is logged out
-  test("does not display Contact us link when user is logged out", () => {
-    render(<Footer user={defaultUser} />);
-    const contactLink = screen.queryByText(/contact us/i);
-    expect(contactLink).toBeNull();
-  });
+  const footerParagraph = screen.getByText(/copyright/i);
 
-  // Verify "Contact us" link is displayed when user is logged in
-  test("displays Contact us link when user is logged in", () => {
-    const loggedInUser = {
-      email: "test@example.com",
-      password: "password123",
-      isLoggedIn: true,
-    };
+  expect(footerParagraph).toHaveTextContent(
+    new RegExp(`copyright ${new Date().getFullYear()}`, "i")
+  );
+  expect(footerParagraph).toHaveTextContent(/holberton school/i);
+});
 
-    render(<Footer user={loggedInUser} />);
+test("Contact us link is not displayed when user is logged out", () => {
+  const loggedOutUser = {
+    email: "",
+    password: "",
+    isLoggedIn: false,
+  };
 
-    const contactLink = screen.getByText(/contact us/i);
-    expect(contactLink).toBeInTheDocument();
-    expect(contactLink.tagName).toBe("A");
-  });
+  render(<Footer user={loggedOutUser} />);
+
+  const contactLink = screen.queryByText(/contact us/i);
+  expect(contactLink).not.toBeInTheDocument();
+});
+
+test("Contact us link is displayed when user is logged in", () => {
+  const loggedInUser = {
+    email: "test@test.com",
+    password: "password123",
+    isLoggedIn: true,
+  };
+
+  render(<Footer user={loggedInUser} />);
+
+  const contactLink = screen.getByText(/contact us/i);
+  expect(contactLink).toBeInTheDocument();
 });

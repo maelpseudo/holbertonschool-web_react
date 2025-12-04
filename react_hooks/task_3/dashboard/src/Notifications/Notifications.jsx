@@ -1,96 +1,106 @@
-import { memo } from "react";
-import PropTypes from "prop-types";
-import closeButton from "../assets/close-button.png";
-import NotificationItem from "./NotificationItem.jsx";
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import closeIcon from '../assets/close-icon.png';
 
-// Notifications renders the notification system with drawer functionality.
-// Converted to functional component and wrapped with React.memo for performance optimization.
-// React.memo provides shallow prop comparison similar to PureComponent.
-function Notifications({ 
-  notifications = [], 
-  displayDrawer = false, 
-  handleDisplayDrawer, 
-  handleHideDrawer,
-  markNotificationAsRead 
-}) {
-  const hasNotifications = notifications && notifications.length > 0;
-  
-  // Add bounce animation when there are notifications AND drawer is closed
-  const shouldBounce = hasNotifications && !displayDrawer;
-  const titleClasses = `notification-title text-right text-sm md:text-base cursor-pointer ${shouldBounce ? 'animate-bounce' : ''}`;
+class Notifications extends PureComponent {
+  handleCloseClick = () => {
+    console.log('Close button has been clicked');
+    this.props.handleHideDrawer?.();
+  };
 
-  return (
-    <div className="notifications-root">
-      {/* Title "Your Notifications" positioned at right and on top - click to show drawer */}
-      <div 
-        className={titleClasses}
-        onClick={handleDisplayDrawer}
-      >
-        Your notifications
-      </div>
+  render() {
+    const {
+      displayDrawer,
+      handleDisplayDrawer,
+      notifications = [],
+      markNotificationAsRead,
+    } = this.props;
 
-      {displayDrawer && (
-        <div 
-          className="notification-items flex flex-col items-start justify-start p-4 px-6 mb-6 relative bg-white box-border gap-3 border-2 border-dashed max-[912px]:fixed max-[912px]:top-0 max-[912px]:left-0 max-[912px]:w-screen max-[912px]:h-screen max-[912px]:z-50 max-[912px]:border-none max-[912px]:p-2"
-          style={{ borderColor: 'var(--main-color)' }}
+    if (!displayDrawer) {
+      return (
+        <div
+          className="menuItem notification-title px-3 py-2 cursor-pointer select-none"
+          onClick={() => handleDisplayDrawer?.()}
+          data-testid="menu-item"
+          role="button"
+          tabIndex={0}
+          aria-label="Open notifications"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') handleDisplayDrawer?.();
+          }}
         >
-          <button
-            className="notification-close-button self-end bg-transparent border-none cursor-pointer p-0"
-            type="button"
-            aria-label="Close"
-            onClick={() => {
-              console.log("Close button has been clicked");
-              // Call handleHideDrawer if it exists (for backward compatibility with existing tests)
-              if (handleHideDrawer) {
-                handleHideDrawer();
-              }
-            }}
-          >
-            <img
-              className="notification-close-icon w-3 h-3"
-              src={closeButton}
-              alt="Close"
-            />
-          </button>
+          Your notifications
+        </div>
+      );
+    }
 
-          {hasNotifications ? (
+    const hasItems = (notifications?.length || 0) > 0;
+
+    return (
+      <div
+        className={[
+          'Notifications notification-drawer',
+          'fixed top-0 right-0 w-[380px] max-w-full bg-white border-l-2 border-b-2 shadow p-4',
+        ].join(' ')}
+        role="region"
+        aria-label="Notifications"
+        style={{ borderColor: 'var(--main-color)' }}
+      >
+        <div className="notification-title font-bold px-1 pb-2 border-b">
+          Your notifications
+        </div>
+
+        <div className="notification-items pt-3">
+          {hasItems ? (
             <>
-              <p className="m-0 font-medium text-[#333] text-sm md:text-base">Here is the list of notifications</p>
-              <ul className="m-0 pl-5 list-disc max-[912px]:list-none max-[912px]:pl-0 w-full">
-                {notifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    {...notification}
-                    markAsRead={markNotificationAsRead}
-                  />
+              <p>Here is the list of notifications</p>
+              <ul className="list-disc ml-5">
+                {notifications.map((n) => (
+                  <li
+                    key={n.id}
+                    data-notification-type={n.type}
+                    className="py-1 cursor-pointer"
+                    onClick={() => markNotificationAsRead?.(n.id)}   {/* ← utilise la prop */}
+                  >
+                    {n.value ?? <span dangerouslySetInnerHTML={n.html} />}
+                  </li>
                 ))}
               </ul>
             </>
           ) : (
-            <p className="m-0 font-medium text-[#333] text-sm md:text-base">No new notification for now</p>
+            <p>No new notification for now</p>
           )}
         </div>
-      )}
-    </div>
-  );
+
+        {hasItems && (
+          <button
+            aria-label="Close"
+            title="Close"
+            onClick={this.handleCloseClick}
+            data-testid="close-btn"
+            className="absolute top-2 right-2 h-8 w-8 rounded hover:bg-gray-100 p-0 grid place-items-center"
+          >
+            <img src={closeIcon} alt="Close" />
+          </button>
+        )}
+      </div>
+    );
+  }
 }
 
 Notifications.propTypes = {
   displayDrawer: PropTypes.bool,
+  handleDisplayDrawer: PropTypes.func,
+  handleHideDrawer: PropTypes.func,
   notifications: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      type: PropTypes.string,
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+      type: PropTypes.oneOf(['default', 'urgent']),
       value: PropTypes.string,
       html: PropTypes.shape({ __html: PropTypes.string }),
     })
   ),
-  handleDisplayDrawer: PropTypes.func,
-  handleHideDrawer: PropTypes.func,
   markNotificationAsRead: PropTypes.func,
 };
 
-// Wrap component with React.memo for memoization
-// This provides the same performance optimization as PureComponent
-// Component only re-renders when props change (shallow comparison)
-export default memo(Notifications);
+export default Notifications;

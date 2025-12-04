@@ -1,37 +1,27 @@
-import PropTypes from "prop-types";
-import CourseListRow from "./CourseListRow.jsx";
-import WithLogging from "../HOC/WithLogging.jsx";
+import React from 'react';
+import PropTypes from 'prop-types';
 
-// Renders the list of courses in a table layout
-function CourseList({ courses = [] }) {
+export default function CourseList({ listCourses = [] }) {
+  if (!listCourses.length) {
+    return <p>No course available yet</p>;
+  }
+
   return (
-    // Responsive container: 80-90% width on desktop, full width on mobile, centered with appropriate spacing
-    <div className="w-full md:w-[85%] mx-auto my-8 overflow-x-auto">
-      <table id="CourseList" className="CourseList w-full min-w-full text-sm md:text-base">
+    <div className="course-list-wrapper overflow-x-auto">
+      <table className="min-w-full border-collapse text-sm md:text-base">
         <thead>
-          <CourseListRow isHeader={true} textFirstCell="Available courses" />
-          <CourseListRow
-            isHeader={true}
-            textFirstCell="Course name"
-            textSecondCell="Credit"
-          />
+          <tr className="bg-gray-100">
+            <th className="text-left px-3 py-2 border">Course name</th>
+            <th className="text-left px-3 py-2 border">Credit</th>
+          </tr>
         </thead>
         <tbody>
-          {courses.length === 0 ? (
-            <CourseListRow
-              isHeader={true}
-              textFirstCell="No course available yet"
-            />
-          ) : (
-            courses.map((c) => (
-              <CourseListRow
-                key={c.id}
-                isHeader={false}
-                textFirstCell={c.name}
-                textSecondCell={c.credit}
-              />
-            ))
-          )}
+          {listCourses.map((c) => (
+            <tr key={c.id} className="odd:bg-white even:bg-gray-50">
+              <td className="px-3 py-2 border">{c.name}</td>
+              <td className="px-3 py-2 border">{c.credit}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -39,15 +29,11 @@ function CourseList({ courses = [] }) {
 }
 
 CourseList.propTypes = {
-  courses: PropTypes.arrayOf(
+  listCourses: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      credit: PropTypes.number.isRequired,
+      id: PropTypes.number,
+      name: PropTypes.string,
+      credit: PropTypes.number,
     })
   ),
 };
-
-const CourseListWithLogging = WithLogging(CourseList);
-
-export default CourseListWithLogging;

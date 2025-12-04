@@ -1,47 +1,59 @@
 import { memo } from "react";
-import PropTypes from "prop-types";
+import { StyleSheet, css } from "aphrodite";
 
-// NotificationItem renders a notification entry with styling based on props.
-// Converted to functional component and wrapped with React.memo for performance optimization.
-// React.memo provides shallow prop comparison similar to PureComponent.
-function NotificationItem({ type = "default", html, value, id, markAsRead }) {
-  // Use CSS variables for notification colors based on type
-  // Responsive styling: smaller text on mobile, border and padding on smaller screens
-  const colorClass = type === "urgent" 
-    ? "text-[var(--urgent-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full" 
-    : "text-[var(--default-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full";
+const styles = StyleSheet.create({
+  default: {
+    color: "blue",
+    "@media (max-width: 900px)": {
+      width: "100%",
+      borderBottom: "1px solid black",
+      fontSize: "20px",
+      padding: "10px 8px",
+      listStyle: "none",
+    },
+  },
+  urgent: {
+    color: "red",
+    "@media (max-width: 900px)": {
+      width: "100%",
+      borderBottom: "1px solid black",
+      fontSize: "20px",
+      padding: "10px 8px",
+      listStyle: "none",
+    },
+  },
+});
 
-  if (html) {
+const NotificationItem = memo(function NotificationItem({
+  type,
+  html,
+  value,
+  markAsRead,
+  id,
+}) {
+  const itemStyle = type === "default" ? styles.default : styles.urgent;
+  // this console.log is only for test purposes and not mentionned/required in the student code
+  // console.log(`Rendering NotificationItem with id: ${id}, type: ${type}, value: ${value}`);
+  if (html !== undefined) {
     return (
       <li
-        className={colorClass}
+        className={css(itemStyle)}
         data-notification-type={type}
         dangerouslySetInnerHTML={html}
-        onClick={() => markAsRead && markAsRead(id)}
+        onClick={() => markAsRead(id)}
       ></li>
     );
+  } else {
+    return (
+      <li
+        className={css(itemStyle)}
+        data-notification-type={type}
+        onClick={() => markAsRead(id)}
+      >
+        {value}
+      </li>
+    );
   }
+});
 
-  return (
-    <li
-      className={colorClass}
-      data-notification-type={type}
-      onClick={() => markAsRead && markAsRead(id)}
-    >
-      {value}
-    </li>
-  );
-}
-
-NotificationItem.propTypes = {
-  type: PropTypes.string,
-  html: PropTypes.shape({ __html: PropTypes.string }),
-  value: PropTypes.string,
-  id: PropTypes.number,
-  markAsRead: PropTypes.func,
-};
-
-// Wrap component with React.memo for memoization
-// This provides the same performance optimization as PureComponent
-// Component only re-renders when props change (shallow comparison)
-export default memo(NotificationItem);
+export default NotificationItem;

@@ -1,47 +1,59 @@
-import { memo } from "react";
-import PropTypes from "prop-types";
+// ⚠️ Pas d'import React par défaut (règle projet) ; on n'importe que ce qu'on utilise
+import { memo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
-// NotificationItem renders a notification entry with styling based on props.
-// Converted to functional component and wrapped with React.memo for performance optimization.
-// React.memo provides shallow prop comparison similar to PureComponent.
-function NotificationItem({ type = "default", html, value, id, markAsRead }) {
-  // Use CSS variables for notification colors based on type
-  // Responsive styling: smaller text on mobile, border and padding on smaller screens
-  const colorClass = type === "urgent" 
-    ? "text-[var(--urgent-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full" 
-    : "text-[var(--default-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full";
+function NotificationItem({ type = 'default', value, html, id, markAsRead }) {
+  const handleClick = useCallback(() => {
+    if (typeof markAsRead === 'function') {
+      markAsRead(id);
+    }
+  }, [markAsRead, id]);
 
-  if (html) {
+  // ⚠️ Conserver le même markup/attrs que la version classe (data-notification-type, etc.)
+  if (html && html.__html) {
     return (
       <li
-        className={colorClass}
         data-notification-type={type}
+        onClick={handleClick}
         dangerouslySetInnerHTML={html}
-        onClick={() => markAsRead && markAsRead(id)}
-      ></li>
+      />
     );
   }
 
   return (
-    <li
-      className={colorClass}
-      data-notification-type={type}
-      onClick={() => markAsRead && markAsRead(id)}
-    >
+    <li data-notification-type={type} onClick={handleClick}>
       {value}
     </li>
   );
 }
 
-NotificationItem.propTypes = {
+// --- Mémoïsation ---
+// Émuler le comportement de PureComponent (comparaison superficielle des props).
+// On compare champ par champ y compris html.__html (objet stable ou pas).
+function propsAreEqual(prev, next) {
+  if (prev.id !== next.id) return false;
+  if (prev.type !== next.type) return false;
+  if (prev.value !== next.value) return false;
+
+  const prevHtml = prev.html?.__html || null;
+  const nextHtml = next.html?.__html || null;
+  if (prevHtml !== nextHtml) return false;
+
+  // markAsRead est une fonction: si sa ref change, on considère que rien n'a changé côté rendu,
+  // mais PureComponent le comparerait aussi par ref. Pour rester fidèle, on compare la ref:
+  if (prev.markAsRead !== next.markAsRead) return false;
+
+  return true; // pas de re-render
+}
+
+const MemoNotificationItem = memo(NotificationItem, propsAreEqual);
+
+MemoNotificationItem.propTypes = {
   type: PropTypes.string,
-  html: PropTypes.shape({ __html: PropTypes.string }),
   value: PropTypes.string,
+  html: PropTypes.shape({ __html: PropTypes.string }),
   id: PropTypes.number,
   markAsRead: PropTypes.func,
 };
 
-// Wrap component with React.memo for memoization
-// This provides the same performance optimization as PureComponent
-// Component only re-renders when props change (shallow comparison)
-export default memo(NotificationItem);
+export default MemoNotificationItem;

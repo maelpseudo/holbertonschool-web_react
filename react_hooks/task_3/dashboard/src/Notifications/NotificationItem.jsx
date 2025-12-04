@@ -1,47 +1,106 @@
-import { memo } from "react";
-import PropTypes from "prop-types";
+// ⚠️ N’importe que ce que tu utilises (pas de "import React from 'react'")
+import { memo, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import NotificationItem from './NotificationItem';
 
-// NotificationItem renders a notification entry with styling based on props.
-// Converted to functional component and wrapped with React.memo for performance optimization.
-// React.memo provides shallow prop comparison similar to PureComponent.
-function NotificationItem({ type = "default", html, value, id, markAsRead }) {
-  // Use CSS variables for notification colors based on type
-  // Responsive styling: smaller text on mobile, border and padding on smaller screens
-  const colorClass = type === "urgent" 
-    ? "text-[var(--urgent-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full" 
-    : "text-[var(--default-notification-item)] mb-1 text-sm md:text-[0.95rem] max-[912px]:border-b max-[912px]:border-gray-300 max-[912px]:py-2 max-[912px]:px-3 max-[912px]:w-full";
+function Notifications({
+  displayDrawer = false,
+  listNotifications = [],
+  markNotificationAsRead,
+  handleDisplayDrawer,
+  handleHideDrawer,
+}) {
+  // callbacks stables
+  const onClose = useCallback(() => {
+    if (typeof handleHideDrawer === 'function') handleHideDrawer();
+  }, [handleHideDrawer]);
 
-  if (html) {
-    return (
-      <li
-        className={colorClass}
-        data-notification-type={type}
-        dangerouslySetInnerHTML={html}
-        onClick={() => markAsRead && markAsRead(id)}
-      ></li>
-    );
-  }
+  const onOpen = useCallback(() => {
+    if (typeof handleDisplayDrawer === 'function') handleDisplayDrawer();
+  }, [handleDisplayDrawer]);
 
   return (
-    <li
-      className={colorClass}
-      data-notification-type={type}
-      onClick={() => markAsRead && markAsRead(id)}
-    >
-      {value}
-    </li>
+    <>
+      <div className="menuItem" onClick={onOpen}>Your notifications</div>
+
+      {displayDrawer && (
+        <div className="Notifications">
+          <button
+            aria-label="Close"
+            onClick={onClose}
+            style={{ float: 'right' }}
+          >
+            x
+          </button>
+
+          <p>Here is the list of notifications</p>
+
+          <ul>
+            {(!listNotifications || listNotifications.length === 0) ? (
+              <NotificationItem type="default" value="No new notification for now" />
+            ) : (
+              listNotifications.map((notif) => (
+                <NotificationItem
+                  key={notif.id}
+                  id={notif.id}
+                  type={notif.type}
+                  value={notif.value}
+                  html={notif.html}
+                  markAsRead={markNotificationAsRead}
+                />
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </>
   );
 }
 
-NotificationItem.propTypes = {
-  type: PropTypes.string,
-  html: PropTypes.shape({ __html: PropTypes.string }),
-  value: PropTypes.string,
-  id: PropTypes.number,
-  markAsRead: PropTypes.func,
+// ----- Mémoïsation (équivalent PureComponent / shouldComponentUpdate) -----
+// Ne re-render QUE si ce comparateur retourne false.
+function areEqual(prev, next) {
+  if (prev.displayDrawer !== next.displayDrawer) return false;
+
+  const prevList = prev.listNotifications || [];
+  const nextList = next.listNotifications || [];
+  if (prevList.length !== nextList.length) return false;
+
+  // comparaison superficielle élément par élément (id/type/value/html.__html)
+  for (let i = 0; i < prevList.length; i++) {
+    const a = prevList[i];
+    const b = nextList[i];
+    if (a.id !== b.id) return false;
+    if (a.type !== b.type) return false;
+    if (a.value !== b.value) return false;
+    const aHtml = a?.html?.__html ?? null;
+    const bHtml = b?.html?.__html ?? null;
+    if (aHtml !== bHtml) return false;
+  }
+
+  // Conserver la comparaison par référence sur les fonctions (fidèle à PureComponent)
+  if (prev.markNotificationAsRead !== next.markNotificationAsRead) return false;
+  if (prev.handleDisplayDrawer !== next.handleDisplayDrawer) return false;
+  if (prev.handleHideDrawer !== next.handleHideDrawer) return false;
+
+  return true; // => props "égales" => PAS de re-render
+}
+
+const MemoNotifications = memo(Notifications, areEqual);
+
+MemoNotifications.propTypes = {
+  displayDrawer: PropTypes.bool,
+  listNotifications: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      type: PropTypes.string,
+      value: PropTypes.string,
+      html: PropTypes.shape({ __html: PropTypes.string }),
+    })
+  ),
+  markNotificationAsRead: PropTypes.func,
+  handleDisplayDrawer: PropTypes.func,
+  handleHideDrawer: PropTypes.func,
 };
 
-// Wrap component with React.memo for memoization
-// This provides the same performance optimization as PureComponent
-// Component only re-renders when props change (shallow comparison)
-export default memo(NotificationItem);
+export default MemoNotifications;

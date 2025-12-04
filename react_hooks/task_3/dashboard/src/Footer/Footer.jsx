@@ -1,27 +1,28 @@
-import { useContext } from "react";
-import { getCurrentYear, getFooterCopy } from "../utils/utils.js";
-import AppContext from "../Context/context.js";
+import { useContext } from 'react';
+import AppContext from '../App/AppContext';
 
-// Footer renders the footer text with the current year and copy information.
-// When user is logged in, displays a "Contact us" link.
-// Converted to use useContext hook for cleaner context consumption.
 function Footer() {
-  // Use useContext hook to access the AppContext values
-  const { user } = useContext(AppContext);
+  const { user, logOut } = useContext(AppContext);
 
+  // ⚠️ Garde la même structure/markup que ta version précédente pour le contenu statique.
+  // Ajuste le texte fixe ci-dessous pour correspondre exactement à ton Footer actuel si besoin.
   return (
-    <div className="App-footer text-center italic mt-auto py-4 text-xs md:text-sm">
-      <p>
-        Copyright {getCurrentYear()} - {getFooterCopy(false)}
-      </p>
-      {user.isLoggedIn && (
-        <p>
-          <a href="#" className="text-[var(--main-color)] underline">
-            Contact us
-          </a>
+    <footer className=\"App-footer\">
+      <p>Copyright 2025 - Holberton School</p>
+
+      {user?.isLoggedIn && (
+        <p id=\"logoutSection\" data-testid=\"logoutSection\">
+          Welcome <strong>{user.email}</strong>
+          {' '}(<a
+            href=\"#logout\"
+            onClick={(e) => {
+              e.preventDefault();
+              if (typeof logOut === 'function') logOut();
+            }}
+          >logout</a>)
         </p>
       )}
-    </div>
+    </footer>
   );
 }
 

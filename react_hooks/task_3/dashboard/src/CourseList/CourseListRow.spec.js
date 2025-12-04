@@ -1,29 +1,45 @@
-import { render, screen, within } from "@testing-library/react";
-import CourseListRow from "./CourseListRow.jsx";
+﻿import React from "react";
+import { render, screen } from "@testing-library/react";
+import CourseListRow from "./CourseListRow";
 
 describe("CourseListRow", () => {
-  test("header with single cell spans two columns when second cell is null", () => {
-    render(<table><thead><CourseListRow isHeader={true} textFirstCell="Available courses" /></thead></table>);
-    const th = screen.getByRole("columnheader", { name: /available courses/i });
-    expect(th).toBeInTheDocument();
+  test("renders one <th> with colSpan=2 when isHeader=true and textSecondCell=null", () => {
+    const { container } = render(
+      <table>
+        <thead>
+          <CourseListRow
+            isHeader
+            textFirstCell="Available courses"
+            textSecondCell={null}
+          />
+        </thead>
+      </table>
+    );
+    const th = container.querySelector("th");
+    expect(th).not.toBeNull();
     expect(th).toHaveAttribute("colspan", "2");
+    expect(th).toHaveTextContent("Available courses");
   });
 
-  test("header with two cells when second cell provided", () => {
+  test("renders two <th> when isHeader=true and textSecondCell is provided", () => {
     render(
       <table>
         <thead>
-          <CourseListRow isHeader={true} textFirstCell="Course name" textSecondCell="Credit" />
+          <CourseListRow
+            isHeader
+            textFirstCell="Course name"
+            textSecondCell="Credit"
+          />
         </thead>
       </table>
     );
     const headers = screen.getAllByRole("columnheader");
     expect(headers).toHaveLength(2);
-    expect(headers[0]).toHaveTextContent(/course name/i);
-    expect(headers[1]).toHaveTextContent(/credit/i);
+    expect(headers[0]).toHaveTextContent("Course name");
+    expect(headers[1]).toHaveTextContent("Credit");
   });
 
-  test("body row renders two td cells", () => {
+  test("renders two <td> inside a <tr> when isHeader=false", () => {
     render(
       <table>
         <tbody>
@@ -31,8 +47,7 @@ describe("CourseListRow", () => {
         </tbody>
       </table>
     );
-    const row = screen.getByRole("row");
-    const cells = within(row).getAllByRole("cell");
+    const cells = screen.getAllByRole("cell");
     expect(cells).toHaveLength(2);
     expect(cells[0]).toHaveTextContent("ES6");
     expect(cells[1]).toHaveTextContent("60");

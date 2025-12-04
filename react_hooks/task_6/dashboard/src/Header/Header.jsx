@@ -1,56 +1,41 @@
-import PropTypes from "prop-types";
-import holbertonLogo from "../assets/holberton-logo.jpg";
+import logo from "../assets/holberton-logo.jpg";
+import { StyleSheet, css } from "aphrodite";
 
-// Header renders the dashboard branding section with the Holberton logo and title.
-// When user is logged in, displays a welcome message with logout link.
-// Refactored to use props instead of Context API for better testing and flexibility.
-function Header({ user, logOut }) {
+const styles = StyleSheet.create({
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logo: {
+    height: "30vmin",
+    pointerEvents: "none",
+  },
+  h1: {
+    color: "#e1003c",
+    fontFamily: "Roboto, sans-serif",
+    fontWeight: "bold",
+    fontSize: "2.5rem",
+    margin: 0,
+  },
+  a: {
+    fontFamily: "Roboto, sans-serif",
+    fontSize: "1.2rem",
+    marginLeft: "auto",
+    cursor: "pointer",
+  },
+});
+
+export default function Header({ user, logOut }) {
   return (
-    <>
-      <div className="App-header flex flex-row items-center max-[520px]:flex-col max-[520px]:items-center">
-        <img 
-          src={holbertonLogo} 
-          alt="holberton logo" 
-          className="w-[300px] h-[300px] max-[520px]:w-[150px] max-[520px]:h-[150px]" 
-        />
-        <h1 className="text-[var(--main-color)] text-3xl md:text-4xl max-[520px]:text-2xl max-[520px]:mt-2">School dashboard</h1>
-      </div>
-      {user.isLoggedIn && (
-        <section id="logoutSection" className="mt-4 text-center">
-          Welcome <strong>{user.email}</strong> (
-          <a 
-            href="#" 
-            onClick={(e) => {
-              e.preventDefault();
-              logOut();
-            }}
-            className="text-[var(--main-color)] underline cursor-pointer"
-          >
-            logout
-          </a>
-          )
-        </section>
-      )}
-    </>
+    <div className={css(styles.header)}>
+      <img src={logo} className={css(styles.logo)} alt="holberton logo" />
+      <h1 className={css(styles.h1)}>School Dashboard</h1>
+      {user.isLoggedIn ? (
+        <div id="logoutSection" className={css(styles.logoutSection)}>
+          Welcome <b>{user.email}</b> <a className={css(styles.a)} href="#" onClick={logOut}>(logout)</a>
+        </div>
+      ) : null}
+    </div>
   );
 }
-
-Header.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string,
-    password: PropTypes.string,
-    isLoggedIn: PropTypes.bool,
-  }),
-  logOut: PropTypes.func,
-};
-
-Header.defaultProps = {
-  user: {
-    email: '',
-    password: '',
-    isLoggedIn: false,
-  },
-  logOut: () => {},
-};
-
-export default Header;
