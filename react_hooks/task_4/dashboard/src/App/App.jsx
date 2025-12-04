@@ -23,29 +23,36 @@ const coursesList = [
 ];
 
 function App() {
+    // 1. States fonctionnels
     const [displayDrawer, setDisplayDrawer] = useState(true);
     const [user, setUser] = useState({ ...newContext.user });
     const [notifications, setNotifications] = useState(notificationsList);
+
+    // 2. Handlers mémoïsés
     const handleDisplayDrawer = useCallback(() => {
         setDisplayDrawer(true);
     }, []);
+
     const handleHideDrawer = useCallback(() => {
         setDisplayDrawer(false);
     }, []);
-    const logIn = (email, password) => {
+
+    const logIn = useCallback((email, password) => {
         setUser({
             email,
             password,
             isLoggedIn: true,
         });
-    }
-    const logOut = () => {
+    }, []);
+
+    const logOut = useCallback(() => {
         setUser({
             email: '',
             password: '',
             isLoggedIn: false,
         });
-    }
+    }, []);
+
     const markNotificationAsRead = useCallback((id) => {
         console.log(`Notification ${id} has been marked as read`);
         setNotifications((prevNotifications) =>
@@ -64,6 +71,7 @@ function App() {
             />
             <div className="App">
                 <Header />
+
                 {user.isLoggedIn ? (
                     <BodySectionWithMarginBottom title="Course list">
                         <CourseList courses={coursesList} />
@@ -77,10 +85,12 @@ function App() {
                         />
                     </BodySectionWithMarginBottom>
                 )}
+
                 <BodySection>
                     News from the School
                     <p>Holberton School News goes here</p>
                 </BodySection>
+
                 <Footer />
             </div>
         </newContext.Provider>
