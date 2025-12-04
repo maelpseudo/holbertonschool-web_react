@@ -1,17 +1,29 @@
-import { getFullYear, getFooterCopy, getLatestNotification } from './utils';
+import { getCurrentYear, getFooterCopy, getLatestNotification } from "./utils";
 
-describe('Testing utility functions', () => {
-  test('getFullYear returns the correct year', () => {
-    const currentYear = new Date().getFullYear();
-    expect(getFullYear()).toBe(currentYear);
+// Group tests for utility helpers used across the dashboard project.
+describe("utils", () => {
+  describe("getCurrentYear()", () => {
+    test("returns the current year", () => {
+      const currentYear = new Date().getFullYear();
+      expect(getCurrentYear()).toBe(currentYear);
+    });
   });
 
-  test('getFooterCopy returns correct string based on argument', () => {
-    expect(getFooterCopy(true)).toBe('Holberton School');
-    expect(getFooterCopy(false)).toBe('Holberton School main dashboard');
+  describe("getFooterCopy()", () => {
+    test("returns the Holberton School copy when index flag is true", () => {
+      expect(getFooterCopy(true)).toBe("Holberton School");
+    });
+
+    test("returns the main dashboard copy when index flag is false", () => {
+      expect(getFooterCopy(false)).toBe("Holberton School main dashboard");
+    });
   });
 
-  test('getLatestNotification returns the expected string', () => {
-    expect(getLatestNotification()).toBe('<strong>Urgent requirement</strong> - complete by EOD');
+  describe("getLatestNotification()", () => {
+    test("returns the expected urgent requirement string", () => {
+      expect(getLatestNotification()).toBe(
+        "<strong>Urgent requirement</strong> - complete by EOD"
+      );
+    });
   });
 });

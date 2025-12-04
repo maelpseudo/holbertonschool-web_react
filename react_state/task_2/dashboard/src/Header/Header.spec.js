@@ -1,15 +1,21 @@
-import React from "react";
-import { render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react";
 import Header from "./Header";
 
-test('Renders School Dashboard heading', () => {
+describe("Header component", () => {
+  // The header must keep the Holberton logo visible for brand recognition.
+  test("contains the Holberton logo image", () => {
     render(<Header />);
-    const headingElement = screen.getByRole('heading', { name: /School dashboard/i });
-    expect(headingElement).toBeInTheDocument();
-});
+    const logo = screen.getByRole("img", { name: /holberton logo/i });
+    expect(logo).toBeInTheDocument();
+  });
 
-test('Renders App img', () => {
+  // The header must display the dashboard title for consistent branding.
+  test("contains the h1 heading with the correct text", () => {
     render(<Header />);
-    const imgElement = screen.getByRole('img', { name: /holberton logo/i });
-    expect(imgElement).toBeInTheDocument();
+    const heading = screen.getByRole("heading", {
+      level: 1,
+      name: /school dashboard/i,
+    });
+    expect(heading).toBeInTheDocument();
+  });
 });

@@ -1,23 +1,27 @@
-import React from 'react';
-import './Footer.css';
-import { getCurrentYear, getFooterCopy } from '../utils/utils';
-import { newContext } from '../Context/context';
+import { getCurrentYear, getFooterCopy } from "../utils/utils.js";
+import AppContext from "../Context/context.js";
 
-export default function Footer() {
-    return (
-        <newContext.Consumer>
-            {
-                (context) => {
-                    if (context.user) {
-                        return (
-                            <div className="App-footer">
-                                <p>Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
-                                {context.user.isLoggedIn && <a href="#">Contact us</a>}
-                            </div>
-                        )
-                    }
-                }
-            }
-        </newContext.Consumer>
-    )
+// Footer renders the footer text with the current year and copy information.
+// When user is logged in, displays a "Contact us" link.
+function Footer() {
+  return (
+    <AppContext.Consumer>
+      {({ user }) => (
+        <div className="App-footer text-center italic mt-auto py-4 text-xs md:text-sm">
+          <p>
+            Copyright {getCurrentYear()} - {getFooterCopy(false)}
+          </p>
+          {user.isLoggedIn && (
+            <p>
+              <a href="#" className="text-[var(--main-color)] underline">
+                Contact us
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+    </AppContext.Consumer>
+  );
 }
+
+export default Footer;

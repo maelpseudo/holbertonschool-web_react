@@ -1,78 +1,104 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react"
-import App from './App'
-import Header from "../Header/Header";
-import Login from "../Login/Login";
-import Footer from "../Footer/Footer";
-import Notifications from "../Notifications/Notifications";
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('Renders App component without craching', () => {
-  render(<App />);
-});
+describe("App component", () => {
+  // Integration: the App shell should mount the notifications panel.
+  test("renders the notifications component", () => {
+    render(<App />);
+    // The notifications title should always be visible
+    const notificationsTitle = screen.getByText(/your notifications/i);
+    expect(notificationsTitle).toBeInTheDocument();
+    
+    // The drawer content should not be visible by default (displayDrawer starts as false)
+    expect(screen.queryByText(/here is the list of notifications/i)).toBeNull();
+  });
 
-test('Renders Header component without craching', () => {
-  render(<Header />);
-});
+  // Integration: the App shell should mount the header component.
+  test("renders the header component", () => {
+    render(<App />);
+    const heading = screen.getByRole("heading", { name: /school dashboard/i });
+    expect(heading).toBeInTheDocument();
+  });
 
-test('Renders Login component without craching', () => {
-  render(<Login />);
-});
+  // Integration: the App shell should mount the login component.
+  test("renders the login component", () => {
+    render(<App />);
+    const loginPrompt = screen.getByText(/login to access the full dashboard/i);
+    expect(loginPrompt).toBeInTheDocument();
+  });
 
-test('Renders Footer component without craching', () => {
-  render(<Footer />);
-});
+  // Integration: the App shell should mount the footer component.
+  test("renders the footer component", () => {
+    render(<App />);
+    const footerCopy = screen.getByText(/copyright/i);
+    expect(footerCopy).toBeInTheDocument();
+  });
 
-test('Renders Notifications component without craching', () => {
-  render(<Notifications />);
-});
+  // Conditional rendering: when not logged in, show Login and not CourseList
+  test("renders Login when isLoggedIn is false", () => {
+    render(<App isLoggedIn={false} />);
+    expect(screen.getByText(/login to access the full dashboard/i)).toBeInTheDocument();
+    // Table for courses should not be present
+    const tables = screen.queryAllByRole("table");
+    expect(tables.length === 0 || !tables.some((t) => t.getAttribute("id") === "CourseList")).toBe(true);
+  });
 
-test('Renders 2 input elements and a button with the text "OK" when isLoggedIn is false', () => {
-  render(<App isLoggedIn={false} />);
-  const emailInput = screen.getAllByRole('textbox', { name: /email/i });
-  expect(emailInput.length).toBe(1);
-  const passwordInput = screen.getByText(/password/i);
-  expect(passwordInput).toBeInTheDocument();
-  const buttonElement = screen.getByRole('button', { name: 'OK' });
-  expect(buttonElement).toBeInTheDocument();
-});
+  // Conditional rendering: when logged in, show CourseList and not Login
+  test("renders CourseList when isLoggedIn is true", () => {
+    render(<App isLoggedIn={true} />);
+    const table = screen.getByRole("table");
+    expect(table).toBeInTheDocument();
+    expect(table.getAttribute("id")).toBe("CourseList");
+    expect(screen.queryByText(/login to access the full dashboard/i)).toBeNull();
+  });
 
-test('Renders a table element when isLoggedIn is true', () => {
-  render(<App isLoggedIn={true} />);
-  const tableElement = screen.getByRole('table');
-  expect(tableElement).toBeInTheDocument();
-});
+  // Test keyboard shortcut: Ctrl+H calls logOut function
+  test("calls logOut function when control and h keys are pressed", () => {
+    const logOutMock = jest.fn();
+    render(<App logOut={logOutMock} />);
 
-window.alert = jest.fn();
+    // Simulate Ctrl+H keydown event
+    const event = new KeyboardEvent("keydown", {
+      ctrlKey: true,
+      key: "h",
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
 
-test('Calls logOut when Ctrl + H is pressed', () => {
-  const logOutMock = jest.fn();
-  const { container } = render(<App isLoggedIn={true} logOut={logOutMock} />);
-  fireEvent.keyDown(container, { key: 'h', ctrlKey: true });
-  expect(logOutMock).toHaveBeenCalledTimes(1);
-});
+    // Verify logOut was called once
+    expect(logOutMock).toHaveBeenCalledTimes(1);
+  });
 
-test('Calls alert with "Logging you out" when Ctrl + H is pressed', () => {
-  render(<App isLoggedIn={true} />);
-  fireEvent.keyDown(document, { key: 'h', ctrlKey: true });
-  expect(global.alert).toHaveBeenCalledWith('Logging you out');
-});
+  // Test keyboard shortcut: Ctrl+H displays alert message
+  test("displays alert with 'Logging you out' when control and h keys are pressed", () => {
+    const alertMock = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<App />);
 
-test('Displays the title "Course list" above the CourseList component when isLoggedIn is true', () => {
-  render(<App isLoggedIn={true} />);
-  const courseListTitle = screen.getByText("Course list");
-  expect(courseListTitle).toBeInTheDocument();
-});
+    // Simulate Ctrl+H keydown event
+    const event = new KeyboardEvent("keydown", {
+      ctrlKey: true,
+      key: "h",
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
 
-test('Displays the title "Log in to continue" above the Login component when isLoggedIn is false', () => {
-  render(<App isLoggedIn={false} />);
-  const loginTitle = screen.getByText('Log in to continue');
-  expect(loginTitle).toBeInTheDocument();
-});
+    // Verify alert was called with correct message
+    expect(alertMock).toHaveBeenCalledWith("Logging you out");
 
-test('Displays "News from the School" and "Holberton School News goes here" by default', () => {
-  render(<App />);
-  const newsTitle = screen.getByText('News from the School');
-  expect(newsTitle).toBeInTheDocument();
-  const newsContent = screen.getByText('Holberton School News goes here');
-  expect(newsContent).toBeInTheDocument();
+    // Clean up the mock
+    alertMock.mockRestore();
+  });
+
+  // Test that News from the School section is displayed by default
+  test("displays News from the School section with correct content", () => {
+    render(<App />);
+
+    // Check for the title "News from the School"
+    const newsTitle = screen.getByText(/news from the school/i);
+    expect(newsTitle).toBeInTheDocument();
+
+    // Check for the paragraph with the news content (check for a portion of the text)
+    const newsContent = screen.getByText(/ipsum lorem ipsum dolor sit amet consectetur/i);
+    expect(newsContent).toBeInTheDocument();
+  });
 });

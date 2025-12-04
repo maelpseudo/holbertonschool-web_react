@@ -1,80 +1,103 @@
-import React from 'react';
-import WithLogging from '../HOC/WithLogging';
-import './Login.css';
+import { Component } from "react";
+import WithLogging from "../HOC/WithLogging.jsx";
 
-class Login extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            email: props.email || '',
-            password: props.password || '',
-            enableSubmit: false,
-        };
-    }
-
-    handleLoginSubmit = (e) => {
-        e.preventDefault();
-        const { email, password } = this.state;
-        this.props.login(email, password)
-    }
-
-    validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+// Login renders the login form with email and password inputs.
+class Login extends Component {
+  // Constructor: initialize component state
+  constructor(props) {
+    super(props);
+    // Initialize state with default values
+    this.state = {
+      isLoggedIn: false,
+      email: "",
+      password: "",
+      enableSubmit: false,
     };
+  }
 
-    handleChangeEmail = (e) => {
-        const email = e.target.value;
-        const { password } = this.state;
-        this.setState({
-            email: email,
-            enableSubmit: this.validateEmail(email) && password.length >= 8,
-        });
-    };
+  // Email validation regex: basic email format validation
+  isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    handleChangePassword = (e) => {
-        const password = e.target.value;
-        const { email } = this.state;
-        this.setState({
-            password: password,
-            enableSubmit: this.validateEmail(email) && password.length >= 8,
-        });
-    };
+  // Update enableSubmit state based on validation criteria
+  updateSubmitState = (email, password) => {
+    // Enable submit when:
+    // 1. Email is not empty and valid
+    // 2. Password has at least 8 characters
+    const isEmailValid = email.trim() !== "" && this.isValidEmail(email);
+    const isPasswordValid = password.length >= 8;
+    const shouldEnable = isEmailValid && isPasswordValid;
 
-    render() {
-        const { enableSubmit, email, password } = this.state;
-        return (
-            <form aria-label="form" onSubmit={this.handleLoginSubmit}>
-                <div className="App-body">
-                    <p>Login to access the full dashboard</p>
-                    <div className="form">
-                        <label htmlFor="email">Email</label>
-                        <input
-                            type="email"
-                            name="user_email"
-                            id="email"
-                            value={email}
-                            onChange={this.handleChangeEmail}
-                        />
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="text"
-                            name="user_password"
-                            id="password"
-                            value={password}
-                            onChange={this.handleChangePassword}
-                        />
-                        <input
-                            value="OK"
-                            type="submit"
-                            disabled={!enableSubmit}
-                        />
-                    </div>
-                </div>
-            </form>
-        )
+    // Only update state if the value changed (to avoid unnecessary re-renders)
+    if (this.state.enableSubmit !== shouldEnable) {
+      this.setState({ enableSubmit: shouldEnable });
     }
+  };
+
+  // Handler for email input changes
+  handleChangeEmail = (event) => {
+    const newEmail = event.target.value;
+    this.setState({ email: newEmail }, () => {
+      // After state is updated, check if submit should be enabled
+      this.updateSubmitState(this.state.email, this.state.password);
+    });
+  };
+
+  // Handler for password input changes
+  handleChangePassword = (event) => {
+    const newPassword = event.target.value;
+    this.setState({ password: newPassword }, () => {
+      // After state is updated, check if submit should be enabled
+      this.updateSubmitState(this.state.email, this.state.password);
+    });
+  };
+
+  // Handler for form submission
+  handleLoginSubmit = (event) => {
+    event.preventDefault(); // Prevent page reload
+    this.setState({ isLoggedIn: true });
+  };
+
+  render() {
+    const { email, password, enableSubmit } = this.state;
+
+    return (
+      <div className="App-body flex-1">
+        <p className="mb-4">Login to access the full dashboard</p>
+        <form 
+          onSubmit={this.handleLoginSubmit}
+          className="flex flex-col md:flex-row md:items-center gap-2 md:gap-0"
+        >
+          <label htmlFor="inputEmail" className="md:mr-2.5">Email:</label>
+          <input 
+            type="email" 
+            id="inputEmail"
+            value={email}
+            onChange={this.handleChangeEmail}
+            className="md:mr-2.5 w-full md:w-auto border border-gray-300 px-2 py-1" 
+          />
+          <label htmlFor="inputPassword" className="md:mr-2.5">Password:</label>
+          <input 
+            type="password" 
+            id="inputPassword"
+            value={password}
+            onChange={this.handleChangePassword}
+            className="md:mr-2.5 w-full md:w-auto border border-gray-300 px-2 py-1" 
+          />
+          <input 
+            type="submit"
+            value="OK"
+            disabled={!enableSubmit}
+            className="md:ml-2.5 w-full md:w-auto mt-2 md:mt-0 border border-gray-300 px-4 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </form>
+      </div>
+    );
+  }
 }
 
-const LoginWithLogging = WithLogging(Login)
+const LoginWithLogging = WithLogging(Login);
+
 export default LoginWithLogging;

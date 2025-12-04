@@ -1,32 +1,33 @@
-import React from 'react';
+import { Component } from "react";
 
-const WithLogging = (WrappedComponent) => {
-    const name =
-        WrappedComponent.displayName || WrappedComponent.name || 'Component';
-    class WithLoggingComponent extends React.Component {
+// Higher-Order Component that adds logging functionality to any component
+function WithLogging(WrappedComponent) {
+  // Get the name of the wrapped component, default to "Component" if no name
+  const componentName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
-        componentDidMount() {
-            this.isMounted();
-        }
-
-        componentWillUnmount() {
-            this.isUnmouted();
-        }
-
-        isMounted() {
-            console.log(`Component ${name} is mounted`);
-        }
-
-        isUnmouted() {
-            console.log(`Component ${name} is going to unmount`);
-        }
-
-        render() {
-            return <WrappedComponent {...this.props} />;
-        }
+  // Return a new class component that wraps the original
+  class WithLoggingComponent extends Component {
+    // Log when the component mounts
+    componentDidMount() {
+      console.log(`Component ${componentName} is mounted`);
     }
-    WithLoggingComponent.displayName = `WithLogging(${name})`;
-    return WithLoggingComponent;
-};
+
+    // Log when the component is about to unmount
+    componentWillUnmount() {
+      console.log(`Component ${componentName} is going to unmount`);
+    }
+
+    // Render the wrapped component with all its props
+    render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  }
+
+  // Set the displayName for debugging in React DevTools
+  WithLoggingComponent.displayName = `WithLogging(${componentName})`;
+
+  return WithLoggingComponent;
+}
 
 export default WithLogging;

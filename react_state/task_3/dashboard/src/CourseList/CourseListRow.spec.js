@@ -1,31 +1,40 @@
-import { render, screen } from '@testing-library/react';
-import CourseListRow from './CourseListRow';
+import { render, screen, within } from "@testing-library/react";
+import CourseListRow from "./CourseListRow.jsx";
 
-describe('CourseListRow Component', () => {
-    it('Renders one <th> with colspan=2 when isHeader is true and textSecondCell is null', () => {
-        render(<CourseListRow isHeader={true} textFirstCell="H1" textSecondCell={null} />);
-        const thElement = screen.getByText('H1');
-        expect(thElement).toBeInTheDocument();
-        expect(thElement).toHaveAttribute('colspan', '2');
-    });
+describe("CourseListRow", () => {
+  test("header with single cell spans two columns when second cell is null", () => {
+    render(<table><thead><CourseListRow isHeader={true} textFirstCell="Available courses" /></thead></table>);
+    const th = screen.getByRole("columnheader", { name: /available courses/i });
+    expect(th).toBeInTheDocument();
+    expect(th).toHaveAttribute("colspan", "2");
+  });
 
-    it('Renders two <th> cells when isHeader is true and textSecondCell is present', () => {
-        render(<CourseListRow isHeader={true} textFirstCell="H1" textSecondCell="H2" />);
-        const thFirstCell = screen.getByText('H1');
-        const thSecondCell = screen.getByText('H2');
-        expect(thFirstCell).toBeInTheDocument();
-        expect(thSecondCell).toBeInTheDocument();
-        expect(thFirstCell.tagName.toLowerCase()).toBe('th');
-        expect(thSecondCell.tagName.toLowerCase()).toBe('th');
-    });
+  test("header with two cells when second cell provided", () => {
+    render(
+      <table>
+        <thead>
+          <CourseListRow isHeader={true} textFirstCell="Course name" textSecondCell="Credit" />
+        </thead>
+      </table>
+    );
+    const headers = screen.getAllByRole("columnheader");
+    expect(headers).toHaveLength(2);
+    expect(headers[0]).toHaveTextContent(/course name/i);
+    expect(headers[1]).toHaveTextContent(/credit/i);
+  });
 
-    it('Renders two <td> elements when isHeader is false', () => {
-        render(<CourseListRow isHeader={false} textFirstCell="C1" textSecondCell="C2" />);
-        const tdFirstCell = screen.getByText('C1');
-        const tdSecondCell = screen.getByText('C2');
-        expect(tdFirstCell).toBeInTheDocument();
-        expect(tdSecondCell).toBeInTheDocument();
-        expect(tdFirstCell.tagName.toLowerCase()).toBe('td');
-        expect(tdSecondCell.tagName.toLowerCase()).toBe('td');
-    });
+  test("body row renders two td cells", () => {
+    render(
+      <table>
+        <tbody>
+          <CourseListRow textFirstCell="ES6" textSecondCell={60} />
+        </tbody>
+      </table>
+    );
+    const row = screen.getByRole("row");
+    const cells = within(row).getAllByRole("cell");
+    expect(cells).toHaveLength(2);
+    expect(cells[0]).toHaveTextContent("ES6");
+    expect(cells[1]).toHaveTextContent("60");
+  });
 });

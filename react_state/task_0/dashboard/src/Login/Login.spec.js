@@ -1,41 +1,34 @@
-import React from "react";
-import { render, screen } from "@testing-library/react"
-import userEvent from '@testing-library/user-event'
+import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/react";
 import Login from "./Login";
 
-test('Renders App body text', () => {
+describe("Login component", () => {
+  // The login prompt should guide the user to authenticate.
+  test("renders the login prompt", () => {
     render(<Login />);
-    const bodyElement = screen.getByText(/Login to access the full dashboard/i);
-    expect(bodyElement.closest('.App-body')).toBeInTheDocument();
-});
+    const loginPrompt = screen.getByText(/login to access the full dashboard/i);
+    expect(loginPrompt).toBeInTheDocument();
+  });
 
-
-test('Renders 2 input elements', () => {
+  // The form should include two labels, two inputs, and one button.
+  test("renders 2 labels, 2 inputs, and 1 button", () => {
     render(<Login />);
-    const inputElements = screen.getAllByRole('textbox');
-    const passwordInputs = screen.getAllByRole('textbox', { hidden: true });
-    expect(inputElements.length + passwordInputs.length).toBe(2);
+    const labels = screen.getAllByText(/(email|password):/i);
+    const inputs = screen.getAllByLabelText(/email|password/i);
+    const buttons = screen.getAllByRole("button");
+    expect(labels).toHaveLength(2);
+    expect(inputs).toHaveLength(2);
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent(/ok/i);
+  });
 
-});
-
-test('Renders 2 label elements with text Email and Password', () => {
+  // Clicking the label should focus the associated input for accessibility.
+  test("focuses the email input when its label is clicked", async () => {
+    const user = userEvent.setup();
     render(<Login />);
-    const emailInput = screen.getByText(/email/i);
-    const passwordInput = screen.getByText(/password/i);
-    expect(emailInput).toBeInTheDocument();
-    expect(passwordInput).toBeInTheDocument();
-});
-
-test('Renders a button with the text OK', () => {
-    render(<Login />);
-    const buttonElement = screen.getByRole('button', { name: /ok/i });
-    expect(buttonElement).toBeInTheDocument();
-});
-
-test('Focuses the email input when the email label is clicked', async () => {
-    render(<Login />);
-    const emailLabel = screen.getByLabelText(/email:/i);
-    const emailInput = screen.getByRole('textbox', { name: /email:/i });
-    await userEvent.click(emailLabel);
+    const emailLabel = screen.getByText(/email:/i);
+    const emailInput = screen.getByLabelText(/email/i);
+    await user.click(emailLabel);
     expect(emailInput).toHaveFocus();
+  });
 });
