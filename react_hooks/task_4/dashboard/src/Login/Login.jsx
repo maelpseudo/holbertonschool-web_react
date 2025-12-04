@@ -1,80 +1,135 @@
-import React from 'react';
-import WithLogging from '../HOC/WithLogging';
-import './Login.css';
+import { useState } from "react";
+import { StyleSheet, css } from "aphrodite";
+import WithLogging from "../HOC/WithLogging";
 
-class Login extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            email: props.email || '',
-            password: props.password || '',
-            enableSubmit: false,
-        };
-    }
+const styles = StyleSheet.create({
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    height: "60vh",
+    padding: "20px 20px 20px 40px",
+    borderTop: "5px red solid",
+  },
+  p: {
+    fontFamily: "Roboto, sans-serif",
+    fontSize: "1.3rem",
+  },
+  form: {
+    margin: "20px 0",
+    fontSize: "1.2rem",
+    fontFamily: "Roboto, sans-serif",
+    display: "flex",
+    flexDirection: "row",
+    "@media (max-width: 900px)": {
+      flexDirection: "column",
+    },
+  },
+  label: {
+    paddingRight: "10px",
+    "@media (max-width: 900px)": {
+      display: "block",
+    },
+  },
+  input: {
+    marginRight: "10px",
+    "@media (max-width: 900px)": {
+      display: "block",
+      marginBottom: "10px",
+      paddingBottom: "5px",
+      paddingTop: "5px",
+      fontSize: "20px",
+      width: "100%",
+      boxSizing: "border-box",
+    },
+  },
+  button: {
+    cursor: "pointer",
+    "@media (max-width: 900px)": {
+      display: "block",
+      marginTop: "10px",
+      paddingBottom: "5px",
+      paddingTop: "5px",
+      fontSize: "16px",
+      width: "100%",
+      boxSizing: "border-box",
+    },
+  },
+});
 
-    handleLoginSubmit = (e) => {
-        e.preventDefault();
-        const { email, password } = this.state;
-        this.props.logIn(email, password)
-    }
+const Login = ({ logIn, email = "", password = "" }) => {
+  const [enableSubmit, setEnableSubmit] = useState(false);
+  const [formData, setFormData] = useState({
+    email,
+    password,
+  });
 
-    validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    handleChangeEmail = (e) => {
-        const email = e.target.value;
-        const { password } = this.state;
-        this.setState({
-            email: email,
-            enableSubmit: this.validateEmail(email) && password.length >= 8,
-        });
-    };
+  const handleChangeEmail = (e) => {
+    const newEmail = e.target.value;
+    const { password } = formData;
 
-    handleChangePassword = (e) => {
-        const password = e.target.value;
-        const { email } = this.state;
-        this.setState({
-            password: password,
-            enableSubmit: this.validateEmail(email) && password.length >= 8,
-        });
-    };
+    setFormData((prev) => ({
+      ...prev,
+      email: newEmail,
+    }));
+    setEnableSubmit(validateEmail(newEmail) && password.length >= 8);
+  };
 
-    render() {
-        const { enableSubmit, email, password } = this.state;
-        return (
-            <form aria-label="form" onSubmit={this.handleLoginSubmit}>
-                <div className="App-body">
-                    <p>Login to access the full dashboard</p>
-                    <div className="form">
-                        <label htmlFor="email">Email: </label>
-                        <input
-                            type="email"
-                            name="user_email"
-                            id="email"
-                            value={email}
-                            onChange={this.handleChangeEmail}
-                        />
-                        <label htmlFor="password">Password: </label>
-                        <input
-                            type="text"
-                            name="user_password"
-                            id="password"
-                            value={password}
-                            onChange={this.handleChangePassword}
-                        />
-                        <input
-                            value="OK"
-                            type="submit"
-                            disabled={!enableSubmit}
-                        />
-                    </div>
-                </div>
-            </form>
-        )
-    }
-}
+  const handleChangePassword = (e) => {
+    const newPassword = e.target.value;
+    const { email } = formData;
 
-const LoginWithLogging = WithLogging(Login)
-export default LoginWithLogging;
+    setFormData((prev) => ({
+      ...prev,
+      password: newPassword,
+    }));
+    setEnableSubmit(validateEmail(email) && newPassword.length >= 8);
+  };
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    logIn(formData.email, formData.password);
+  };
+
+  return (
+    <div className={css(styles.body)}>
+      <p className={css(styles.p)}>Login to access the full dashboard</p>
+      <form className={css(styles.form)} onSubmit={handleLoginSubmit}>
+        <label htmlFor="email" className={css(styles.label)}>
+          Email
+        </label>
+        <input
+          type="email"
+          name="user_email"
+          id="email"
+          className={css(styles.input)}
+          value={formData.email}
+          onChange={handleChangeEmail}
+        />
+        <label htmlFor="password" className={css(styles.label)}>
+          Password
+        </label>
+        <input
+          type="password"
+          name="user_password"
+          id="password"
+          className={css(styles.input)}
+          value={formData.password}
+          onChange={handleChangePassword}
+        />
+        <input
+          type="submit"
+          value="OK"
+          className={css(styles.button)}
+          disabled={!enableSubmit}
+        />
+      </form>
+    </div>
+  );
+};
+
+export default WithLogging(Login);
