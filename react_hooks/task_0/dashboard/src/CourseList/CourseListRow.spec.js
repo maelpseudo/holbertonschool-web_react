@@ -1,88 +1,55 @@
-import { render, screen, within } from '@testing-library/react';
 import CourseListRow from './CourseListRow';
+import { render, screen } from '@testing-library/react';
 
-test('it should display 1 "th" element with colspan=2 when isHeader is true and textSecondCell is null', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell={null} />
-      </tbody>
-    </table>
-  )
+describe('CourseListRow Component', () => {
+  describe('When isHeader is true', () => {
+    test('renders one th with colspan=2 when textSecondCell is null', () => {
+      render(
+        <table>
+          <tbody>
+            <CourseListRow isHeader={true} textFirstCell="Course name" textSecondCell={null} />
+          </tbody>
+        </table>
+      );
 
-  const thElement = screen.getByRole('columnheader');
+      const th = screen.getByRole('columnheader');
+      expect(th).toBeInTheDocument();
+      expect(th).toHaveAttribute('colspan', '2');
+      expect(th).toHaveTextContent('Course name');
+    });
 
-  expect(thElement).toHaveAttribute('colSpan', '2');
+    test('renders two th elements when textSecondCell is not null', () => {
+      render(
+        <table>
+          <tbody>
+            <CourseListRow isHeader={true} textFirstCell="Course name" textSecondCell="Credit" />
+          </tbody>
+        </table>
+      );
+      
+      const thElements = screen.getAllByRole('columnheader');
+      expect(thElements).toHaveLength(2);
+      expect(thElements[0]).toHaveTextContent('Course name');
+      expect(thElements[1]).toHaveTextContent('Credit');
+    });
+  });
+
+  describe('When isHeader is false', () => {
+    test('renders two td elements within a tr element', () => {
+      render(
+        <table>
+          <tbody>
+            <CourseListRow isHeader={false} textFirstCell="ES6" textSecondCell="60" />
+          </tbody>
+        </table>
+      );
+      
+      const tdElements = screen.getAllByRole('cell');
+      expect(tdElements).toHaveLength(2);
+      expect(tdElements[0]).toHaveTextContent('ES6');
+      expect(tdElements[1]).toHaveTextContent('60');
+    });
+  });
 });
 
-test('it should display 2 "th" elements when isHeader is true and textSecondCell is not null', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell="Second" />
-      </tbody>
-    </table>
-  )
 
-  const thElements = screen.getAllByRole('columnheader');
-
-  expect(thElements).toHaveLength(2);
-});
-
-test('it should render 2 "td" elements inside a "tr" element when isHeader is false', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={false} textFirstCell="Data1" textSecondCell="Data2" />
-      </tbody>
-    </table>
-  )
-
-  const trElement = screen.getByRole('row');
-  const tdElements = within(trElement).getAllByRole('cell');
-
-  expect(trElement).toBeInTheDocument();
-  expect(tdElements).toHaveLength(2);
-});
-
-test('it should check when the isHeader prop is true, the cell background color is #deb5b545', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell={null} />
-      </tbody>
-    </table>
-  )
-
-  const trElement = screen.getByRole('row');
-
-  expect(trElement.className).toMatch(/headerRow_/);
-});
-
-test('it should check when the isHeader prop is true and secondTextCell is not null, the cell background color is #deb5b545', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell="Second" />
-      </tbody>
-    </table>
-  )
-
-  const trElement = screen.getByRole('row');
-
-  expect(trElement.className).toMatch(/headerRow_/);
-});
-
-test('it should check when the isHeader prop is false, the cell background color is #f5f5f5ab', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={false} textFirstCell="Data1" textSecondCell="Data2" />
-      </tbody>
-    </table>
-  )
-
-  const trElement = screen.getByRole('row');
-
-  expect(trElement.className).toMatch(/row_/);
-});

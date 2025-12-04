@@ -1,137 +1,95 @@
-import { Component } from 'react';
-import { StyleSheet, css } from 'aphrodite';
-import WithLogging from '../HOC/WithLogging';
-
-const styles = StyleSheet.create({
-  body: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '60vh',
-    padding: '20px 20px 20px 40px',
-    borderTop: '5px red solid'
-  },
-  p: {
-    fontFamily: 'Roboto, sans-serif',
-    fontSize: '1.3rem'
-  },
-  form: {
-    margin: '20px 0',
-    fontSize: '1.2rem',
-    fontFamily: 'Roboto, sans-serif',
-    display: 'flex',
-    flexDirection: 'row',
-    '@media (max-width: 900px)': {
-      flexDirection: 'column',
-    }
-  },
-  label: {
-    paddingRight: '10px',
-    '@media (max-width: 900px)': {
-      display: 'block'
-    }
-  },
-  input: {
-    marginRight: '10px',
-    '@media (max-width: 900px)': {
-      display: 'block',
-      marginBottom: '10px',
-      paddingBottom: '5px',
-      paddingTop: '5px',
-      fontSize: '20px',
-      width: '100%',
-      boxSizing: 'border-box'
-    }
-  },
-  button: {
-    cursor: 'pointer',
-    '@media (max-width: 900px)': {
-      display: 'block',
-      marginTop: '10px',
-      paddingBottom: '5px',
-      paddingTop: '5px',
-      fontSize: '16px',
-      width: '100%',
-      boxSizing: 'border-box'
-    }
-  }
-});
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 class Login extends Component {
+  static propTypes = {
+    logIn: PropTypes.func,
+    email: PropTypes.string,
+    password: PropTypes.string
+  };
+
+  static defaultProps = {
+    logIn: () => {},
+    email: '',
+    password: ''
+  };
+
   constructor(props) {
     super(props);
-    const { email = '', password = '' } = this.props;
     this.state = {
-      email,
-      password,
+      // Initializes email and password from props if provided
+      email: props.email || '',
+      password: props.password || '',
       enableSubmit: false
     };
   }
-
-  isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
+  // The event parameter represents the form submission event 
+  // that's automatically passed by the browser when a form is submitted.
+  handleLoginSubmit = (event) => {
+    event.preventDefault();
+    this.props.logIn(this.state.email, this.state.password);
+  };
 
   validateForm = (email, password) => {
-    const isEmailValid = this.isValidEmail(email);
+    // Use regex to validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmailValid = emailRegex.test(email);
     const isPasswordValid = password.length >= 8;
-    return isEmailValid && isPasswordValid && email !== '' && password !== '';
-  }
+    
+    return isEmailValid && isPasswordValid;
+  };
 
-  handleChangeEmail = (e) => {
-    const email = e.target.value;
-    this.setState({
-      email,
-      enableSubmit: this.validateForm(email, this.state.password)
+  handleChangeEmail = (event) => {
+    const newEmail = event.target.value;
+    this.setState({ email: newEmail }, () => {
+      const isValid = this.validateForm(this.state.email, this.state.password);
+      this.setState({ enableSubmit: isValid });
     });
-  }
+  };
 
-  handleChangePassword = (e) => {
-    const password = e.target.value;
-    this.setState({
-      password,
-      enableSubmit: this.validateForm(this.state.email, password)
+  handleChangePassword = (event) => {
+    const newPassword = event.target.value;
+    this.setState({ password: newPassword }, () => {
+      const isValid = this.validateForm(this.state.email, this.state.password);
+      this.setState({ enableSubmit: isValid });
     });
-  }
-
-  handleLoginSubmit = (e) => {
-    e.preventDefault();
-    const { logIn } = this.props;
-    if (logIn) {
-      logIn(this.state.email, this.state.password);
-    }
-  }
+  };
 
   render() {
-    const { email, password, enableSubmit } = this.state;
-
     return (
-      <div className={css(styles.body)}>
-        <p className={css(styles.p)}>Login to access the full dashboard</p>
-        <form className={css(styles.form)} onSubmit={this.handleLoginSubmit}>
-          <label htmlFor="email" className={css(styles.label)}>Email</label>
-          <input
-            type="email"
-            name="user_email"
-            id="email"
-            className={css(styles.input)}
-            value={email}
-            onChange={this.handleChangeEmail}
-          />
-          <label htmlFor="password" className={css(styles.label)}>Password</label>
-          <input
-            type="password"
-            name="user_password"
-            id="password"
-            className={css(styles.input)}
-            value={password}
-            onChange={this.handleChangePassword}
-          />
-          <input
+      <div>
+        <p className="text-lg mb-5 max-[912px]:text-base">Login to access the full dashboard</p>
+        <form 
+          className="flex flex-wrap items-center gap-4 max-[912px]:flex-col max-[912px]:items-stretch max-[912px]:gap-3"
+          onSubmit={this.handleLoginSubmit}
+        >
+          <div className="inline-flex items-center gap-2 max-[912px]:flex-col max-[912px]:items-start max-[912px]:w-full">
+            <label htmlFor="email" className="font-normal max-[912px]:mb-1">Email:</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              value={this.state.email}
+              onChange={this.handleChangeEmail}
+              className="px-2.5 py-1 border border-gray-300 rounded text-base max-[912px]:w-full max-[912px]:py-2"
+            />
+          </div>
+          <div className="inline-flex items-center gap-2 max-[912px]:flex-col max-[912px]:items-start max-[912px]:w-full">
+            <label htmlFor="password" className="font-normal max-[912px]:mb-1">Password:</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              value={this.state.password}
+              onChange={this.handleChangePassword}
+              className="px-2.5 py-1 border border-gray-300 rounded text-base max-[912px]:w-full max-[912px]:py-2"
+            />
+          </div>
+          <input 
             type="submit"
             value="OK"
-            className={css(styles.button)}
-            disabled={!enableSubmit}
+            disabled={!this.state.enableSubmit}
+            className="px-4 py-1 bg-white text-black border border-gray-300 rounded cursor-pointer text-base hover:bg-gray-100 max-[912px]:w-full max-[912px]:py-2 max-[912px]:mt-2"
           />
         </form>
       </div>
@@ -139,5 +97,4 @@ class Login extends Component {
   }
 }
 
-const LoginWithLogging = WithLogging(Login)
-export default LoginWithLogging;
+export default Login;

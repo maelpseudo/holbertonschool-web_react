@@ -1,53 +1,32 @@
-import { PureComponent } from 'react';
-import { StyleSheet, css } from 'aphrodite';
+import React, { PureComponent } from 'react';
 
-const styles = StyleSheet.create({
-  default: {
-    color: 'blue',
-    '@media (max-width: 900px)': {
-      width: '100%',
-      borderBottom: '1px solid black',
-      fontSize: '20px',
-      padding: '10px 8px',
-      listStyle: 'none'
-    }
-  },
-  urgent: {
-    color: 'red',
-    '@media (max-width: 900px)': {
-      width: '100%',
-      borderBottom: '1px solid black',
-      fontSize: '20px',
-      padding: '10px 8px',
-      listStyle: 'none'
-    }
-  }
-});
-
-export default class NotificationItem extends PureComponent {
+class NotificationItem extends PureComponent {
   render() {
-    const { type, html, value, markAsRead, id } = this.props;
-    const itemStyle = type === 'default' ? styles.default : styles.urgent;
-    // this console.log is only for test purposes and not mentionned/required in the student code
-    // console.log(`Rendering NotificationItem with id: ${id}, type: ${type}, value: ${value}`);
-    
-    if (html !== undefined) {
+    const { type, html, value, id, markAsRead } = this.props;
+    const colorClass = type === 'urgent' ? 'text-[var(--urgent-notification-item)]' : 'text-[var(--default-notification-item)]';
+
+    if (html) {
       return (
-        <li
-          className={css(itemStyle)}
+        <li 
           data-notification-type={type}
+          className={`${colorClass} flex items-start gap-2 mb-2 before:content-['■'] before:text-base max-[912px]:p-3 max-[912px]:border-b max-[912px]:border-black max-[912px]:text-xl`}
           dangerouslySetInnerHTML={html}
           onClick={() => markAsRead(id)}
-        ></li>
-      );
-    } else {
-      return (
-        <li
-          className={css(itemStyle)}
-          data-notification-type={type}
-          onClick={() => markAsRead(id)}
-        >{value}</li>
+        />
       );
     }
+
+    return (
+      <li 
+        data-notification-type={type}
+        className={`${colorClass} flex items-start gap-2 mb-2 max-[912px]:p-3 max-[912px]:border-b max-[912px]:border-black max-[912px]:text-xl`}
+        onClick={() => markAsRead(id)}
+      >
+        <span className="text-base max-[912px]:hidden">■</span>
+        <span>{value}</span>
+      </li>
+    );
   }
 }
+
+export default NotificationItem;

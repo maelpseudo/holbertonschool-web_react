@@ -1,31 +1,29 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 
 const WithLogging = (WrappedComponent) => {
-  class WithLoggingComponent extends Component {
-    componentDidMount() {
-      const componentName = WrappedComponent.name
-        ? WrappedComponent.name
-        : 'Component';
+  // Extract the component name with proper fallback handling
+  const wrappedComponentName = WrappedComponent.displayName 
+    || WrappedComponent.name 
+    || 'Component';
 
-      console.log(`Component ${componentName} is mounted`);
+  class WithLoggingHOC extends Component {
+    componentDidMount() {
+      console.log(`Component ${wrappedComponentName} is mounted`);
     }
 
     componentWillUnmount() {
-      const componentName = WrappedComponent.name
-        ? WrappedComponent.name
-        : 'Component';
-
-      console.log(`Component ${componentName} is going to unmount`);
+      console.log(`Component ${wrappedComponentName} is going to unmount`);
     }
 
     render() {
       return <WrappedComponent {...this.props} />;
     }
   }
-
-  WithLoggingComponent.displayName = `WithLogging(${WrappedComponent.name || 'Component'})`;
-
-  return WithLoggingComponent;
+  
+  // Set displayName for React DevTools debugging
+  WithLoggingHOC.displayName = `WithLogging(${wrappedComponentName})`;
+  
+  return WithLoggingHOC;
 };
 
 export default WithLogging;

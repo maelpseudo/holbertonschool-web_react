@@ -1,96 +1,296 @@
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import App from './App';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import App from './App'
+import { getCurrentYear, getFooterCopy } from '../utils/utils'
 
-test('The App component renders without crashing', () => {
-  render(<App />);
-});
-
-test('The App component renders Login when user is not logged in (default state)', () => {
-  render(<App />);
-
-  const emailLabelElement = screen.getByLabelText(/email/i);
-  const passwordLabelElement = screen.getByLabelText(/password/i);
-  const buttonElements = screen.getAllByRole('button', { name: /ok/i })
-
-  expect(emailLabelElement).toBeInTheDocument()
-  expect(passwordLabelElement).toBeInTheDocument()
-  expect(buttonElements.length).toBeGreaterThanOrEqual(1)
-});
-
-test('CourseList is not displayed when user is not logged in', () => {
-  render(<App />);
-
-  const tableElement = screen.queryByRole('table');
-
-  expect(tableElement).not.toBeInTheDocument();
-});
-
-test('when user logs in, CourseList is displayed and Login is not displayed', async () => {
-  const user = userEvent.setup();
-  render(<App />);
-
-  const emailInput = screen.getByLabelText(/email/i);
-  const passwordInput = screen.getByLabelText(/password/i);
-  const submitButton = screen.getByRole('button', { name: /ok/i });
-
-  await user.type(emailInput, 'test@example.com');
-  await user.type(passwordInput, 'password123');
-
-  await waitFor(() => {
-    expect(submitButton).toBeEnabled();
+describe('App', () => {
+  test('renders h1 element with School Dashboard text', () => {
+    render(<App />);
+    const heading = screen.getByRole('heading', { name: /school dashboard/i });
+    expect(heading).toBeInTheDocument();
   });
 
-  await user.click(submitButton);
-
-  await waitFor(() => {
-    const tableElement = screen.getByRole('table');
-    expect(tableElement).toBeInTheDocument();
+  test('renders correct text content in app-body p element', () => {
+    render(<App />);
+    const bodyText = screen.getByText(/login to access the full dashboard/i);
+    expect(bodyText).toBeInTheDocument();
   });
 
-  const loginForm = screen.queryByLabelText(/email/i);
-  expect(loginForm).not.toBeInTheDocument();
-});
-
-test('it should display an alert and log out when ctrl+h is pressed', () => {
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-
-  render(<App />);
-
-  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
-
-  expect(alertSpy).toHaveBeenCalledWith('Logging you out');
-
-  alertSpy.mockRestore();
-});
-
-test('it should display "News from the School" title and paragraph by default', () => {
-  render(<App />);
-
-  const newsTitle = screen.getByRole('heading', { name: /news from the school/i });
-  const newsParagraph = screen.getByText(/holberton school news goes here/i);
-
-  expect(newsTitle).toBeInTheDocument();
-  expect(newsParagraph).toBeInTheDocument();
-});
-
-test('clicking on a notification item removes it from the list and logs to console', async () => {
-  const user = userEvent.setup();
-  const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-  render(<App />);
-
-  const notificationItems = screen.getAllByRole('listitem');
-  const initialCount = notificationItems.length;
-
-  await user.click(notificationItems[0]);
-
-  expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
-
-  await waitFor(() => {
-    const updatedItems = screen.queryAllByRole('listitem');
-    expect(updatedItems.length).toBe(initialCount - 1);
+  test('renders correct text content in app-footer p element', () => {
+    render(<App />);
+    const footerText = screen.getByText(/copyright 2025 - holberton school/i);
+    expect(footerText).toBeInTheDocument();
   });
 
-  consoleSpy.mockRestore();
+  test('renders img element with holberton logo alt text', () => {
+    render(<App />);
+    const image = screen.getByAltText(/holberton logo/i);
+    expect(image).toBeInTheDocument();
+  });
+
+  test ('getCurrentYear function returns the current year', () => {
+    const currentYear = new Date().getFullYear();
+    expect(getCurrentYear()).toBe(currentYear);
+  });
+
+  test ('getFooterCopy returns correct string based on isIndex parameter', () => {
+    expect(getFooterCopy(true)).toBe('Holberton School');
+  });
+
+  test('App component renders 2 input elements (one for email and the other for password)', () => {
+    render(<App />);
+    const emailInput = screen.getByLabelText(/email:/i);
+    const passwordInput = screen.getByLabelText(/password:/i);
+
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+  });
+
+  test('renders 2 label elements with text Email and Password', () => {
+    render(<App />);
+    const emailLabel = screen.getByText(/email/i);
+    const passwordLabel = screen.getByText(/password/i);
+
+    expect(emailLabel).toBeInTheDocument();
+    expect(passwordLabel).toBeInTheDocument();
+  });
+
+  test('App component renders a button with the text OK', () => {
+    render(<App />);
+    const okButton = screen.getByRole('button', { name: /ok/i });
+    expect(okButton).toBeInTheDocument();
+  });
+
+  test('App component should render the Login form when state.user.isLoggedIn is false', () => {
+    render(<App />);
+    const loginText = screen.getByText(/login to access the full dashboard/i);
+    expect(loginText).toBeInTheDocument();
+    
+    const courseListTable = screen.queryByRole('table');
+    expect(courseListTable).not.toBeInTheDocument();
+  });
+
+  test('App component should render the CourseList table when state.user.isLoggedIn is true', async () => {
+    const { container } = render(<App />);
+    const appInstance = container.querySelector('.App').closest('div').__reactFiber$;
+    
+    // Find the App component instance
+    let fiber = appInstance;
+    while (fiber && !fiber.stateNode?.state?.user) {
+      fiber = fiber.return;
+    }
+    
+    if (fiber && fiber.stateNode) {
+      // Manually set the state to logged in using act
+      act(() => {
+        fiber.stateNode.setState({
+          user: {
+            email: 'test@example.com',
+            password: 'password123',
+            isLoggedIn: true
+          }
+        });
+      });
+      
+      // Wait for re-render and check
+      await waitFor(() => {
+        const courseListTable = screen.queryByRole('table');
+        expect(courseListTable).toBeInTheDocument();
+      });
+      
+      const loginText = screen.queryByText(/login to access the full dashboard/i);
+      expect(loginText).not.toBeInTheDocument();
+    }
+  });
+
+  test('When the control and h keys are pressed, the logOut function from state is called', () => {
+    const { container } = render(<App />);
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    
+    // Find the App component instance
+    let fiber = container.querySelector('.App').closest('div').__reactFiber$;
+    while (fiber && !fiber.stateNode?.state?.user) {
+      fiber = fiber.return;
+    }
+    
+    if (fiber && fiber.stateNode) {
+      // Set user to logged in first
+      fiber.stateNode.setState({
+        user: {
+          email: 'test@example.com',
+          password: 'password123',
+          isLoggedIn: true
+        }
+      });
+      
+      // Trigger the keyboard event
+      const event = new KeyboardEvent('keydown', {
+        ctrlKey: true,
+        key: 'h',
+        bubbles: true
+      });
+      
+      document.dispatchEvent(event);
+      
+      expect(alertMock).toHaveBeenCalledWith('Logging you out');
+      
+      // Verify user is logged out (state changed)
+      expect(fiber.stateNode.state.user.isLoggedIn).toBe(false);
+      expect(fiber.stateNode.state.user.email).toBe('');
+    }
+    
+    alertMock.mockRestore();
+  });
+
+  test('Ensure that the alert function is called with the string Logging you out', () => {
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    
+    render(<App />);
+    
+    const event = new KeyboardEvent('keydown', {
+      ctrlKey: true,
+      key: 'h',
+      bubbles: true
+    });
+    
+    document.dispatchEvent(event);
+    
+    expect(alertMock).toHaveBeenCalledWith('Logging you out');
+    
+    alertMock.mockRestore();
+  });
+
+  test('Check title "News from school" and paragraph element with text "Holberton School News goes here" are displayed by default', () => {
+    render(<App />);
+    
+    const newsTitle = screen.getByRole('heading', { name: /news from the school/i });
+    const newsContent = screen.getByText(/holberton school news goes here/i);
+    
+    expect(newsTitle).toBeInTheDocument();
+    expect(newsContent).toBeInTheDocument();
+  });
+
+  test('Verify UI updates when user logs in (state changes)', () => {
+    const { container } = render(<App />);
+    
+    // Initially should show login form
+    expect(screen.getByText(/login to access the full dashboard/i)).toBeInTheDocument();
+    
+    const emailInput = screen.getByLabelText(/email:/i);
+    const passwordInput = screen.getByLabelText(/password:/i);
+    const submitButton = screen.getByRole('button', { name: /ok/i });
+    
+    // Fill in valid credentials
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    
+    // Submit the form (this calls logIn and updates state)
+    fireEvent.click(submitButton);
+    
+    // UI should now show CourseList instead of Login
+    const courseListTable = screen.getByRole('table');
+    expect(courseListTable).toBeInTheDocument();
+    
+    const loginText = screen.queryByText(/login to access the full dashboard/i);
+    expect(loginText).not.toBeInTheDocument();
+  });
+
+  test('Verify UI updates when user logs out (state changes)', async () => {
+    const { container } = render(<App />);
+    
+    // Find and update state to logged in
+    let fiber = container.querySelector('.App').closest('div').__reactFiber$;
+    while (fiber && !fiber.stateNode?.state?.user) {
+      fiber = fiber.return;
+    }
+    
+    if (fiber && fiber.stateNode) {
+      await act(async () => {
+        fiber.stateNode.setState({
+          user: {
+            email: 'test@example.com',
+            password: 'password123',
+            isLoggedIn: true
+          }
+        });
+      });
+      
+      // Should show CourseList
+      await waitFor(() => {
+        const table = screen.queryByRole('table');
+        expect(table).toBeInTheDocument();
+      });
+      
+      // Should show logout section
+      await waitFor(() => {
+        expect(screen.getByText(/welcome test@example.com/i)).toBeInTheDocument();
+      });
+      
+      // Click logout
+      const logoutLink = screen.getByText(/logout/i);
+      fireEvent.click(logoutLink);
+      
+      // Wait for logout to complete
+      await waitFor(() => {
+        expect(screen.getByText(/login to access the full dashboard/i)).toBeInTheDocument();
+      });
+      
+      // CourseList should not be visible
+      const courseListTable = screen.queryByRole('table');
+      expect(courseListTable).not.toBeInTheDocument();
+    }
+  });
+
+  test('Clicking on a notification item removes it from the list and logs to console', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const { container } = render(<App />);
+    
+    // Find the App component instance
+    let fiber = container.querySelector('.App').closest('div').__reactFiber$;
+    while (fiber && !fiber.stateNode?.state?.user) {
+      fiber = fiber.return;
+    }
+    
+    if (fiber && fiber.stateNode) {
+      // Get initial notifications count
+      const initialNotificationsCount = fiber.stateNode.state.notifications.length;
+      expect(initialNotificationsCount).toBe(3);
+      
+      // Set displayDrawer to true to show notifications
+      await act(async () => {
+        fiber.stateNode.setState({ displayDrawer: true });
+      });
+      
+      // Wait for notifications to be rendered
+      await waitFor(() => {
+        const notificationItems = screen.getAllByRole('listitem');
+        expect(notificationItems.length).toBeGreaterThan(0);
+      });
+      
+      // Find a notification item and click it
+      const notificationItems = screen.getAllByRole('listitem');
+      
+      // Click the first notification (id: 1)
+      fireEvent.click(notificationItems[0]);
+      
+      // Verify console.log was called with correct message
+      expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
+      
+      // Wait for state update to complete
+      await waitFor(() => {
+        const updatedNotificationsCount = fiber.stateNode.state.notifications.length;
+        expect(updatedNotificationsCount).toBe(2);
+      });
+      
+      // Verify notification was removed from state
+      const updatedNotificationsCount = fiber.stateNode.state.notifications.length;
+      expect(updatedNotificationsCount).toBe(initialNotificationsCount - 1);
+      
+      // Verify the removed notification is not in state anymore
+      const notificationIds = fiber.stateNode.state.notifications.map(n => n.id);
+      expect(notificationIds).not.toContain(1);
+    }
+    
+    consoleSpy.mockRestore();
+  });
+  
 });

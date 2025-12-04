@@ -1,135 +1,62 @@
-import { PureComponent } from 'react';
-import { StyleSheet, css } from 'aphrodite';
-import closeIcon from '../assets/close-icon.png';
+import React, { PureComponent } from 'react';
+import closeIcon from '../assets/close-button.png';
 import NotificationItem from './NotificationItem';
 
-const opacityKeyframes = {
-  'from': {
-    opacity: 0.5
-  },
-  'to': {
-    opacity: 1
-  }
-};
-
-const bounceKeyframes = {
-  '0%': {
-    transform: 'translateY(0px)'
-  },
-  '50%': {
-    transform: 'translateY(-5px)'
-  },
-  '100%': {
-    transform: 'translateY(5px)'
-  }
-};
-
-const styles = StyleSheet.create({
-  notificationItems: {
-    position: 'relative',
-    border: '3px dotted #e1003c',
-    padding: '5px',
-    fontFamily: 'Roboto, sans-serif',
-    width: '25%',
-    float: 'right',
-    marginTop: '20px',
-    '@media (max-width: 900px)': {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      border: 'none',
-      padding: 0,
-      margin: 0,
-      fontSize: '20px',
-      backgroundColor: 'white',
-      zIndex: 1000
-    }
-  },
-  ul: {
-    '@media (max-width: 900px)': {
-      padding: 0
-    }
-  },
-  p: {
-    margin: 0,
-    '@media (max-width: 900px)': {
-      fontSize: '20px'
-    }
-  },
-  button: {
-    position: 'absolute',
-    cursor: 'pointer',
-    right: 'calc(0% - 480px)',
-    top: 'calc(0% - 480px)',
-    background: 'transparent',
-    transform: 'scale(0.012)',
-    WebkitTransform: 'scale(0.012)',
-    MozTransform: 'scale(0.012)',
-    msTransform: 'scale(0.012)',
-    OTransform: 'scale(0.012)'
-  },
-  menuItem: {
-    float: 'right',
-    position: 'absolute',
-    right: '10px',
-    top: '-5px',
-    backgroundColor: '#fff8f8',
-    cursor: 'pointer',
-    ':hover': {
-      animationName: [opacityKeyframes, bounceKeyframes],
-      animationDuration: '1s, 0.5s',
-      animationIterationCount: '3, 3'
-    }
-  }
-});
-
 class Notifications extends PureComponent {
+  static defaultProps = {
+    notifications: [],
+    displayDrawer: false,
+    handleDisplayDrawer: () => {},
+    handleHideDrawer: () => {},
+    markNotificationAsRead: () => {}
+  };
+
   render() {
-    const { notifications = [], displayDrawer, handleDisplayDrawer, handleHideDrawer, markNotificationAsRead } = this.props;
+    const { notifications, displayDrawer, handleDisplayDrawer, handleHideDrawer, markNotificationAsRead } = this.props;
+    const bounceAnimation = notifications.length > 0 && !displayDrawer;
+    
+    console.log('Notifications render - displayDrawer:', displayDrawer);
 
     return (
       <>
-        <div className={css(styles.menuItem)} onClick={() => handleDisplayDrawer()}>
-          Your notifications
+        <div 
+          className={`menuItem absolute top-0 right-0 p-4${bounceAnimation ? ' animate-bounce' : ''}`}
+          onClick={handleDisplayDrawer}
+          style={{ cursor: 'pointer' }}
+        >
+          <p>Your notifications</p>
         </div>
-        {
-          displayDrawer ? (
-            <div className={css(styles.notificationItems)}>
-              {notifications.length > 0 ? (
-                <>
-                  <p className={css(styles.p)}>Here is the list of notifications</p>
-                  <button
-                    onClick={() => handleHideDrawer()}
-                    aria-label='Close'
-                    className={css(styles.button)}
-                  >
-                    <img src={closeIcon} alt='close icon' />
-                  </button>
-                  <ul className={css(styles.ul)}>
-                    {notifications.map((notification) => (
-                      <NotificationItem
-                        id={notification.id}
-                        key={notification.id}
-                        type={notification.type}
-                        value={notification.value}
-                        html={notification.html}
-                        markAsRead={markNotificationAsRead}
-                      />
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p className={css(styles.p)}>No new notification for now</p>
-              )}
+        {displayDrawer && (
+          <div className="Notifications border-dashed border-2 border-[var(--main-color)] w-auto min-w-96 absolute top-10 right-3 p-4 bg-white max-[912px]:fixed max-[912px]:top-0 max-[912px]:left-0 max-[912px]:right-0 max-[912px]:bottom-0 max-[912px]:w-full max-[912px]:h-full max-[912px]:border-0 max-[912px]:p-3 max-[912px]:m-0 max-[912px]:text-xl max-[912px]:z-50">
+            <div className="flex justify-between items-center mb-2">
+              <p className="m-0">{notifications.length === 0 ? 'No new notification for now' : 'Here is the list of notifications'}</p>
+              <button
+                aria-label="Close"
+                onClick={handleHideDrawer}
+                className="border-0 bg-transparent cursor-pointer"
+              >
+                <img src={closeIcon} alt="close" style={{ height: 20, width: 20 }} />
+              </button>
             </div>
-          ) :
-          ([])
-        }
+            {notifications.length > 0 && (
+              <ul className="list-none pl-0 max-[912px]:p-0 max-[912px]:m-0 max-[912px]:w-full">
+                {notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    id={notification.id}
+                    type={notification.type}
+                    value={notification.value}
+                    html={notification.html}
+                    markAsRead={markNotificationAsRead}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </>
     );
   }
 }
 
-export default Notifications
+export default Notifications;

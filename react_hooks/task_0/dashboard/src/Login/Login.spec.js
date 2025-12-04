@@ -1,95 +1,83 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
+import { render, screen, fireEvent } from '@testing-library/react';
 import Login from './Login';
 
-test('testing signin form elements', () => {
-  render(<Login />);
-
-  const inputElements = screen.getAllByLabelText(/email|password/i);
-  const emailLabelElement = screen.getByLabelText(/email/i);
-  const passwordLabelElement = screen.getByLabelText(/password/i);
-  const buttonElementText = screen.getByRole('button', { name: 'OK' })
-
-  expect(inputElements).toHaveLength(2)
-  expect(emailLabelElement).toBeInTheDocument()
-  expect(passwordLabelElement).toBeInTheDocument()
-  expect(buttonElementText).toBeInTheDocument()
-});
-
-test('it should check that the email input element will be focused whenever the associated label is clicked', async () => {
-  render(<Login />)
-
-  const emailInput = screen.getByLabelText('Email');
-  const emailLabel = screen.getByText('Email');
-
-  userEvent.click(emailLabel);
-
-  await waitFor(() => {
-    expect(emailInput).toHaveFocus();
+describe('Login', () => {
+  test('renders without crashing', () => {
+    render(<Login />);
   });
-})
 
-test('it should check that the password input element will be focused whenver the associated label is clicked', async () => {
-  render(<Login />)
-
-  const passwordLabel = screen.getByText('Password');
-  const passwordInput = screen.getByLabelText('Password');
-
-  userEvent.click(passwordLabel);
-
-  await waitFor(() => {
-    expect(passwordInput).toHaveFocus();
+  test('renders 2 input tags and 2 label tags', () => {
+    render(<Login />);
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
   });
-});
 
-test('submit button is disabled by default', () => {
-  render(<Login />);
+  test('verify that the submit button is disabled by default', () => {
+    render(<Login />);
+    const submitButton = screen.getByRole('button', { name: /ok/i });
+    expect(submitButton).toBeDisabled();
+  });
 
-  const submitButton = screen.getByRole('button', { name: 'OK' });
+  test('verify that the button becomes enabled only after both the Email and Password inputs meet the required criteria', () => {
+    render(<Login />);
+    const submitButton = screen.getByRole('button', { name: /ok/i });
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
-  expect(submitButton).toBeDisabled();
-});
+    // Initially button should be disabled
+    expect(submitButton).toBeDisabled();
 
-test('submit button is enabled after entering valid email and password', async () => {
-  const user = userEvent.setup();
-  render(<Login />);
+    // Type only email (valid) - button should still be disabled
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    expect(submitButton).toBeDisabled();
 
-  const emailInput = screen.getByLabelText('Email');
-  const passwordInput = screen.getByLabelText('Password');
-  const submitButton = screen.getByRole('button', { name: 'OK' });
+    // Type only password (valid) but clear email - button should be disabled
+    fireEvent.change(emailInput, { target: { value: '' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    expect(submitButton).toBeDisabled();
 
-  expect(submitButton).toBeDisabled();
+    // Type invalid email with valid password - button should be disabled
+    fireEvent.change(emailInput, { target: { value: 'invalidemail' } });
+    expect(submitButton).toBeDisabled();
 
-  await user.type(emailInput, 'test@example.com');
+    // Type valid email with short password (< 8 chars) - button should be disabled
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'short' } });
+    expect(submitButton).toBeDisabled();
 
-  expect(submitButton).toBeDisabled();
-
-  await user.type(passwordInput, 'password123');
-
-  await waitFor(() => {
+    // Type valid email and valid password (>= 8 chars) - button should be enabled
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
     expect(submitButton).toBeEnabled();
-  });
-});
 
-test('logIn method is called with email and password when form is submitted', async () => {
-  const user = userEvent.setup();
-  const mockLogIn = jest.fn();
+    // Clear email - button should be disabled again
+    fireEvent.change(emailInput, { target: { value: '' } });
+    expect(submitButton).toBeDisabled();
 
-  render(<Login logIn={mockLogIn} />);
-
-  const emailInput = screen.getByLabelText('Email');
-  const passwordInput = screen.getByLabelText('Password');
-  const submitButton = screen.getByRole('button', { name: 'OK' });
-
-  await user.type(emailInput, 'test@example.com');
-  await user.type(passwordInput, 'password123');
-
-  await waitFor(() => {
+    // Restore valid email - button should be enabled again
+    fireEvent.change(emailInput, { target: { value: 'user@domain.com' } });
     expect(submitButton).toBeEnabled();
   });
 
-  await user.click(submitButton);
+  test("logIn method prop is correctly called with the user's email and password when the login form is submitted", () => {
+    const mockLogIn = jest.fn();
+    render(<Login logIn={mockLogIn} />);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByRole('button', { name: /ok/i });
 
-  expect(mockLogIn).toHaveBeenCalledTimes(1);
-  expect(mockLogIn).toHaveBeenCalledWith('test@example.com', 'password123');
+    // Type valid email and password
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    // Submit the form
+    fireEvent.click(submitButton);
+
+    // Verify logIn was called with correct email and password
+    expect(mockLogIn).toHaveBeenCalledTimes(1);
+    expect(mockLogIn).toHaveBeenCalledWith('test@example.com', 'password123');
+  });
 });
