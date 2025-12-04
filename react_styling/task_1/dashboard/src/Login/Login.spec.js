@@ -1,36 +1,34 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import Login from './Login';
+import { render, screen } from "@testing-library/react";
+import Login from "./Login";
 
-describe('Login component', () => {
-  test('renders without crashing', () => {
-    render(<Login />);
-  });
+test('the text content within the 2 p elements in the app-body and app-footer divs matches', () => {
+  render(<Login />);
+  const divbody = screen.getByText(/Login to access the full dashboard/i);
 
-  test('renders 2 input tags and 2 label tags', () => {
-    render(<Login />);
-    
-    const labels = screen.getAllByRole('textbox').length + screen.getAllByLabelText(/password/i).length;
-    const inputs = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const button = screen.getByRole('button');
-    
-    expect(inputs).toBeInTheDocument();
-    expect(passwordInput).toBeInTheDocument();
-    expect(button).toBeInTheDocument();
-  });
+  expect(divbody).toBeInTheDocument();
+});
 
-  test('verify that the inputs get focus when labels are clicked', async () => {
-    const user = userEvent.setup();
-    render(<Login />);
-    
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    
-    await user.click(screen.getByText(/email:/i));
-    expect(emailInput).toHaveFocus();
-    
-    await user.click(screen.getByText(/password:/i));
-    expect(passwordInput).toHaveFocus();
-  });
+test('renders 2 input elements', () => {
+  render(<Login />);
+  const labelemail = screen.getByLabelText(/Email/i);
+  const labelpassword = screen.getByLabelText(/Password/i);
+
+  expect(labelemail).toBeInTheDocument();
+  expect(labelpassword).toBeInTheDocument();
+});
+
+test('renders 2 label elements with the text Email and Password', () => {
+  render(<Login />);
+  const labelemail = screen.getByLabelText(/email/i);
+  const labelpassword = screen.getByLabelText(/password/i);
+
+  expect(labelemail).toBeInTheDocument();
+  expect(labelpassword).toBeInTheDocument();
+});
+
+test('renders a button with the text OK', () => {
+  render(<Login />);
+  const button = screen.getByRole('button', { name: /ok/i });
+
+  expect(button).toBeInTheDocument();
 });

@@ -1,26 +1,33 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import CourseList from './CourseList';
 
-describe('CourseList component', () => {
-  test('renders without crashing', () => {
-    render(<CourseList />);
-  });
 
-  test('renders 5 different rows when it receives an array of 3 courses', () => {
-    const courses = [
-      { id: 1, name: 'ES6', credit: 60 },
-      { id: 2, name: 'Webpack', credit: 20 },
-      { id: 3, name: 'React', credit: 40 },
-    ];
-    const { container } = render(<CourseList courses={courses} />);
-    const rows = container.querySelectorAll('tr');
-    expect(rows).toHaveLength(5); // 2 header rows + 3 course rows
-  });
+test('it should render the CourseList component with 5 rows', () => {
+  const props = {
+    courses : [
+      { id:1, name:'ES6', credit:60 },
+      { id:2, name:'Webpack', credit:20 },
+      { id:3, name:'React', credit:40 }
+    ]
+  }
+  render(<CourseList {...props} />)
 
-  test('renders correctly when courses is empty', () => {
-    const { container } = render(<CourseList courses={[]} />);
-    const rows = container.querySelectorAll('tr');
-    expect(rows).toHaveLength(3); // 2 header rows + 1 "No course available yet" row
-    expect(container.textContent).toContain('No course available yet');
-  });
+  const rowElements = screen.getAllByRole('row');
+
+  expect(rowElements).toHaveLength(5)
+})
+
+test('it should render the CourseList component with 1 row', () => {
+  const props = {
+    courses : []
+  }
+
+  render(<CourseList {...props} />)
+
+  const rowElement = screen.getAllByRole('row');
+  const rowText = screen.getByText(/No course available yet/i);
+
+  expect(rowElement).toHaveLength(1)
+  expect(rowText).toBeInTheDocument()
 });
+

@@ -1,84 +1,76 @@
-import { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import { Component } from 'react';
 import Notifications from '../Notifications/Notifications';
+import Footer from '../Footer/Footer';
 import Header from '../Header/Header';
 import Login from '../Login/Login';
-import Footer from '../Footer/Footer';
 import CourseList from '../CourseList/CourseList';
-import BodySection from '../BodySection/BodySection';
+import { getLatestNotification } from '../utils/utils';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
-import WithLogging from '../HOC/WithLogging';
+import BodySection from '../BodySection/BodySection';
 
-const LoginWithLogging = WithLogging(Login);
-const CourseListWithLogging = WithLogging(CourseList);
+const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', html: { __html: getLatestNotification()} }
+];
 
-class App extends Component {
+const coursesList = [
+  { id: 1, name: 'ES6', credit: 60 },
+  { id: 2, name: 'Webpack', credit: 20 },
+  { id: 3, name: 'React', credit: 40 }
+];
+
+export default class App extends Component {
   constructor(props) {
     super(props);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keydown', this.handleKeydown);
   }
-
+  
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  handleKeyDown(event) {
-    if (event.ctrlKey && event.key === 'h') {
-      event.preventDefault();
-      alert('Logging you out');
-      this.props.logOut();
+  handleKeydown = (e) => {
+    if (e.ctrlKey && e.key === "h" ) {
+      alert("Logging you out");
+      if (this.props.logOut) {
+        this.props.logOut();
+      }
     }
   }
 
   render() {
-    const isLoggedIn = true;
-    
-    const notificationsList = [
-      { id: 1, type: 'default', value: 'New course available' },
-      { id: 2, type: 'urgent', value: 'New resume available' },
-      { id: 3, type: 'urgent', html: { __html: '<strong>Urgent requirement</strong> - complete by EOD' } },
-    ];
-
-    const coursesList = [
-      { id: 1, name: 'ES6', credit: 60 },
-      { id: 2, name: 'Webpack', credit: 20 },
-      { id: 3, name: 'React', credit: 40 },
-    ];
+    const { isLoggedIn = true, logOut = () => {} } = this.props;
 
     return (
-      <Fragment>
-        <Notifications displayDrawer={true} notifications={notificationsList} />
-        <div className="App min-h-screen pb-20">
-          <Header />
-          {isLoggedIn ? (
-            <BodySectionWithMarginBottom title="Course list">
-              <CourseListWithLogging courses={coursesList} />
-            </BodySectionWithMarginBottom>
-          ) : (
-            <BodySectionWithMarginBottom title="Log in to continue">
-              <LoginWithLogging />
-            </BodySectionWithMarginBottom>
-          )}
-          <BodySection title="News from the School">
-            <p>Holberton School News goes here</p>
-          </BodySection>
-          <Footer />
+      <div className="relative px-3 min-h-screen flex flex-col">
+        <div className="absolute top-0 right-0 z-10">
+          <Notifications notifications={notificationsList} />
         </div>
-      </Fragment>
+        <div className="flex-1">
+          <Header />
+          {
+            !isLoggedIn ? (
+              <BodySectionWithMarginBottom title='Log in to continue'>
+                <Login />
+              </BodySectionWithMarginBottom>
+            ) : (
+              <BodySectionWithMarginBottom title='Course list'>
+                <CourseList courses={coursesList} />
+              </BodySectionWithMarginBottom>
+            )
+          }
+          <BodySection title="News from the School">
+            <p>
+              Holberton School news goes here
+            </p>
+          </BodySection>
+        </div>
+        <Footer />
+      </div>
     );
   }
 }
-
-App.propTypes = {
-  logOut: PropTypes.func,
-};
-
-App.defaultProps = {
-  logOut: () => {},
-};
-
-export default App;

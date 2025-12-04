@@ -1,41 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import BodySection from './BodySection';
 
-describe('BodySection component', () => {
-  test('renders without crashing', () => {
-    render(<BodySection title="test title" />);
-  });
+test('It should render a heading with the title prop value', () => {
+  render(
+    <BodySection title="Test Title">
+      <p>Test child</p>
+    </BodySection>
+  );
 
-  test('renders correct h2 element with the title prop', () => {
-    render(<BodySection title="test title"><p>test children node</p></BodySection>);
-    
-    const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toBe('test title');
-  });
+  const titleElement = screen.getByRole('heading', { name: /test title/i });
+  expect(titleElement).toBeInTheDocument();
+  expect(titleElement.tagName).toBe('H2');
+});
 
-  test('renders the children correctly', () => {
-    render(
-      <BodySection title="test title">
-        <p>test children node</p>
-      </BodySection>
-    );
-    
-    const paragraph = screen.getByText('test children node');
-    expect(paragraph).toBeInTheDocument();
-  });
+test('It should render any number of children passed to it', () => {
+  render(
+    <BodySection title="Test Title">
+      <p>Child 1</p>
+      <p>Child 2</p>
+      <p>Child 3</p>
+    </BodySection>
+  );
 
-  test('renders multiple children correctly', () => {
-    render(
-      <BodySection title="test title">
-        <p>First child</p>
-        <p>Second child</p>
-        <span>Third child</span>
-      </BodySection>
-    );
-    
-    expect(screen.getByText('First child')).toBeInTheDocument();
-    expect(screen.getByText('Second child')).toBeInTheDocument();
-    expect(screen.getByText('Third child')).toBeInTheDocument();
-  });
+  expect(screen.getByText('Child 1')).toBeInTheDocument();
+  expect(screen.getByText('Child 2')).toBeInTheDocument();
+  expect(screen.getByText('Child 3')).toBeInTheDocument();
 });

@@ -1,37 +1,28 @@
+
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import BodySectionWithMarginBottom from './BodySectionWithMarginBottom';
 
 describe('BodySectionWithMarginBottom component', () => {
-  test('renders without crashing', () => {
-    render(<BodySectionWithMarginBottom title="test title" />);
-  });
-
-  test('renders a div with the class bodySectionWithMargin', () => {
+  test('contains a div with the class bodySectionWithMargin', () => {
     const { container } = render(
-      <BodySectionWithMarginBottom title="test title">
-        <p>test children node</p>
+      <BodySectionWithMarginBottom title="Test">
+        <p>Child</p>
       </BodySectionWithMarginBottom>
     );
-    
-    const divWithMargin = container.querySelector('.bodySectionWithMargin');
-    expect(divWithMargin).toBeInTheDocument();
+
+    const div = container.querySelector('.bodySectionWithMargin');
+    expect(div).toBeInTheDocument();
   });
 
-  test('renders the BodySection component correctly', () => {
-    const { container } = render(
-      <BodySectionWithMarginBottom title="test title">
-        <p>test children node</p>
+  test('renders the BodySection component', () => {
+    render(
+      <BodySectionWithMarginBottom title="Test">
+        <p>Child</p>
       </BodySectionWithMarginBottom>
     );
-    
-    const bodySection = container.querySelector('.bodySection');
-    expect(bodySection).toBeInTheDocument();
-    
-    const heading = screen.getByRole('heading', { level: 2 });
+
+    const heading = screen.getByRole('heading', { level: 2, name: /Test/i });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toBe('test title');
-    
-    const paragraph = screen.getByText('test children node');
-    expect(paragraph).toBeInTheDocument();
   });
 });

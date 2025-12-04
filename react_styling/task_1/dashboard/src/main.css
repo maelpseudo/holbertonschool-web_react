@@ -1,13 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-roboto: 'Roboto', sans-serif;
+  --font-family: 'Roboto', sans-serif;
   --color-table-header: #deb5b5;
-  --color-table-rows: #CDCDCD;
+  --color-table-rows: #cdcdcd;
 }
 
 @layer base {
-  html {
-    font-family: var(--font-roboto);
+  body {
+    @apply font-family;
   }
 }

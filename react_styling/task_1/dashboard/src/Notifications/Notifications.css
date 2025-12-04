@@ -1,37 +1,47 @@
-.Notifications-container {
-  position: relative;
+.root-notifications {
+	display: flex;
+	position: absolute;
+	flex-direction: column;
+	right: 0;
+	padding-right: 1rem;
+	min-width: 30rem;
 }
 
-.menuItem {
-  text-align: right;
-  padding: 10px;
-  cursor: pointer;
+.notifications {
+	display: block;
+	flex-direction: column;
+	border-style: dotted;
+	border-color: #e1003c;
 }
 
-.menuItem p {
-  margin: 0;
-  font-weight: bold;
+.notifications P {
+	margin: auto;
 }
 
-.Notifications {
-  border: 2px dashed #e1003c;
-  padding: 20px;
-  position: relative;
-  margin-top: 10px;
+li {
+	color: #e1003c;
 }
 
-.Notifications p {
-  margin: 0 0 10px 0;
+li[data-notification-type="default"] {
+	color: blue;
 }
 
-.Notifications ul {
-  list-style-position: inside;
-  padding-left: 0;
-  margin: 10px 0 0 0;
+.notifications button {
+	position: absolute;
+	display: flex;
+	background: none;
+	border-style: none;
+	right: 1.5rem;
+	top: 3.5rem;
 }
 
-.Notifications button {
-  position: absolute;
-  right: 10px;
-  top: 10px;
+.notifications button,
+.notifications img {
+	width: 0.5rem;
+	height: 0.5rem;
+}
+
+.notifications-title {
+	display: flex;
+	justify-content: end;
 }

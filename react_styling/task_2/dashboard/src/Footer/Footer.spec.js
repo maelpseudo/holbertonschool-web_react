@@ -1,16 +1,21 @@
-import { render, screen } from '@testing-library/react';
-import Footer from './Footer';
+import { render, screen } from "@testing-library/react";
+import { getCurrentYear, getFooterCopy } from "../utils/utils";
+import Footer from "./Footer";
 
-describe('Footer component', () => {
-  test('renders without crashing', () => {
-    render(<Footer />);
-  });
+test('the text content within the 2 p elements in the app-body and app-footer divs matches', () => {
+  render(<Footer />);
+  const divfooter = screen.getByText(/Copyright 2025 - holberton School/i);
 
-  test('renders the text "Copyright"', () => {
-    render(<Footer />);
-    
-    const currentYear = new Date().getFullYear();
-    const footerText = screen.getByText(new RegExp(`Copyright ${currentYear} - Holberton School`, 'i'));
-    expect(footerText).toBeInTheDocument();
-  });
+  expect(divfooter).toBeInTheDocument();
+});
+
+test('renders correct footer content when isIndex is true', () => {
+  render(<Footer />);
+
+  const year = getCurrentYear();
+  const copy = getFooterCopy(true);
+  const expectedText = `Copyright ${year} - ${copy}`;
+
+  const footerText = screen.getByText(expectedText, { exact: false });
+  expect(footerText).toBeInTheDocument();
 });

@@ -1,59 +1,70 @@
-import { render, screen } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import App from './App';
 
-describe('App component', () => {
-  let alertSpy;
+test('The App component renders without crashing', () => {
+  render(<App />);
+});
 
-  beforeEach(() => {
-    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-  });
+test('The App component renders CourseList when isLoggedIn is true', () => {
+  const props = {
+    isLoggedIn: true
+  }
 
-  afterEach(() => {
-    alertSpy.mockRestore();
-  });
+  render(<App {...props} />);
 
-  test('renders without crashing', () => {
-    render(<App />);
-  });
+  const tableElement = screen.getByRole('table');
 
-  test('calls logOut and displays alert when ctrl+h is pressed', () => {
-    const logOutMock = jest.fn();
-    render(<App logOut={logOutMock} />);
+  expect(tableElement).toBeInTheDocument()
+});
 
-    const event = new KeyboardEvent('keydown', {
-      ctrlKey: true,
-      key: 'h',
-      bubbles: true,
-    });
+test('The App component renders Login when isLoggedIn is false', () => {
+  const props = {
+    isLoggedIn: false
+  }
 
-    window.dispatchEvent(event);
+  render(<App {...props} />);
 
-    expect(logOutMock).toHaveBeenCalledTimes(1);
-    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
-  });
+  const emailLabelElement = screen.getByLabelText(/email/i);
+  const passwordLabelElement = screen.getByLabelText(/password/i);
+  const buttonElements = screen.getAllByRole('button', { name: /ok/i })
 
-  test('alert function is called with the string "Logging you out"', () => {
-    const logOutMock = jest.fn();
-    render(<App logOut={logOutMock} />);
+  expect(emailLabelElement).toBeInTheDocument()
+  expect(passwordLabelElement).toBeInTheDocument()
+  expect(buttonElements.length).toBeGreaterThanOrEqual(1)
+});
 
-    const event = new KeyboardEvent('keydown', {
-      ctrlKey: true,
-      key: 'h',
-      bubbles: true,
-    });
+test('it should call the logOut prop once whenever the user hits "Ctrl" + "h" keyboard keys', () => {
+  const logOutMock = jest.fn();
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-    window.dispatchEvent(event);
+  render(<App isLoggedIn={true} logOut={logOutMock} />);
 
-    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
-  });
+  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
 
-  test('displays News from the School title and paragraph by default', () => {
-    render(<App />);
-    
-    const newsTitle = screen.getByText(/news from the school/i);
-    expect(newsTitle).toBeInTheDocument();
-    
-    const newsParagraph = screen.getByText(/ipsum lorem ipsum/i);
-    expect(newsParagraph).toBeInTheDocument();
-  });
+  expect(logOutMock).toHaveBeenCalledTimes(1);
+
+  alertSpy.mockRestore();
+});
+
+test('it should display an alert window whenever the user hit "ctrl" + "h" keyboard keys', () => {
+  const logoutSpy = jest.fn();
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+  render(<App logOut={logoutSpy} />);
+
+  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
+
+  expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+
+  alertSpy.mockRestore();
+});
+
+test('it should display "News from the School" title and paragraph by default', () => {
+  render(<App />);
+
+  const newsTitle = screen.getByRole('heading', { name: /news from the school/i });
+  const newsParagraph = screen.getByText(/holberton school news goes here/i);
+
+  expect(newsTitle).toBeInTheDocument();
+  expect(newsParagraph).toBeInTheDocument();
 });

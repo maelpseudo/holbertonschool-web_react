@@ -1,11 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-roboto: 'Roboto', sans-serif;
+  --font-family: 'Roboto', sans-serif;
 }
 
 @layer base {
-  html {
-    font-family: var(--font-roboto);
+  body {
+    @apply font-family;
   }
 }

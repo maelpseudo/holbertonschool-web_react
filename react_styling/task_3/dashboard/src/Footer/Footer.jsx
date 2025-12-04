@@ -1,9 +1,9 @@
-function Footer() {
-  return (
-    <footer className="App-footer border-t-[3px] border-[var(--main-color)] p-5 text-center italic fixed bottom-0 left-0 right-0 bg-white w-full">
-      <p>Copyright {new Date().getFullYear()} - Holberton School</p>
-    </footer>
-  );
-}
+import { getCurrentYear, getFooterCopy } from '../utils/utils';
 
-export default Footer;
+export default function Footer() {
+  return (
+    <div className="App-footer flex justify-center items-center border-t-4 border-[color:var(--main-color)] h-16 mt-auto">
+      <p className="italic text-xl">Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
+    </div>
+  )
+}
