@@ -1,20 +1,27 @@
-import { getCurrentYear, getFooterCopy } from '../utils/utils';
+import { useContext } from 'react';
 import AppContext from '../Context/context';
 
+/**
+ * Footer component
+ * Displays copyright information.
+ * Shows a "Contact us" link if the user is logged in.
+ */
 function Footer() {
+  const { user } = useContext(AppContext);
+  
+  const borderStyle = {
+    borderTopColor: 'var(--main-color)',
+  };
+
   return (
-    <AppContext.Consumer>
-      {({ user }) => (
-        <footer className="text-center p-4 italic mt-auto pt-2.5 max-[912px]:p-3 max-[912px]:text-sm">
-          <p>Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
-          {user.isLoggedIn && (
-            <p>
-              <a href="#" className="text-[var(--main-color)]">Contact us</a>
-            </p>
-          )}
-        </footer>
+    <footer className="App-footer" style={borderStyle}>
+      <p>Copyright {new Date().getFullYear()} - Holberton School</p>
+      {user.isLoggedIn && (
+        <p>
+          <a href="#">Contact us</a>
+        </p>
       )}
-    </AppContext.Consumer>
+    </footer>
   );
 }
 
