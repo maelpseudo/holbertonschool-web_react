@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Notification from '../Notifications/Notifications';
 import Header from '../Header/Header';
 import Login from "../Login/Login";
@@ -7,7 +7,7 @@ import CourseList from '../CourseList/CourseList';
 import { getLatestNotification } from '../utils/utils';
 import BodySection from '../BodySection/BodySection';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
-import { newContext } from '../Context/context';
+import { newContext, defaultUser } from '../Context/context';
 import './App.css';
 
 const notificationsList = [
@@ -23,9 +23,9 @@ const coursesList = [
 ];
 
 function App() {
-    // 1. States fonctionnels
+    // 1. States
     const [displayDrawer, setDisplayDrawer] = useState(true);
-    const [user, setUser] = useState({ ...newContext.user });
+    const [user, setUser] = useState(defaultUser);
     const [notifications, setNotifications] = useState(notificationsList);
 
     // 2. Handlers mémoïsés
@@ -38,19 +38,21 @@ function App() {
     }, []);
 
     const logIn = useCallback((email, password) => {
-        setUser({
+        setUser((prevUser) => ({
+            ...prevUser,
             email,
             password,
             isLoggedIn: true,
-        });
+        }));
     }, []);
 
     const logOut = useCallback(() => {
-        setUser({
+        setUser((prevUser) => ({
+            ...prevUser,
             email: '',
             password: '',
             isLoggedIn: false,
-        });
+        }));
     }, []);
 
     const markNotificationAsRead = useCallback((id) => {
@@ -60,10 +62,16 @@ function App() {
         );
     }, []);
 
+    // 3. Contexte mémoïsé
+    const contextValue = useMemo(
+        () => ({ user, logOut }),
+        [user, logOut]
+    );
+
     return (
-        <newContext.Provider value={{ user, logOut }}>
+        <newContext.Provider value={contextValue}>
             <Notification
-                notifications={notifications}
+                listNotifications={notifications}
                 displayDrawer={displayDrawer}
                 handleDisplayDrawer={handleDisplayDrawer}
                 handleHideDrawer={handleHideDrawer}
